@@ -7,6 +7,8 @@ painter does, not in math.
 
 > Think in paint, not in RGB.
 
+**🎨 Live app: [alexevh.github.io/pigmentmatch](https://alexevh.github.io/pigmentmatch/)**
+
 Everything runs **entirely in your browser**. There is no backend; palettes are
 saved to `localStorage`.
 
@@ -60,10 +62,27 @@ npm run preview # preview the production build
 ```
 src/
   lib/        color math, pigment model, mixer, coach, calibration, extraction, storage
-  hooks/      usePalettes, useRecipeUnit, useCalibration, useCalibratedEngine
+  hooks/      usePalettes, useRecipeUnit, useRecipeMode, useCalibration, useCalibratedEngine
   components/ feature components + ui/ (shadcn-style primitives)
   App.tsx     tabbed layout (Match · Image · Extract · Coach · Calibrate · Palette)
 ```
+
+## Deployment
+
+The build is **fully static** (just HTML/CSS/JS) — no server or "React hosting"
+needed. `npm run build` outputs `dist/`, which you can drop on any static host
+(GitHub Pages, Netlify, Vercel, Cloudflare Pages, S3, nginx…). The Vite `base`
+is relative (`"./"`), so it works from a domain root or a subpath without
+rebuilding.
+
+**GitHub Pages (automatic).** A workflow at
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds and
+publishes on every push to `main`. One-time setup: in the repo,
+**Settings → Pages → Source → GitHub Actions**. After that, each push
+redeploys to <https://alexevh.github.io/pigmentmatch/>.
+
+**Anywhere else.** Run `npm run build` and upload the `dist/` folder. No SPA
+redirect rules are required (the app uses tab state, not URL routes).
 
 ## Roadmap
 

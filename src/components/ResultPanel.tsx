@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { generateRecipe } from "@/lib/mixer";
+import { useRecipeMode } from "@/hooks/useRecipeMode";
 import type { Pigment } from "@/lib/pigments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Swatch } from "./Swatch";
@@ -19,9 +20,10 @@ export function ResultPanel({
   pigments: Pigment[];
   onPick: (rgb: RGB) => void;
 }) {
+  const mode = useRecipeMode();
   const recipe = useMemo(
-    () => generateRecipe(rgb, pigments),
-    [rgb, pigments]
+    () => generateRecipe(rgb, pigments, mode),
+    [rgb, pigments, mode]
   );
 
   return (

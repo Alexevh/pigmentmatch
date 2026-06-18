@@ -3,6 +3,7 @@ import { Upload, Loader2 } from "lucide-react";
 import { rgbToHex, analyzeColor, type RGB } from "@/lib/color";
 import { extractPalette, samplePixels, relationshipHint } from "@/lib/extract";
 import { generateRecipe, type Recipe } from "@/lib/mixer";
+import { useRecipeMode } from "@/hooks/useRecipeMode";
 import type { Pigment } from "@/lib/pigments";
 import { Button } from "@/components/ui/button";
 import { Swatch } from "./Swatch";
@@ -29,6 +30,7 @@ export function PaletteExtractor({
   const [busy, setBusy] = useState(false);
   const [colors, setColors] = useState<Extracted[] | null>(null);
   const pixelsRef = useRef<RGB[] | null>(null);
+  const mode = useRecipeMode();
 
   const run = (pixels: RGB[], k: number) => {
     setBusy(true);
@@ -38,7 +40,7 @@ export function PaletteExtractor({
       const rgbs = palette;
       const result: Extracted[] = palette.map((rgb) => ({
         rgb,
-        recipe: generateRecipe(rgb, pigments),
+        recipe: generateRecipe(rgb, pigments, mode),
         description: analyzeColor(rgb).sentence,
         hint: relationshipHint(rgb, rgbs, pigments),
       }));

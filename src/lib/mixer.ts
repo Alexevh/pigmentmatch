@@ -102,6 +102,15 @@ export interface Recipe {
 
 const EMPTY_RGB: RGB = { r: 255, g: 255, b: 255 };
 
+// "simple" prefers fewer pigments (a painter rarely wants 6 tubes for one
+// color); "precise" squeezes the lowest possible ΔE even if it adds touches.
+export type RecipeMode = "simple" | "precise";
+
+// In simple mode, how much extra ΔE we'll tolerate to drop a pigment. ~2 is
+// around the just-noticeable threshold, so the simplified mix still reads as
+// the same color.
+const SIMPLIFY_TOLERANCE = 2;
+
 // Deterministic pseudo-random so results are stable across runs (no Math.random).
 function makeRng(seed: number) {
   let s = seed >>> 0;
@@ -117,7 +126,11 @@ interface Candidate {
   dE: number;
 }
 
-export function generateRecipe(target: RGB, pigments: Pigment[]): Recipe {
+export function generateRecipe(
+  target: RGB,
+  pigments: Pigment[],
+  mode: RecipeMode = "precise"
+): Recipe {
   if (pigments.length === 0) {
     return {
       items: [],
@@ -186,7 +199,58 @@ export function generateRecipe(target: RGB, pigments: Pigment[]): Recipe {
   }
 
   const final = best as unknown as Candidate;
-  return buildRecipe(pigments, final);
+  const tuned =
+    mode === "simple"
+      ? simplifyCandidate(final, ks, targetLab)
+      : final;
+  return buildRecipe(pigments, tuned);
+}
+
+// Greedily drop the least-useful pigments while the match stays within
+// SIMPLIFY_TOLERANCE of the best achievable ΔE. Yields the simplest mix that
+// still reads as the same color.
+function simplifyCandidate(
+  cand: Candidate,
+  ks: PigmentKS[],
+  targetLab: ReturnType<typeof rgbToLab>
+): Candidate {
+  let weights = cand.weights.slice();
+  const ceiling = cand.dE + SIMPLIFY_TOLERANCE;
+
+  for (;;) {
+    const active = weights
+      .map((w, i) => ({ w, i }))
+      .filter((x) => x.w > 0);
+    if (active.length <= 1) break;
+
+    // find the single removal that costs the least extra error
+    let bestRemoval: { weights: number[]; dE: number } | null = null;
+    for (const { i } of active) {
+      const trial = weights.slice();
+      trial[i] = 0;
+      const sum = trial.reduce((a, b) => a + b, 0);
+      if (sum <= 0) continue;
+      const norm = trial.map((x) => x / sum);
+      const dE = deltaE(rgbToLab(mixKS(ks, norm)), targetLab);
+      if (!bestRemoval || dE < bestRemoval.dE) {
+        bestRemoval = { weights: norm, dE };
+      }
+    }
+
+    if (bestRemoval && bestRemoval.dE <= ceiling) {
+      weights = bestRemoval.weights;
+    } else {
+      break;
+    }
+  }
+
+  // final tidy: simple recipes shouldn't carry microscopic (<1.5%) touches that
+  // a painter can't meaningfully measure — drop them and renormalize.
+  const total = weights.reduce((a, b) => a + b, 0) || 1;
+  weights = weights.map((w) => (w / total < 0.015 ? 0 : w));
+
+  const rgb = mixKS(ks, weights);
+  return { weights, rgb, dE: deltaE(rgbToLab(rgb), targetLab) };
 }
 
 function buildRecipe(pigments: Pigment[], cand: Candidate): Recipe {

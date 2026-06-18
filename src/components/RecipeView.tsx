@@ -11,6 +11,11 @@ import {
   useRecipeUnit,
   type RecipeUnit,
 } from "@/hooks/useRecipeUnit";
+import {
+  setRecipeMode,
+  useRecipeMode,
+  type RecipeMode,
+} from "@/hooks/useRecipeMode";
 
 function matchColor(match: number): string {
   if (match >= 90) return "text-emerald-400";
@@ -37,6 +42,29 @@ function UnitToggle() {
     <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
       {opt("parts", "Parts")}
       {opt("percent", "%")}
+    </div>
+  );
+}
+
+function ModeToggle() {
+  const mode = useRecipeMode();
+  const opt = (value: RecipeMode, label: string) => (
+    <button
+      onClick={() => setRecipeMode(value)}
+      className={cn(
+        "rounded px-2 py-0.5 text-xs font-medium transition-colors",
+        mode === value
+          ? "bg-background text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground"
+      )}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
+      {opt("simple", "Simple")}
+      {opt("precise", "Precise")}
     </div>
   );
 }
@@ -70,7 +98,8 @@ export function RecipeView({
   return (
     <div className="space-y-4">
       {!compact && (
-        <div className="flex justify-end">
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <ModeToggle />
           <UnitToggle />
         </div>
       )}

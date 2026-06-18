@@ -150,6 +150,186 @@ export function makeWinsorNewtonPalette(): Palette {
   };
 }
 
+// Corfix (Brazilian brand, German high-permanence pigments). Built tube by
+// tube from the painter's actual kit. Several Corfix colors are multi-pigment
+// "hue" mixes, so their masstones can differ noticeably from a single-pigment
+// equivalent of the same name. RGB/opacity/strength are starting points —
+// calibrate to the real tubes for best results.
+export const CORFIX_PIGMENTS: Pigment[] = [
+  {
+    id: "cx-raw-umber",
+    name: "Raw Umber",
+    // A hue made of yellows + red oxide + black, so it reads olive/green
+    // rather than the red-black of a genuine PBr7 raw umber.
+    rgb: { r: 82, g: 79, b: 48 },
+    opacity: 0.7,
+    temperature: "neutral",
+    strength: 0.75,
+  }, // PY42, PR101, PY13, PBk1
+  {
+    id: "cx-natural-sienna",
+    name: "Natural Sienna",
+    // warm golden-brown; cleaner yellow (PY74) + red oxide, lightly darkened
+    rgb: { r: 140, g: 96, b: 50 },
+    opacity: 0.55,
+    temperature: "warm",
+    strength: 0.7,
+  }, // PR101, PBk7, PY42, PY74
+  {
+    id: "cx-burnt-umber",
+    name: "Burnt Umber",
+    // "burnt" = redder and darker than the olive raw umber sibling
+    rgb: { r: 74, g: 51, b: 33 },
+    opacity: 0.72,
+    temperature: "warm",
+    strength: 0.8,
+  }, // PY42, PR101, PY13, PBk7
+  {
+    id: "cx-van-dyke-brown",
+    name: "Van Dyke Brown",
+    // deep dark brown: red oxide heavily darkened by carbon black
+    rgb: { r: 54, g: 40, b: 32 },
+    opacity: 0.6,
+    temperature: "neutral",
+    strength: 0.85,
+  }, // PR101, PBk7
+  {
+    id: "cx-burnt-sienna",
+    name: "Burnt Sienna",
+    // single-pigment red iron oxide: clean, transparent warm red-brown
+    rgb: { r: 130, g: 61, b: 38 },
+    opacity: 0.5,
+    temperature: "warm",
+    strength: 0.75,
+  }, // PR101
+  {
+    id: "cx-paynes-gray",
+    name: "Payne's Gray",
+    // very dark blue-grey; carbon black + blue. Medium opacity (the chart's
+    // half-painted swatch flags it as semi-transparent).
+    rgb: { r: 42, g: 50, b: 62 },
+    opacity: 0.5,
+    temperature: "cool",
+    strength: 0.85,
+  }, // PBk7, PB25
+  {
+    id: "cx-permanent-yellow-light",
+    name: "Permanent Yellow Light",
+    // warm light yellow; semi-transparent per the chart's half-painted swatch
+    rgb: { r: 251, g: 213, b: 66 },
+    opacity: 0.5,
+    temperature: "warm",
+    strength: 0.7,
+  }, // PY74, PO5, PW6
+  {
+    id: "cx-cadmium-yellow",
+    name: "Cadmium Yellow",
+    // single-pigment arylide yellow, rich warm mid-yellow, opaque
+    rgb: { r: 250, g: 196, b: 25 },
+    opacity: 0.9,
+    temperature: "warm",
+    strength: 0.7,
+  }, // PY74
+  {
+    id: "cx-emerald-green",
+    name: "Emerald Green",
+    // phthalo green: deep cool blue-green, very high tinting strength
+    rgb: { r: 10, g: 95, b: 80 },
+    opacity: 0.5,
+    temperature: "cool",
+    strength: 0.97,
+  }, // PG7
+  {
+    id: "cx-english-green",
+    name: "English Green",
+    // phthalo green warmed with yellow + a touch of orange: mid foliage green
+    rgb: { r: 66, g: 112, b: 48 },
+    opacity: 0.5,
+    temperature: "warm",
+    strength: 0.82,
+  }, // PG7, PY74, PO5
+  {
+    id: "cx-turquoise-blue",
+    name: "Turquoise Blue",
+    // two phthalos (blue + green): vivid deep cyan, very high tinting strength
+    rgb: { r: 14, g: 112, b: 134 },
+    opacity: 0.5,
+    temperature: "cool",
+    strength: 0.95,
+  }, // PB15:3, PG7
+  {
+    id: "cx-quinacridone-magenta",
+    name: "Quinacridone Magenta",
+    // vivid cool magenta-pink, transparent (great for glazing)
+    rgb: { r: 196, g: 26, b: 110 },
+    opacity: 0.35,
+    temperature: "cool",
+    strength: 0.9,
+  }, // PR122
+  {
+    id: "cx-geranium-lake",
+    name: "Geranium Lake",
+    // naphthol: bright warm scarlet red, slightly orange-leaning
+    rgb: { r: 206, g: 42, b: 38 },
+    opacity: 0.5,
+    temperature: "warm",
+    strength: 0.8,
+  }, // PR112
+  {
+    id: "cx-cadmium-red",
+    name: "Cadmium Red",
+    // mid warm red, opaque; cooler PR57 balances the warm PR112
+    rgb: { r: 194, g: 38, b: 44 },
+    opacity: 0.9,
+    temperature: "warm",
+    strength: 0.85,
+  }, // PR57, PR112
+  {
+    id: "cx-rose-lake",
+    name: "Rose Lake",
+    // azo red softened with white: opaque rose pink
+    rgb: { r: 216, g: 104, b: 128 },
+    opacity: 0.9,
+    temperature: "cool",
+    strength: 0.6,
+  }, // PR145, PW6
+  {
+    id: "cx-cadmium-yellow-orange",
+    name: "Cadmium Yellow Orange",
+    // yellow + pyrazolone orange: warm yellow-orange, opaque
+    rgb: { r: 249, g: 158, b: 30 },
+    opacity: 0.9,
+    temperature: "warm",
+    strength: 0.75,
+  }, // PY74, PO13
+  {
+    id: "cx-orange",
+    name: "Orange",
+    // warm orange (PO5) with a little white; semi-transparent per the chart
+    rgb: { r: 242, g: 110, b: 36 },
+    opacity: 0.5,
+    temperature: "warm",
+    strength: 0.75,
+  }, // PO5, PW6
+  {
+    id: "cx-carmine",
+    name: "Carmine",
+    // deep cool crimson (bluish reds PR57 + PR63), semi-transparent
+    rgb: { r: 158, g: 26, b: 54 },
+    opacity: 0.5,
+    temperature: "cool",
+    strength: 0.85,
+  }, // PR57, PR63
+];
+
+export function makeCorfixPalette(): Palette {
+  return {
+    id: "corfix",
+    name: "Corfix",
+    pigments: CORFIX_PIGMENTS.map((p) => ({ ...p, rgb: { ...p.rgb } })),
+  };
+}
+
 // Palettes a painter can spin up from a known kit.
 export const PALETTE_PRESETS: {
   id: string;
@@ -162,6 +342,7 @@ export const PALETTE_PRESETS: {
     name: "Winsor & Newton Artists' (25)",
     make: makeWinsorNewtonPalette,
   },
+  { id: "corfix", name: "Corfix", make: makeCorfixPalette },
 ];
 
 let idCounter = 0;

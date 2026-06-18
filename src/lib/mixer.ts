@@ -111,6 +111,9 @@ export type RecipeMode = "simple" | "precise";
 // the same color.
 const SIMPLIFY_TOLERANCE = 2;
 
+// Precise mode only trims pigments that are essentially search noise.
+const PRECISE_TOLERANCE = 0.5;
+
 // Deterministic pseudo-random so results are stable across runs (no Math.random).
 function makeRng(seed: number) {
   let s = seed >>> 0;
@@ -199,23 +202,26 @@ export function generateRecipe(
   }
 
   const final = best as unknown as Candidate;
-  const tuned =
-    mode === "simple"
-      ? simplifyCandidate(final, ks, targetLab)
-      : final;
-  return buildRecipe(pigments, tuned);
+  // Reduce the pigment count: a small tolerance in precise mode just trims
+  // search noise; a larger one in simple mode favors a practical few-pigment
+  // mix. A pigment is only dropped when removing it stays within tolerance, so
+  // load-bearing touches (e.g. the warm tint in a near-white) are never lost.
+  const tolerance =
+    mode === "simple" ? SIMPLIFY_TOLERANCE : PRECISE_TOLERANCE;
+  const weights = reduceWeights(final, ks, targetLab, tolerance);
+  return buildRecipe(pigments, ks, weights, targetLab);
 }
 
-// Greedily drop the least-useful pigments while the match stays within
-// SIMPLIFY_TOLERANCE of the best achievable ΔE. Yields the simplest mix that
-// still reads as the same color.
-function simplifyCandidate(
+// Greedily drop the least-useful pigment while the match stays within
+// `tolerance` ΔE of the best achievable. Returns the reduced weight vector.
+function reduceWeights(
   cand: Candidate,
   ks: PigmentKS[],
-  targetLab: ReturnType<typeof rgbToLab>
-): Candidate {
+  targetLab: ReturnType<typeof rgbToLab>,
+  tolerance: number
+): number[] {
   let weights = cand.weights.slice();
-  const ceiling = cand.dE + SIMPLIFY_TOLERANCE;
+  const ceiling = cand.dE + tolerance;
 
   for (;;) {
     const active = weights
@@ -243,27 +249,30 @@ function simplifyCandidate(
       break;
     }
   }
-
-  // final tidy: simple recipes shouldn't carry microscopic (<1.5%) touches that
-  // a painter can't meaningfully measure — drop them and renormalize.
-  const total = weights.reduce((a, b) => a + b, 0) || 1;
-  weights = weights.map((w) => (w / total < 0.015 ? 0 : w));
-
-  const rgb = mixKS(ks, weights);
-  return { weights, rgb, dE: deltaE(rgbToLab(rgb), targetLab) };
+  return weights;
 }
 
-function buildRecipe(pigments: Pigment[], cand: Candidate): Recipe {
-  const maxW = Math.max(...cand.weights);
-  // drop negligible pigments (< 0.4% of the dominant one)
-  const items = cand.weights
+function buildRecipe(
+  pigments: Pigment[],
+  ks: PigmentKS[],
+  weights: number[],
+  targetLab: ReturnType<typeof rgbToLab>
+): Recipe {
+  // Pigments left after reduction all matter; keep anything non-zero.
+  const items = weights
     .map((w, i) => ({ pigment: pigments[i], weight: w, i }))
-    .filter((x) => x.weight > 0 && x.weight >= maxW * 0.004)
+    .filter((x) => x.weight > 0)
     .sort((a, b) => b.weight - a.weight);
 
-  // renormalize after pruning
+  // renormalize for display
   const total = items.reduce((a, b) => a + b.weight, 0) || 1;
   const norm = items.map((x) => ({ ...x, weight: x.weight / total }));
+
+  // Recompute the mixed color and error from exactly the weights we display,
+  // so the match score always reflects the recipe shown (no stale value).
+  const fullWeights = pigments.map((_, i) => weights[i] || 0);
+  const mixed = mixKS(ks, fullWeights);
+  const dE = deltaE(rgbToLab(mixed), targetLab);
 
   const top = norm[0]?.weight ?? 1;
   // structural pigments are a meaningful fraction of the mix; the rest are touches
@@ -293,10 +302,10 @@ function buildRecipe(pigments: Pigment[], cand: Candidate): Recipe {
 
   return {
     items: recipeItems,
-    mixed: cand.rgb,
-    mixedHex: rgbToHex(cand.rgb),
-    deltaE: cand.dE,
-    match: matchScore(cand.dE),
+    mixed,
+    mixedHex: rgbToHex(mixed),
+    deltaE: dE,
+    match: matchScore(dE),
   };
 }
 

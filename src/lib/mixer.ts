@@ -1,0 +1,281 @@
+// Paint mixing model + recipe generator.
+//
+// Pigments do not mix like light (additive RGB). They mix subtractively.
+// We use a single-constant Kubelka-Munk approximation per sRGB channel: each
+// pigment's reflectance is converted to a K/S (absorption/scattering) value,
+// the mix is the strength-weighted sum of K/S, and we convert back to
+// reflectance. This makes blue + yellow drift toward green/grey and white
+// dilute correctly, the way real paint behaves.
+
+import {
+  rgbToLab,
+  deltaE,
+  matchScore,
+  rgbToHex,
+  type RGB,
+} from "./color";
+import type { Pigment } from "./pigments";
+
+// --- single-constant Kubelka-Munk per channel ---
+
+function reflectanceToKS(R: number): number {
+  // clamp away from 0/1 to avoid singularities
+  const r = Math.min(0.9999, Math.max(0.0001, R));
+  return (1 - r) ** 2 / (2 * r);
+}
+
+function ksToReflectance(ks: number): number {
+  const v = 1 + ks - Math.sqrt(ks * ks + 2 * ks);
+  return Math.min(1, Math.max(0, v));
+}
+
+// Precompute per-pigment per-channel K/S so the inner mixing loop is cheap.
+interface PigmentKS {
+  ks: [number, number, number];
+  strength: number;
+}
+
+function pigmentToKS(p: Pigment): PigmentKS {
+  return {
+    ks: [
+      reflectanceToKS(p.rgb.r / 255),
+      reflectanceToKS(p.rgb.g / 255),
+      reflectanceToKS(p.rgb.b / 255),
+    ],
+    strength: p.strength,
+  };
+}
+
+// Mix a set of pigments given non-negative weights (parts). Weights are scaled
+// by each pigment's tinting strength so a strong pigment "goes further".
+function mixKS(items: PigmentKS[], weights: number[]): RGB {
+  let total = 0;
+  const eff = weights.map((w, i) => {
+    const e = Math.max(0, w) * items[i].strength;
+    total += e;
+    return e;
+  });
+  if (total <= 0) return { r: 255, g: 255, b: 255 };
+  const ks: [number, number, number] = [0, 0, 0];
+  for (let i = 0; i < items.length; i++) {
+    const f = eff[i] / total;
+    ks[0] += f * items[i].ks[0];
+    ks[1] += f * items[i].ks[1];
+    ks[2] += f * items[i].ks[2];
+  }
+  return {
+    r: Math.round(ksToReflectance(ks[0]) * 255),
+    g: Math.round(ksToReflectance(ks[1]) * 255),
+    b: Math.round(ksToReflectance(ks[2]) * 255),
+  };
+}
+
+// --- Recipe ---
+
+export type Amount =
+  | "base"
+  | "part"
+  | "small touch"
+  | "tiny touch"
+  | "microscopic touch";
+
+export interface RecipeItem {
+  pigment: Pigment;
+  weight: number; // normalized 0..1
+  parts: number | null; // integer-ish parts for structural pigments, null for "touches"
+  amount: Amount;
+}
+
+export interface Recipe {
+  items: RecipeItem[];
+  mixed: RGB;
+  mixedHex: string;
+  deltaE: number;
+  match: number; // 0..100
+}
+
+const EMPTY_RGB: RGB = { r: 255, g: 255, b: 255 };
+
+// Deterministic pseudo-random so results are stable across runs (no Math.random).
+function makeRng(seed: number) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
+}
+
+interface Candidate {
+  weights: number[];
+  rgb: RGB;
+  dE: number;
+}
+
+export function generateRecipe(target: RGB, pigments: Pigment[]): Recipe {
+  if (pigments.length === 0) {
+    return {
+      items: [],
+      mixed: EMPTY_RGB,
+      mixedHex: rgbToHex(EMPTY_RGB),
+      deltaE: 100,
+      match: 0,
+    };
+  }
+
+  const ks = pigments.map(pigmentToKS);
+  const targetLab = rgbToLab(target);
+  const n = pigments.length;
+  const rng = makeRng(
+    target.r * 65536 + target.g * 256 + target.b + n * 7919
+  );
+
+  const evalWeights = (weights: number[]): Candidate => {
+    const rgb = mixKS(ks, weights);
+    return { weights, rgb, dE: deltaE(rgbToLab(rgb), targetLab) };
+  };
+
+  let best: Candidate | null = null;
+  const consider = (c: Candidate) => {
+    if (!best || c.dE < best.dE) best = c;
+  };
+
+  // 1) seed with each single pigment
+  for (let i = 0; i < n; i++) {
+    const w = new Array(n).fill(0);
+    w[i] = 1;
+    consider(evalWeights(w));
+  }
+
+  // 2) random sparse combinations (artists rarely use more than ~4 pigments)
+  const RESTARTS = Math.min(2400, 300 * n);
+  for (let t = 0; t < RESTARTS; t++) {
+    const k = 1 + Math.floor(rng() * Math.min(4, n));
+    const w = new Array(n).fill(0);
+    for (let j = 0; j < k; j++) {
+      const idx = Math.floor(rng() * n);
+      // skew toward small touches sometimes for fine adjustments
+      w[idx] += rng() < 0.4 ? rng() * rng() : rng();
+    }
+    const sum = w.reduce((a, b) => a + b, 0);
+    if (sum <= 0) continue;
+    consider(evalWeights(w.map((x) => x / sum)));
+  }
+
+  // 3) local hill-climbing refinement around the best candidate
+  let current = best as unknown as Candidate;
+  let step = 0.25;
+  for (let iter = 0; iter < 600; iter++) {
+    const w = current.weights.slice();
+    // perturb a random pigment
+    const idx = Math.floor(rng() * n);
+    w[idx] = Math.max(0, w[idx] + (rng() - 0.5) * step);
+    const sum = w.reduce((a, b) => a + b, 0);
+    if (sum <= 0) continue;
+    const cand = evalWeights(w.map((x) => x / sum));
+    if (cand.dE < current.dE) {
+      current = cand;
+      consider(cand);
+    }
+    if (iter % 120 === 119) step *= 0.6; // anneal
+  }
+
+  const final = best as unknown as Candidate;
+  return buildRecipe(pigments, final);
+}
+
+function buildRecipe(pigments: Pigment[], cand: Candidate): Recipe {
+  const maxW = Math.max(...cand.weights);
+  // drop negligible pigments (< 0.4% of the dominant one)
+  const items = cand.weights
+    .map((w, i) => ({ pigment: pigments[i], weight: w, i }))
+    .filter((x) => x.weight > 0 && x.weight >= maxW * 0.004)
+    .sort((a, b) => b.weight - a.weight);
+
+  // renormalize after pruning
+  const total = items.reduce((a, b) => a + b.weight, 0) || 1;
+  const norm = items.map((x) => ({ ...x, weight: x.weight / total }));
+
+  const top = norm[0]?.weight ?? 1;
+  // structural pigments are a meaningful fraction of the mix; the rest are touches
+  const structural = norm.filter((x) => x.weight >= top * 0.06);
+  const refMin = structural.length
+    ? Math.min(...structural.map((x) => x.weight))
+    : top;
+
+  const recipeItems: RecipeItem[] = norm.map((x) => {
+    const ratio = x.weight / top;
+    if (x.weight >= top * 0.06) {
+      const parts = Math.max(1, Math.round(x.weight / refMin));
+      return {
+        pigment: x.pigment,
+        weight: x.weight,
+        parts,
+        amount: x === norm[0] ? "base" : "part",
+      };
+    }
+    // qualitative touches
+    let amount: Amount;
+    if (ratio < 0.01) amount = "microscopic touch";
+    else if (ratio < 0.03) amount = "tiny touch";
+    else amount = "small touch";
+    return { pigment: x.pigment, weight: x.weight, parts: null, amount };
+  });
+
+  return {
+    items: recipeItems,
+    mixed: cand.rgb,
+    mixedHex: rgbToHex(cand.rgb),
+    deltaE: cand.dE,
+    match: matchScore(cand.dE),
+  };
+}
+
+// Human phrasing for a recipe item amount.
+export function amountLabel(item: RecipeItem): string {
+  if (item.parts != null) {
+    return `${item.parts} ${item.parts === 1 ? "part" : "parts"}`;
+  }
+  return item.amount;
+}
+
+// Convert the recipe's normalized weights into integer percentages that sum to
+// exactly 100, using largest-remainder rounding. Pigments under 1% are floored
+// to a marker (-1) so the UI can render them as "<1%" instead of "0%".
+export function recipePercentages(items: RecipeItem[]): number[] {
+  const total = items.reduce((a, b) => a + b.weight, 0) || 1;
+  const raw = items.map((it) => (it.weight / total) * 100);
+
+  // sub-1% pigments are shown as "<1%" and excluded from the rounding pool
+  const result = new Array(items.length).fill(0);
+  const poolIdx: number[] = [];
+  let reserved = 0;
+  raw.forEach((v, i) => {
+    if (v < 1) {
+      result[i] = -1; // "<1%" marker
+      reserved += v;
+    } else {
+      poolIdx.push(i);
+    }
+  });
+
+  const budget = Math.round(100 - reserved);
+  const floors = poolIdx.map((i) => Math.floor(raw[i]));
+  let used = floors.reduce((a, b) => a + b, 0);
+  poolIdx.forEach((i, k) => (result[i] = floors[k]));
+
+  // distribute the leftover to the largest fractional remainders
+  let leftover = budget - used;
+  const order = [...poolIdx].sort(
+    (a, b) => (raw[b] - Math.floor(raw[b])) - (raw[a] - Math.floor(raw[a]))
+  );
+  for (let k = 0; k < order.length && leftover > 0; k++) {
+    result[order[k]] += 1;
+    leftover--;
+    used++;
+  }
+  return result;
+}
+
+export function percentLabel(pct: number): string {
+  return pct < 0 ? "<1%" : `${pct}%`;
+}

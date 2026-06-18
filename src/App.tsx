@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Pipette, Image as ImageIcon, Grid2x2, Palette } from "lucide-react";
+import {
+  Pipette,
+  Image as ImageIcon,
+  Grid2x2,
+  Palette,
+  GraduationCap,
+} from "lucide-react";
 import type { RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -9,6 +15,7 @@ import { ResultPanel } from "@/components/ResultPanel";
 import { ImageSampler } from "@/components/ImageSampler";
 import { PaletteExtractor } from "@/components/PaletteExtractor";
 import { PaletteManager } from "@/components/PaletteManager";
+import { CoachView } from "@/components/CoachView";
 
 export default function App() {
   const api = usePalettes();
@@ -48,6 +55,9 @@ export default function App() {
             </TabsTrigger>
             <TabsTrigger value="extract">
               <Grid2x2 className="h-4 w-4" /> Extract
+            </TabsTrigger>
+            <TabsTrigger value="coach">
+              <GraduationCap className="h-4 w-4" /> Coach
             </TabsTrigger>
             <TabsTrigger value="palette">
               <Palette className="h-4 w-4" /> Palette
@@ -108,6 +118,15 @@ export default function App() {
                 />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Coach: directional advice toward the target */}
+          <TabsContent value="coach">
+            <CoachView
+              target={target}
+              onTargetChange={setTarget}
+              pigments={pigments}
+            />
           </TabsContent>
 
           {/* Palette: manage pigments */}

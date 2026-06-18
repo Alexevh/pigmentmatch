@@ -10,15 +10,21 @@ painter does, not in math.
 Everything runs **entirely in your browser**. There is no backend; palettes are
 saved to `localStorage`.
 
+> 📖 User manuals: [English](MANUAL_EN.md) · [Español](MANUAL_ES.md)
+
 ## Features
 
 - **Match** — enter a HEX/RGB value or use the color picker; get a mixing
-  recipe (parts + touches), a match score, a painter's analysis, and six
-  intuitive variations (warmer/cooler, lighter/darker, more/less saturated).
+  recipe (shown as **parts** or **percentages**, your choice), a match score, a
+  painter's analysis, and six intuitive variations (warmer/cooler,
+  lighter/darker, more/less saturated).
 - **Image** — upload a photo or master painting and click to sample any color.
 - **Extract** — pull the 8 / 12 / 20 dominant colors from a painting (k-means
   in Lab space), arranged light → dark, each with its own recipe, description,
   and a relationship hint ("close to #3 — add a touch of Ultramarine").
+- **Coach** — give the app your target and the mix currently on your palette;
+  it tells you what to do next in painter language ("too dark — lift the value
+  with white", "a bit too saturated — knock it back with Raw Umber").
 - **Palette** — create, edit, save and switch palettes. Each pigment has a
   color, opacity, temperature, and tinting strength. Ships with a traditional
   8-pigment oil palette.
@@ -49,13 +55,15 @@ npm run preview # preview the production build
 
 ```
 src/
-  lib/        color math, pigment model, mixer, extraction, storage
-  hooks/      usePalettes (state + localStorage)
+  lib/        color math, pigment model, mixer, coach, extraction, storage
+  hooks/      usePalettes, useRecipeUnit (state + localStorage)
   components/ feature components + ui/ (shadcn-style primitives)
-  App.tsx     tabbed layout (Match · Image · Extract · Palette)
+  App.tsx     tabbed layout (Match · Image · Extract · Coach · Palette)
 ```
 
 ## Roadmap
 
-- Full multi-constant Kubelka-Munk spectral mixing
-- AI painting coach ("add more blue", "too warm", "lift the value")
+- **Calibration mode** — teach the model your real paints: record a few
+  "I mixed X and got this color" observations and fit each pigment's parameters,
+  so recipes match your tubes and your lighting.
+- Full multi-constant Kubelka-Munk spectral mixing.

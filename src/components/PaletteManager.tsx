@@ -3,6 +3,7 @@ import { Plus, Trash2, RotateCcw, Palette as PaletteIcon } from "lucide-react";
 import { hexToRgb, rgbToHex } from "@/lib/color";
 import {
   PALETTE_PRESETS,
+  isEnabled,
   type Pigment,
   type Temperature,
 } from "@/lib/pigments";
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 
 type PaletteApi = ReturnType<typeof usePalettes>;
 
@@ -26,23 +28,44 @@ function PigmentRow({
   onRemove: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const available = isEnabled(pigment);
   return (
     <Card className="overflow-hidden">
       <div className="flex items-center gap-3 p-3">
+        <input
+          type="checkbox"
+          checked={available}
+          onChange={(e) => onUpdate({ enabled: e.target.checked })}
+          className="h-4 w-4 shrink-0 cursor-pointer accent-accent"
+          title={
+            available
+              ? "Available — used in mix suggestions"
+              : "Unavailable — ignored in mix suggestions"
+          }
+          aria-label={`${pigment.name} available for mixing`}
+        />
         <input
           type="color"
           value={rgbToHex(pigment.rgb)}
           onChange={(e) =>
             onUpdate({ rgb: hexToRgb(e.target.value) ?? pigment.rgb })
           }
-          className="h-9 w-9 shrink-0 cursor-pointer rounded-md border border-input bg-background p-0.5"
+          className={cn(
+            "h-9 w-9 shrink-0 cursor-pointer rounded-md border border-input bg-background p-0.5",
+            !available && "opacity-40"
+          )}
           aria-label={`${pigment.name} color`}
         />
         <Input
           value={pigment.name}
           onChange={(e) => onUpdate({ name: e.target.value })}
-          className="h-9 flex-1"
+          className={cn("h-9 flex-1", !available && "text-muted-foreground")}
         />
+        {!available && (
+          <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+            out
+          </span>
+        )}
         <Button
           variant="ghost"
           size="sm"

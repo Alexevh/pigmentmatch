@@ -11,6 +11,15 @@ export interface Pigment {
   opacity: number; // 0 (transparent) .. 1 (opaque)
   temperature: Temperature;
   strength: number; // tinting strength 0..1 (how strongly it influences a mix)
+  // Available for mixing? Undefined means available (back-compat with saved
+  // palettes). Set false to keep a pigment in the palette but exclude it from
+  // recipe suggestions — e.g. a tube that ran out.
+  enabled?: boolean;
+}
+
+// A pigment counts as available unless explicitly disabled.
+export function isEnabled(p: Pigment): boolean {
+  return p.enabled !== false;
 }
 
 export interface Palette {

@@ -12,6 +12,7 @@ import { usePalettes } from "@/hooks/usePalettes";
 import { useCalibration } from "@/hooks/useCalibration";
 import { useCalibratedEngine } from "@/hooks/useCalibratedEngine";
 import { applyCalibration } from "@/lib/calibration";
+import { isEnabled } from "@/lib/pigments";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ColorInput } from "@/components/ColorInput";
@@ -33,10 +34,19 @@ export default function App() {
   const cal = useCalibration(api.activeId, pigments);
   const calibrated = useCalibratedEngine();
   const engineOn = calibrated && cal.calibration != null;
+
+  // Only available pigments feed the recipe/coach/extract suggestions; the
+  // Palette and Calibrate tabs still see the full list.
+  const enabledPigments = useMemo(
+    () => pigments.filter(isEnabled),
+    [pigments]
+  );
   const effectivePigments = useMemo(
     () =>
-      engineOn ? applyCalibration(pigments, cal.calibration!) : pigments,
-    [engineOn, cal.calibration, pigments]
+      engineOn
+        ? applyCalibration(enabledPigments, cal.calibration!)
+        : enabledPigments,
+    [engineOn, cal.calibration, enabledPigments]
   );
 
   return (
@@ -61,7 +71,11 @@ export default function App() {
               </span>
             )}
             <span>
-              {api.active?.name} · {pigments.length} pigments
+              {api.active?.name} ·{" "}
+              {enabledPigments.length < pigments.length
+                ? `${enabledPigments.length}/${pigments.length}`
+                : pigments.length}{" "}
+              pigments
             </span>
           </div>
         </div>

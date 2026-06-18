@@ -15,7 +15,7 @@ export function ImageSampler({ onSample }: { onSample: (rgb: RGB) => void }) {
 
   const [hasImage, setHasImage] = useState(false);
   const [hover, setHover] = useState<RGB | null>(null);
-  const [loupeOn, setLoupeOn] = useState(true);
+  const [loupeOn, setLoupeOn] = useState(false);
   const [loupePos, setLoupePos] = useState<{ x: number; y: number } | null>(
     null
   );

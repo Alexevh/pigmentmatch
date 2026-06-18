@@ -157,6 +157,14 @@ export function makeWinsorNewtonPalette(): Palette {
 // calibrate to the real tubes for best results.
 export const CORFIX_PIGMENTS: Pigment[] = [
   {
+    id: "cx-titanium-white",
+    name: "Titanium White",
+    rgb: { r: 249, g: 249, b: 244 },
+    opacity: 1,
+    temperature: "cool",
+    strength: 0.55,
+  }, // PW6
+  {
     id: "cx-raw-umber",
     name: "Raw Umber",
     // A hue made of yellows + red oxide + black, so it reads olive/green

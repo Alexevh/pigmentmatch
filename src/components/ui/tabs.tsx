@@ -35,7 +35,7 @@ export function TabsList({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-lg bg-secondary/60 p-1",
+        "flex flex-wrap items-center gap-1 rounded-lg bg-secondary/60 p-1",
         className
       )}
     >

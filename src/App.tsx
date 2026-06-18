@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Pipette,
   Image as ImageIcon,
   Grid2x2,
   Palette,
   GraduationCap,
+  FlaskConical,
 } from "lucide-react";
 import type { RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
+import { useCalibration } from "@/hooks/useCalibration";
+import { useCalibratedEngine } from "@/hooks/useCalibratedEngine";
+import { applyCalibration } from "@/lib/calibration";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ColorInput } from "@/components/ColorInput";
@@ -16,12 +20,24 @@ import { ImageSampler } from "@/components/ImageSampler";
 import { PaletteExtractor } from "@/components/PaletteExtractor";
 import { PaletteManager } from "@/components/PaletteManager";
 import { CoachView } from "@/components/CoachView";
+import { CalibrateView } from "@/components/CalibrateView";
 
 export default function App() {
   const api = usePalettes();
   const pigments = api.active?.pigments ?? [];
   const [tab, setTab] = useState("match");
   const [target, setTarget] = useState<RGB>({ r: 146, g: 112, b: 115 }); // #927073
+
+  // Optional calibrated engine: when the toggle is on and a calibration exists
+  // for the active palette, recipes everywhere use the fitted pigment strengths.
+  const cal = useCalibration(api.activeId, pigments);
+  const calibrated = useCalibratedEngine();
+  const engineOn = calibrated && cal.calibration != null;
+  const effectivePigments = useMemo(
+    () =>
+      engineOn ? applyCalibration(pigments, cal.calibration!) : pigments,
+    [engineOn, cal.calibration, pigments]
+  );
 
   return (
     <div className="min-h-screen">
@@ -38,8 +54,15 @@ export default function App() {
               Think in paint, not in RGB
             </p>
           </div>
-          <div className="ml-auto hidden text-xs text-muted-foreground sm:block">
-            {api.active?.name} · {pigments.length} pigments
+          <div className="ml-auto hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+            {engineOn && (
+              <span className="flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 font-medium text-accent">
+                <FlaskConical className="h-3 w-3" /> Calibrated
+              </span>
+            )}
+            <span>
+              {api.active?.name} · {pigments.length} pigments
+            </span>
           </div>
         </div>
       </header>
@@ -59,6 +82,9 @@ export default function App() {
             <TabsTrigger value="coach">
               <GraduationCap className="h-4 w-4" /> Coach
             </TabsTrigger>
+            <TabsTrigger value="calibrate">
+              <FlaskConical className="h-4 w-4" /> Calibrate
+            </TabsTrigger>
             <TabsTrigger value="palette">
               <Palette className="h-4 w-4" /> Palette
             </TabsTrigger>
@@ -75,7 +101,11 @@ export default function App() {
                   <ColorInput rgb={target} onChange={setTarget} />
                 </CardContent>
               </Card>
-              <ResultPanel rgb={target} pigments={pigments} onPick={setTarget} />
+              <ResultPanel
+                rgb={target}
+                pigments={effectivePigments}
+                onPick={setTarget}
+              />
             </div>
           </TabsContent>
 
@@ -99,7 +129,11 @@ export default function App() {
                 </CardContent>
               </Card>
             </div>
-            <ResultPanel rgb={target} pigments={pigments} onPick={setTarget} />
+            <ResultPanel
+              rgb={target}
+              pigments={effectivePigments}
+              onPick={setTarget}
+            />
           </TabsContent>
 
           {/* Extract: dominant colors from a painting */}
@@ -110,7 +144,7 @@ export default function App() {
               </CardHeader>
               <CardContent>
                 <PaletteExtractor
-                  pigments={pigments}
+                  pigments={effectivePigments}
                   onPick={(rgb) => {
                     setTarget(rgb);
                     setTab("match");
@@ -125,8 +159,13 @@ export default function App() {
             <CoachView
               target={target}
               onTargetChange={setTarget}
-              pigments={pigments}
+              pigments={effectivePigments}
             />
+          </TabsContent>
+
+          {/* Calibrate: optional — fit the model to the painter's real paints */}
+          <TabsContent value="calibrate">
+            <CalibrateView cal={cal} pigments={pigments} />
           </TabsContent>
 
           {/* Palette: manage pigments */}

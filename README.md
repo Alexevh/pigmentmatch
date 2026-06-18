@@ -25,6 +25,10 @@ saved to `localStorage`.
 - **Coach** — give the app your target and the mix currently on your palette;
   it tells you what to do next in painter language ("too dark — lift the value
   with white", "a bit too saturated — knock it back with Raw Umber").
+- **Calibrate** *(optional)* — teach the model your real paints: record a few
+  "I mixed these parts and got this color" observations and fit each pigment's
+  tinting strength. Off by default; flip one toggle and every recipe in the app
+  uses the model tuned to your tubes.
 - **Palette** — create, edit, save and switch palettes. Each pigment has a
   color, opacity, temperature, and tinting strength. Ships with a traditional
   8-pigment oil palette.
@@ -55,15 +59,14 @@ npm run preview # preview the production build
 
 ```
 src/
-  lib/        color math, pigment model, mixer, coach, extraction, storage
-  hooks/      usePalettes, useRecipeUnit (state + localStorage)
+  lib/        color math, pigment model, mixer, coach, calibration, extraction, storage
+  hooks/      usePalettes, useRecipeUnit, useCalibration, useCalibratedEngine
   components/ feature components + ui/ (shadcn-style primitives)
-  App.tsx     tabbed layout (Match · Image · Extract · Coach · Palette)
+  App.tsx     tabbed layout (Match · Image · Extract · Coach · Calibrate · Palette)
 ```
 
 ## Roadmap
 
-- **Calibration mode** — teach the model your real paints: record a few
-  "I mixed X and got this color" observations and fit each pigment's parameters,
-  so recipes match your tubes and your lighting.
+- Calibrate more than tinting strength (fit masstone colors / a per-pigment
+  K/S scale) from observations.
 - Full multi-constant Kubelka-Munk spectral mixing.

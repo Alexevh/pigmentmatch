@@ -14,8 +14,8 @@ your own device.
 ## Getting started
 
 1. Open the app (`npm run dev`, then visit the local URL it prints).
-2. The interface has five tabs across the top: **Match · Image · Extract ·
-   Coach · Palette**.
+2. The interface has six tabs across the top: **Match · Image · Extract ·
+   Coach · Calibrate · Palette**.
 3. Start in **Match** — it opens with the example color `#927073`.
 
 The header (top-right) always shows your active palette and how many pigments it
@@ -117,6 +117,47 @@ For when you're mixing on a real palette and want to close the gap.
 
 > Work through the steps in order, add color in **tiny** amounts, and re-sample.
 > Matching a color is always a few small corrections, never one big one.
+
+---
+
+## The Calibrate tab — teach the model your real paints *(optional)*
+
+By default the app uses generic, eyeballed pigment data. Calibration tunes the
+mixing model to *your* actual tubes and lighting, using mixes you've really
+made. It's entirely optional — leave it off and nothing changes.
+
+How it works: you record a few **observations** ("I mixed these parts and got
+this color"), press **Calibrate**, and the model fits each pigment's tinting
+strength to match what you saw. Then a single toggle switches the whole app
+over to the calibrated model.
+
+### Recording an observation
+
+1. In **Record a mix you made**, enter the **parts** you used of each pigment
+   (leave the rest at 0).
+2. Set **the real color you got** — type it, or **Sample from photo** of your
+   actual swatch (most accurate).
+3. Click **Add observation**.
+
+Repeat for a handful of mixes — **three or more** gives the best fit. Useful
+ones: white + each pigment at a couple of ratios, and any mixes you find the app
+currently predicts poorly.
+
+### Calibrating
+
+1. Press **Calibrate from N observations**.
+2. The card shows the average error **before → after** (in ΔE). A big drop means
+   the model now predicts your paints well.
+3. Turn on the **Calibrated mixing** toggle (top of the tab). A **Calibrated**
+   badge appears in the header, and every recipe — Match, Image, Extract,
+   Coach — now uses your tuned model.
+
+You can **Re-calibrate** after adding more observations, **Discard calibration**
+to drop the fit, or toggle the engine off anytime to return to the default.
+Calibration is saved per palette, so each palette can have its own.
+
+> Calibration currently fits **tinting strength** (how far each pigment goes in
+> a mix). A pigment's base color is set directly in the Palette tab.
 
 ---
 

@@ -14,8 +14,8 @@ dispositivo.
 ## Primeros pasos
 
 1. Abrí la app (`npm run dev` y entrá a la URL local que muestra).
-2. La interfaz tiene cinco pestañas arriba: **Match · Image · Extract · Coach ·
-   Palette**.
+2. La interfaz tiene seis pestañas arriba: **Match · Image · Extract · Coach ·
+   Calibrate · Palette**.
 3. Empezá en **Match** — abre con el color de ejemplo `#927073`.
 
 El encabezado (arriba a la derecha) siempre muestra tu paleta activa y cuántos
@@ -122,6 +122,49 @@ Para cuando estás mezclando en una paleta real y querés cerrar la diferencia.
 > Hacé los pasos en orden, agregá color en cantidades **mínimas**, y volvé a
 > muestrear. Igualar un color siempre son varias correcciones chicas, nunca una
 > grande.
+
+---
+
+## Pestaña Calibrate — enseñale el modelo a tus pinturas reales *(opcional)*
+
+Por defecto la app usa datos de pigmentos genéricos, estimados a ojo. La
+calibración ajusta el modelo de mezcla a *tus* tubos reales y tu iluminación,
+usando mezclas que hiciste de verdad. Es totalmente opcional — si la dejás
+apagada, no cambia nada.
+
+Cómo funciona: registrás unas pocas **observaciones** ("mezclé estas partes y me
+dio este color"), apretás **Calibrate**, y el modelo ajusta la fuerza tintórea
+de cada pigmento para que coincida con lo que viste. Después, un solo toggle
+cambia toda la app al modelo calibrado.
+
+### Registrar una observación
+
+1. En **Record a mix you made**, ingresá las **partes** que usaste de cada
+   pigmento (dejá el resto en 0).
+2. Fijá **el color real que obtuviste** — escribilo, o **Sample from photo** de
+   tu swatch real (lo más exacto).
+3. Clic en **Add observation**.
+
+Repetí con varias mezclas — **tres o más** da el mejor ajuste. Útiles: blanco +
+cada pigmento en un par de proporciones, y cualquier mezcla que notes que la app
+predice mal ahora.
+
+### Calibrar
+
+1. Apretá **Calibrate from N observations**.
+2. La tarjeta muestra el error promedio **antes → después** (en ΔE). Una caída
+   grande significa que el modelo ahora predice bien tus pinturas.
+3. Activá el toggle **Calibrated mixing** (arriba de la pestaña). Aparece un
+   badge **Calibrated** en el encabezado, y todas las recetas —Match, Image,
+   Extract, Coach— pasan a usar tu modelo ajustado.
+
+Podés **Re-calibrate** tras agregar más observaciones, **Discard calibration**
+para descartar el ajuste, o apagar el motor cuando quieras para volver al
+default. La calibración se guarda por paleta, así cada una puede tener la suya.
+
+> La calibración por ahora ajusta la **fuerza tintórea** (cuánto rinde cada
+> pigmento en una mezcla). El color base de un pigmento se setea directo en la
+> pestaña Palette.
 
 ---
 

@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Plus, Trash2, RotateCcw, Palette as PaletteIcon } from "lucide-react";
 import { hexToRgb, rgbToHex } from "@/lib/color";
-import type { Pigment, Temperature } from "@/lib/pigments";
+import {
+  PALETTE_PRESETS,
+  type Pigment,
+  type Temperature,
+} from "@/lib/pigments";
 import type { usePalettes } from "@/hooks/usePalettes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,6 +122,7 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
     updatePigment,
     removePigment,
     addPalette,
+    addPreset,
     renameActive,
     deleteActive,
     resetActive,
@@ -149,7 +154,25 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
           onChange={(e) => renameActive(e.target.value)}
           className="h-10 max-w-[220px] flex-1"
         />
-        <div className="ml-auto flex gap-2">
+        <div className="ml-auto flex flex-wrap gap-2">
+          <select
+            value=""
+            onChange={(e) => {
+              const preset = PALETTE_PRESETS.find((p) => p.id === e.target.value);
+              if (preset) addPreset(preset.make);
+            }}
+            className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+            aria-label="Add palette from preset"
+          >
+            <option value="" disabled>
+              Add preset…
+            </option>
+            {PALETTE_PRESETS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
           <Button
             variant="outline"
             size="sm"

@@ -70,6 +70,12 @@ function mixKS(items: PigmentKS[], weights: number[]): RGB {
   };
 }
 
+// Public mixing entry point: mix pigments by weight (parts) using the exact
+// model the recipe generator uses. Calibration reuses this.
+export function mixColor(pigments: Pigment[], weights: number[]): RGB {
+  return mixKS(pigments.map(pigmentToKS), weights);
+}
+
 // --- Recipe ---
 
 export type Amount =

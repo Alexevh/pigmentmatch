@@ -73,6 +73,13 @@ export function usePalettes() {
     setActiveId(fresh.id);
   }, []);
 
+  // Add a palette from a known preset (e.g. a Winsor & Newton kit).
+  const addPreset = useCallback((make: () => Palette) => {
+    const fresh: Palette = { ...make(), id: newId("pal") };
+    setPalettes((prev) => [...prev, fresh]);
+    setActiveId(fresh.id);
+  }, []);
+
   const renameActive = useCallback(
     (name: string) => updateActive((p) => ({ ...p, name })),
     [updateActive]
@@ -100,6 +107,7 @@ export function usePalettes() {
     updatePigment,
     removePigment,
     addPalette,
+    addPreset,
     renameActive,
     deleteActive,
     resetActive,

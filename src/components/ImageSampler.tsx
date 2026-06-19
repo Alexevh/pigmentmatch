@@ -225,13 +225,25 @@ export function ImageSampler({
         }
       />
 
-      {/* Optional value/color probe — a swatch of `probe` offset to the right
-          of the cursor so it doesn't cover the pointer */}
+      {/* Optional probe: the color under the cursor (left) next to the `probe`
+          color (right), flanking the pointer for direct comparison */}
       {probe && probePos && (
-        <span
-          className="pointer-events-none fixed z-50 h-9 w-9 -translate-y-1/2 rounded border-2 border-white shadow-md"
-          style={{ left: probePos.x + 18, top: probePos.y, backgroundColor: probe }}
-        />
+        <>
+          {hover && (
+            <span
+              className="pointer-events-none fixed z-50 h-7 w-7 -translate-x-full -translate-y-1/2 rounded border-2 border-white shadow-md"
+              style={{
+                left: probePos.x - 14,
+                top: probePos.y,
+                backgroundColor: rgbToHex(hover),
+              }}
+            />
+          )}
+          <span
+            className="pointer-events-none fixed z-50 h-7 w-7 -translate-y-1/2 rounded border-2 border-white shadow-md"
+            style={{ left: probePos.x + 14, top: probePos.y, backgroundColor: probe }}
+          />
+        </>
       )}
     </div>
   );

@@ -43,6 +43,7 @@ function grayHex(rgb: RGB): string {
 function GrayCanvas({ data, probe }: { data: ImageData; probe?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const [underHex, setUnderHex] = useState<string | null>(null);
   useEffect(() => {
     const c = ref.current;
     if (!c) return;
@@ -58,10 +59,24 @@ function GrayCanvas({ data, probe }: { data: ImageData; probe?: string }) {
           ? (e) => {
               const r = e.currentTarget.getBoundingClientRect();
               setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+              const px = Math.min(
+                data.width - 1,
+                Math.max(0, Math.floor(((e.clientX - r.left) / r.width) * data.width))
+              );
+              const py = Math.min(
+                data.height - 1,
+                Math.max(0, Math.floor(((e.clientY - r.top) / r.height) * data.height))
+              );
+              const v = data.data[(py * data.width + px) * 4];
+              const h = v.toString(16).padStart(2, "0");
+              setUnderHex(`#${h}${h}${h}`);
             }
           : undefined
       }
-      onMouseLeave={() => setPos(null)}
+      onMouseLeave={() => {
+        setPos(null);
+        setUnderHex(null);
+      }}
     >
       <canvas
         ref={ref}
@@ -73,10 +88,16 @@ function GrayCanvas({ data, probe }: { data: ImageData; probe?: string }) {
           cursor: probe ? "crosshair" : undefined,
         }}
       />
+      {probe && pos && underHex && (
+        <span
+          className="pointer-events-none absolute h-7 w-7 -translate-x-full -translate-y-1/2 rounded border-2 border-white shadow-md"
+          style={{ left: pos.x - 14, top: pos.y, backgroundColor: underHex }}
+        />
+      )}
       {probe && pos && (
         <span
-          className="pointer-events-none absolute h-9 w-9 -translate-y-1/2 rounded border-2 border-white shadow-md"
-          style={{ left: pos.x + 18, top: pos.y, backgroundColor: probe }}
+          className="pointer-events-none absolute h-7 w-7 -translate-y-1/2 rounded border-2 border-white shadow-md"
+          style={{ left: pos.x + 14, top: pos.y, backgroundColor: probe }}
         />
       )}
     </div>

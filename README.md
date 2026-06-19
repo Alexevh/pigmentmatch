@@ -41,8 +41,15 @@ Paint mixes **subtractively**, not like light. The recipe engine uses a
 single-constant **Kubelka-Munk** approximation per sRGB channel (weighted by
 each pigment's tinting strength) so blue + yellow drifts toward green and white
 dilutes correctly. A search (seeded restarts + hill-climbing) finds the pigment
-proportions whose mix is closest to the target in **CIE Lab** (ΔE). Results are
-a starting point — trust your eye on the easel.
+proportions whose mix is closest to the target in **CIE Lab**, scored with the
+perceptual **CIEDE2000 (ΔE₀₀)** color difference. Results are a starting point —
+trust your eye on the easel.
+
+This follows the same single-constant Kubelka-Munk approach used in color
+science for paint matching — see Mohammadi, Nezamabadi, Taplin & Berns (RIT
+Munsell Color Science Lab, 2004), *Pigment Selection Using Kubelka–Munk Turbid
+Media Theory and Non-Negative Least Square Technique*
+([PDF](https://repository.rit.edu/cgi/viewcontent.cgi?article=1929&context=article)).
 
 ## Tech
 

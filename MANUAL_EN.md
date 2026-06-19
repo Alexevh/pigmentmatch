@@ -222,6 +222,13 @@ The model is a physically-motivated approximation, not a measurement of your
 actual paint. Expect it to put you in the right neighborhood — right value,
 right temperature, close hue — and finish by eye.
 
+Background reading: this is the same single-constant Kubelka-Munk method used in
+color science to match artist paints — Mohammadi, Nezamabadi, Taplin & Berns
+(RIT Munsell Color Science Lab, 2004), *Pigment Selection Using Kubelka–Munk
+Turbid Media Theory and Non-Negative Least Square Technique*
+([PDF](https://repository.rit.edu/cgi/viewcontent.cgi?article=1929&context=article)).
+The match score uses the perceptual CIEDE2000 color difference.
+
 ---
 
 ## FAQ

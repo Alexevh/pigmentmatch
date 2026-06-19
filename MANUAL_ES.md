@@ -233,6 +233,13 @@ El modelo es una aproximación con base física, no una medición de tu pintura
 real. Esperá que te deje en el barrio correcto —valor correcto, temperatura
 correcta, matiz cercano— y terminá a ojo.
 
+Para profundizar: es el mismo método de Kubelka-Munk de constante única que la
+ciencia del color usa para igualar pinturas de artista — Mohammadi, Nezamabadi,
+Taplin & Berns (RIT Munsell Color Science Lab, 2004), *Pigment Selection Using
+Kubelka–Munk Turbid Media Theory and Non-Negative Least Square Technique*
+([PDF](https://repository.rit.edu/cgi/viewcontent.cgi?article=1929&context=article)).
+El match score usa la diferencia de color perceptual CIEDE2000.
+
 ---
 
 ## Preguntas frecuentes

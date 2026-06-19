@@ -139,7 +139,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   { id: "wn-french-ultramarine", name: "French Ultramarine", rgb: { r: 46, g: 46, b: 108 }, opacity: 0.3, temperature: "warm", strength: 0.95 }, // PB29; masstone from measured Lab (Griffin line); Transparent
   { id: "wn-cerulean-blue", name: "Cerulean Blue", rgb: { r: 44, g: 117, b: 170 }, opacity: 0.85, temperature: "cool", strength: 0.6 }, // PB35
   { id: "wn-viridian-green", name: "Viridian Green", rgb: { r: 16, g: 98, b: 80 }, opacity: 0.55, temperature: "cool", strength: 0.6 }, // PG18
-  { id: "wn-paynes-gray", name: "Payne's Gray", rgb: { r: 40, g: 52, b: 66 }, opacity: 0.7, temperature: "cool", strength: 0.85 }, // mix
+  { id: "wn-paynes-gray", name: "Payne's Gray", rgb: { r: 51, g: 53, b: 56 }, opacity: 0.85, temperature: "cool", strength: 0.85 }, // PB29/PBk6; masstone from measured Lab (Griffin line); Opaque
 ];
 
 export function makeWinsorNewtonPalette(): Palette {

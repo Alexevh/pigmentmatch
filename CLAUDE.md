@@ -129,6 +129,24 @@ src/
 `effectivePigments` feed Match/Image/Extract/Coach. Palette & Calibrate see the
 full list.
 
+## Pending tasks (next sessions)
+
+- **Refine preset pigment RGB/opacity from artistpigments.org measured data.**
+  In progress with the user, one tube at a time. The site lists a measured
+  **CIE L\*a\*b\* (D50, 2°)** and a **Transparency** flag per paint. Workflow:
+  1. The user reads the values off the **correct product line** (W&N **Artists'
+     Oil**, not Griffin Alkyd; Corfix's line) for a given tube.
+  2. Convert Lab(D50) → sRGB and set the pigment's `rgb`; set `opacity` from the
+     Transparency flag (Transparent ≈ 0.3, Semi ≈ 0.5, Opaque ≈ 0.9).
+  3. Update the entry in `pigments.ts` (replaces the eyeballed estimate).
+  This turns the presets from estimates into measurement-grounded values. Manual
+  per-tube reference use only (no bulk copy of their DB).
+
+  Lab(D50)→sRGB recipe (verified): Lab→XYZ with D50 white
+  (Xn 0.96422, Yn 1, Zn 0.82521) → Bradford-adapt D50→D65 → XYZ(D65)→linear
+  sRGB (standard matrix) → gamma-encode → ×255. Example: W&N-ish Winsor Yellow
+  L*85.43 a*8.88 b*91.48 → `#FFCD00` (vs the prior `#FAC814` estimate).
+
 ## Known limitations / roadmap
 
 - Pigment data is estimated, not measured (see Conventions). Calibration only

@@ -353,6 +353,18 @@ export const PALETTE_PRESETS: {
   { id: "corfix", name: "Corfix", make: makeCorfixPalette },
 ];
 
+// Every pigment across all presets, tagged with its source — a library to
+// cherry-pick individual tubes from when building a custom palette.
+export function libraryPigments(): { preset: string; pigment: Pigment }[] {
+  const out: { preset: string; pigment: Pigment }[] = [];
+  for (const preset of PALETTE_PRESETS) {
+    for (const p of preset.make().pigments) {
+      out.push({ preset: preset.name, pigment: { ...p, rgb: { ...p.rgb } } });
+    }
+  }
+  return out;
+}
+
 let idCounter = 0;
 export function newId(prefix = "p"): string {
   idCounter += 1;

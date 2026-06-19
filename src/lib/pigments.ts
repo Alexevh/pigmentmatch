@@ -115,7 +115,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   { id: "wn-titanium-white", name: "Titanium White", rgb: { r: 249, g: 249, b: 244 }, opacity: 1, temperature: "cool", strength: 0.55 }, // PW6
   { id: "wn-ivory-black", name: "Ivory Black", rgb: { r: 38, g: 37, b: 34 }, opacity: 0.85, temperature: "warm", strength: 0.9 }, // PBk9
   { id: "wn-raw-umber", name: "Raw Umber", rgb: { r: 89, g: 70, b: 48 }, opacity: 0.7, temperature: "cool", strength: 0.75 }, // PBr7
-  { id: "wn-burnt-umber", name: "Burnt Umber", rgb: { r: 79, g: 49, b: 33 }, opacity: 0.75, temperature: "warm", strength: 0.8 }, // PBr7
+  { id: "wn-burnt-umber", name: "Burnt Umber", rgb: { r: 68, g: 58, b: 54 }, opacity: 0.35, temperature: "warm", strength: 0.8 }, // PBr7; masstone from measured Lab (Griffin line); Transparent
   { id: "wn-burnt-sienna", name: "Burnt Sienna", rgb: { r: 123, g: 58, b: 34 }, opacity: 0.55, temperature: "warm", strength: 0.75 }, // PBr7
   { id: "wn-yellow-ochre", name: "Yellow Ochre", rgb: { r: 196, g: 145, b: 56 }, opacity: 0.8, temperature: "warm", strength: 0.7 }, // PY43
   { id: "wn-terra-rosa", name: "Terra Rosa", rgb: { r: 150, g: 77, b: 62 }, opacity: 0.8, temperature: "warm", strength: 0.7 }, // PR101

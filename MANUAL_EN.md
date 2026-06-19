@@ -14,12 +14,14 @@ your own device.
 ## Getting started
 
 1. Open the app (`npm run dev`, then visit the local URL it prints).
-2. The interface has six tabs across the top: **Match · Image · Extract ·
-   Coach · Calibrate · Palette**.
+2. The interface has eight tabs across the top: **Match · Image · Extract ·
+   Coach · Compare · Mix · Calibrate · Palette**.
 3. Start in **Match** — it opens with the example color `#927073`.
 
-The header (top-right) always shows your active palette and how many pigments it
-holds.
+The header (top-right) shows your active palette and pigment count, and a
+**language toggle (`EN / ES`)** — the whole app, including the painter
+descriptions and coaching, switches between English and Spanish. Your choice is
+remembered.
 
 ---
 
@@ -117,6 +119,54 @@ For when you're mixing on a real palette and want to close the gap.
 
 > Work through the steps in order, add color in **tiny** amounts, and re-sample.
 > Matching a color is always a few small corrections, never one big one.
+
+---
+
+## The Compare tab — reference vs. your painting
+
+Upload a **reference** photo and a photo of your **work in progress**, then
+critique the whole painting.
+
+1. Upload both images.
+2. **Align** each: drag the **4 dots** to the painting's corners. The app
+   de-keystones both so they line up pixel-for-pixel (handles different angles
+   and crops). Press **Analyze differences**.
+3. Explore the views:
+   - **Overlay** — swipe or onion-skin between the two, with a **squint** (blur)
+     slider to compare big masses.
+   - **Values** — grayscale, **notan** (posterized value masses), a
+     value-difference heatmap, and a value histogram.
+   - **Color** — difference heatmaps you can switch between: overall **ΔE**,
+     **temperature**, **saturation**, **hue**.
+   - **Region coach** — click a spot on the reference to get Coach advice for
+     that area.
+   - **Palettes** — the dominant palette of each, side by side.
+   - **Scorecard** — value & color accuracy, bias readouts, and a one-line
+     summary.
+
+There's a **Normalize lighting** toggle to ignore exposure / white-balance
+differences between the two photos. Value and relative comparisons are the most
+trustworthy — photo color is never exact.
+
+---
+
+## The Mix tab — match a reference color with your palette mix
+
+A focused two-photo workflow for "did I mix this color right?"
+
+1. **Reference** — upload a photo and **click** the color you're trying to
+   match.
+2. **Your palette mix** — upload a photo of the paint on your palette and click
+   the blob.
+3. You get each color's painter description, a **value scale** with both marked
+   (and how much lighter/darker yours is), and the **Coach's** advice + a match
+   score.
+
+Tick **Show grayscale** for an optional value view, **cropped to the spots you
+sampled**. While hovering the reference, two small swatches follow the cursor —
+the **color under the pointer** (left) and **your mix** (right) — so you can see
+in real time where your color/value matches. (Clicking still re-picks the
+target.) Both a color reference and a grayscale-value version are available.
 
 ---
 
@@ -227,7 +277,10 @@ color science to match artist paints — Mohammadi, Nezamabadi, Taplin & Berns
 (RIT Munsell Color Science Lab, 2004), *Pigment Selection Using Kubelka–Munk
 Turbid Media Theory and Non-Negative Least Square Technique*
 ([PDF](https://repository.rit.edu/cgi/viewcontent.cgi?article=1929&context=article)).
-The match score uses the perceptual CIEDE2000 color difference.
+The match score uses the perceptual CIEDE2000 color difference. The recipe card
+has a **Simple / Precise** toggle (few practical pigments vs. the lowest
+possible error) and an optional **Classic / Spectral** mixing-model toggle
+(Spectral reconstructs a full reflectance curve per pigment; experimental).
 
 ---
 

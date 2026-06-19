@@ -14,12 +14,14 @@ dispositivo.
 ## Primeros pasos
 
 1. Abrí la app (`npm run dev` y entrá a la URL local que muestra).
-2. La interfaz tiene seis pestañas arriba: **Match · Image · Extract · Coach ·
-   Calibrate · Palette**.
+2. La interfaz tiene ocho pestañas arriba: **Match · Imagen · Extraer · Coach ·
+   Comparar · Mezcla · Calibrar · Paleta**.
 3. Empezá en **Match** — abre con el color de ejemplo `#927073`.
 
-El encabezado (arriba a la derecha) siempre muestra tu paleta activa y cuántos
-pigmentos tiene.
+El encabezado (arriba a la derecha) muestra tu paleta activa, la cantidad de
+pigmentos y un **selector de idioma (`EN / ES`)** — toda la app, incluidas las
+descripciones de pintor y los consejos, cambia entre inglés y español. Tu
+elección se recuerda.
 
 ---
 
@@ -122,6 +124,52 @@ Para cuando estás mezclando en una paleta real y querés cerrar la diferencia.
 > Hacé los pasos en orden, agregá color en cantidades **mínimas**, y volvé a
 > muestrear. Igualar un color siempre son varias correcciones chicas, nunca una
 > grande.
+
+---
+
+## Pestaña Comparar — referencia vs. tu pintura
+
+Subí una foto de **referencia** y una de tu **obra en curso** y critica el
+cuadro entero.
+
+1. Subí ambas imágenes.
+2. **Alineá** cada una: arrastrá los **4 puntos** a las esquinas del cuadro. La
+   app las endereza para que coincidan píxel a píxel (resuelve ángulos y
+   recortes distintos). Apretá **Analizar diferencias**.
+3. Explorá las vistas:
+   - **Superponer** — swipe u opacidad entre las dos, con un control de
+     **entrecerrar** (blur) para comparar masas.
+   - **Valores** — grises, **notan** (masas de valor posterizadas), heatmap de
+     diferencia de valor e histograma de valores.
+   - **Color** — heatmaps de diferencia conmutables: **ΔE** general,
+     **temperatura**, **saturación**, **matiz**.
+   - **Coach por zona** — hacé clic en la referencia para recibir el consejo del
+     Coach de esa zona.
+   - **Paletas** — la paleta dominante de cada una, lado a lado.
+   - **Puntaje** — precisión de valor y color, sesgos, y una frase resumen.
+
+Hay un toggle **Normalizar luz** para ignorar diferencias de exposición /
+balance de blancos. El **valor** y la comparación relativa son lo más confiable
+— el color de las fotos nunca es exacto.
+
+---
+
+## Pestaña Mezcla — igualar un color de referencia con tu mezcla
+
+Un flujo enfocado de dos fotos para "¿mezclé bien este color?".
+
+1. **Referencia** — subí una foto y **hacé clic** en el color que querés igualar.
+2. **Tu mezcla en la paleta** — subí una foto de la pintura en tu paleta y hacé
+   clic en la mancha.
+3. Obtenés la descripción de pintor de cada color, una **escala de valor** con
+   ambos marcados (y cuánto más clara/oscura está la tuya), y el consejo del
+   **Coach** + un match score.
+
+Tildá **Mostrar grises** para una vista de valor opcional, **recortada a los
+puntos que muestreaste**. Al pasar el mouse por la referencia, dos cuadraditos
+siguen el cursor — el **color bajo el puntero** (izquierda) y **tu mezcla**
+(derecha) — para ver en vivo dónde coincide tu color/valor. (El clic sigue
+cambiando el objetivo.) Hay versión a color y en escala de grises.
 
 ---
 
@@ -238,7 +286,11 @@ ciencia del color usa para igualar pinturas de artista — Mohammadi, Nezamabadi
 Taplin & Berns (RIT Munsell Color Science Lab, 2004), *Pigment Selection Using
 Kubelka–Munk Turbid Media Theory and Non-Negative Least Square Technique*
 ([PDF](https://repository.rit.edu/cgi/viewcontent.cgi?article=1929&context=article)).
-El match score usa la diferencia de color perceptual CIEDE2000.
+El match score usa la diferencia de color perceptual CIEDE2000. La tarjeta de
+receta tiene un toggle **Simple / Preciso** (pocos pigmentos prácticos vs. el
+menor error posible) y un toggle opcional de modelo **Classic / Spectral** (el
+Spectral reconstruye una curva de reflectancia completa por pigmento;
+experimental).
 
 ---
 

@@ -110,9 +110,11 @@ src/
   `spectral` = **spectral.js** (MIT, npm) — reconstructs a full reflectance
   curve from each pigment's sRGB (Scott Burns LHTSS) and mixes with K-M across
   the spectrum; opt-in/experimental. `buildMix()` picks the backend; both feed
-  the same search/reduce/buildRecipe. NOTE: the search iteration counts are
-  tuned for `classic`, so `spectral` can occasionally land on a worse local
-  optimum — not yet tuned.
+  the same search/reduce/buildRecipe. The search budget is engine-aware:
+  `spectral` gets more restarts + a longer hill-climb with re-heating
+  (`isSpectral` branches in `generateRecipe`); the `classic` path keeps its
+  exact original numbers (byte-identical output). Tricky colors (e.g. muted
+  greens in a limited palette) can still match a bit worse under spectral.
 - **Coach:** given target + current mix, gives value/saturation/hue advice.
 - **Palette:** create/rename/delete/reset palettes; per-pigment editor
   (color/opacity/temperature/strength); **availability checkbox** (`enabled`)
@@ -133,11 +135,11 @@ full list.
   fits **tinting strength**, not masstone color.
 - No real blue in the Corfix kit beyond phthalo/turquoise + Payne's Gray, so
   mid-blues match poorly there (expected).
-- A **spectral** engine now exists (spectral.js, opt-in) but its search isn't
-  tuned and it's single-constant K-M (scattering assumed constant), not full
-  two-constant. Tuning the search per-engine and/or two-constant K-M is future
-  work.
-- Roadmap: tune the spectral search; calibrate more than strength (masstone /
-  K&S); optional palette import/export (JSON) for backup/sharing across
-  devices. artistpigments.org has measured spectral curves but is view-only
-  (no reusable data license) — reference only, or ask the author.
+- The **spectral** engine (spectral.js, opt-in) is single-constant K-M
+  (scattering assumed constant), not full two-constant. Its search is tuned
+  separately from classic but still weaker on some hard colors.
+- Roadmap: further spectral search tuning (e.g. multi-start refine);
+  two-constant K-M; calibrate more than strength (masstone / K&S); optional
+  palette import/export (JSON) for backup/sharing across devices.
+  artistpigments.org has measured spectral curves but is view-only (no reusable
+  data license) — reference only, or ask the author.

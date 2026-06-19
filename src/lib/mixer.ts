@@ -205,8 +205,14 @@ export function generateRecipe(
     consider(evalWeights(w));
   }
 
-  // 2) random sparse combinations (artists rarely use more than ~4 pigments)
-  const RESTARTS = Math.min(2400, 300 * n);
+  // 2) random sparse combinations (artists rarely use more than ~4 pigments).
+  // The spectral engine's landscape is bumpier, so give it a larger budget.
+  // The classic path keeps its original numbers exactly (identical output).
+  const isSpectral = engine === "spectral";
+  const RESTARTS = Math.min(
+    isSpectral ? 4000 : 2400,
+    (isSpectral ? 500 : 300) * n
+  );
   for (let t = 0; t < RESTARTS; t++) {
     const k = 1 + Math.floor(rng() * Math.min(4, n));
     const w = new Array(n).fill(0);
@@ -223,7 +229,9 @@ export function generateRecipe(
   // 3) local hill-climbing refinement around the best candidate
   let current = best as unknown as Candidate;
   let step = 0.25;
-  for (let iter = 0; iter < 600; iter++) {
+  const HILL = isSpectral ? 2000 : 600;
+  const annealEvery = isSpectral ? 200 : 120;
+  for (let iter = 0; iter < HILL; iter++) {
     const w = current.weights.slice();
     // perturb a random pigment
     const idx = Math.floor(rng() * n);
@@ -234,8 +242,17 @@ export function generateRecipe(
     if (cand.dE < current.dE) {
       current = cand;
       consider(cand);
+    } else if (isSpectral) {
+      // restart the walk from the global best occasionally so it doesn't get
+      // stuck wandering away from a good basin
+      if (iter % 250 === 249) current = best as unknown as Candidate;
     }
-    if (iter % 120 === 119) step *= 0.6; // anneal
+    if (iter % annealEvery === annealEvery - 1) {
+      step *= 0.6; // anneal
+      // spectral: re-heat once the step gets tiny so the climb can still
+      // add/swap pigments and escape the bumpier model's local optima
+      if (isSpectral && step < 0.04) step = 0.2;
+    }
   }
 
   const final = best as unknown as Candidate;

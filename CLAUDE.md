@@ -91,8 +91,8 @@ src/
     ColorInput, Swatch, RecipeView, AnalysisView, VariationsView,
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
     ImageSampler (magnifier loupe, default off), PaletteExtractor,
-    CoachView, CalibrateView, CompareView, ResultPanel, ui/ (button/card/...)
-  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Calibrate · Palette
+    CoachView, CalibrateView, CompareView, MixCheckView, ResultPanel, ui/
+  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Calibrate · Palette
 ```
 
 ## How the recipe engine works (`mixer.ts`)
@@ -154,6 +154,11 @@ src/
   bias readouts, plain-language summary). Optional "normalize lighting" toggle
   shifts the WIP's mean Lab to the reference to ignore exposure/WB differences.
   Value & relative comparisons are emphasized as the trustworthy ones.
+- **Mix:** two image samplers — sample the target color from a reference photo
+  and the actual paint from a photo of the palette mix; shows each color's
+  painter description, a value scale with both marked (+ ΔL / lighter-darker),
+  and the Coach's color advice with a match %. (Focused two-photo cousin of
+  Coach; reuses ImageSampler, coach(), analysisSentence.)
 - **Calibrate (optional):** record "I mixed these parts → got this color"
   observations, fit each pigment's tinting strength (coordinate descent), and
   toggle the calibrated model on globally. Off by default; per-palette.

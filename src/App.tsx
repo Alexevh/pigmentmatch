@@ -7,6 +7,7 @@ import {
   GraduationCap,
   FlaskConical,
   GitCompare,
+  Beaker,
 } from "lucide-react";
 import type { RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
@@ -25,6 +26,7 @@ import { PaletteManager } from "@/components/PaletteManager";
 import { CoachView } from "@/components/CoachView";
 import { CalibrateView } from "@/components/CalibrateView";
 import { CompareView } from "@/components/CompareView";
+import { MixCheckView } from "@/components/MixCheckView";
 
 export default function App() {
   const { lang, t } = useT();
@@ -119,6 +121,9 @@ export default function App() {
             <TabsTrigger value="compare">
               <GitCompare className="h-4 w-4" /> {t("tabs.compare")}
             </TabsTrigger>
+            <TabsTrigger value="mix">
+              <Beaker className="h-4 w-4" /> {t("tabs.mix")}
+            </TabsTrigger>
             <TabsTrigger value="calibrate">
               <FlaskConical className="h-4 w-4" /> {t("tabs.calibrate")}
             </TabsTrigger>
@@ -203,6 +208,11 @@ export default function App() {
           {/* Compare: reference vs work-in-progress critique */}
           <TabsContent value="compare">
             <CompareView pigments={effectivePigments} />
+          </TabsContent>
+
+          {/* Mix: reference color vs a photo of the palette mix */}
+          <TabsContent value="mix">
+            <MixCheckView pigments={effectivePigments} />
           </TabsContent>
 
           {/* Calibrate: optional — fit the model to the painter's real paints */}

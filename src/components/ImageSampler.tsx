@@ -11,9 +11,11 @@ const ZOOM = 6; // magnification factor
 export function ImageSampler({
   onSample,
   onImage,
+  onSamplePos,
 }: {
   onSample: (rgb: RGB) => void;
   onImage?: (img: HTMLImageElement) => void;
+  onSamplePos?: (nx: number, ny: number) => void;
 }) {
   const { t } = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -161,6 +163,8 @@ export function ImageSampler({
             if (!c) return;
             const rgb = pixelAt(c.x, c.y);
             if (rgb) onSample(rgb);
+            const cv = canvasRef.current;
+            if (cv) onSamplePos?.(c.x / cv.width, c.y / cv.height);
           }}
           onMouseMove={handleMove}
           onMouseLeave={() => {

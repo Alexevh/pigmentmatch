@@ -10,18 +10,27 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageSampler } from "./ImageSampler";
 
-// Perceptual (Lab-L) grayscale of an image, capped for speed.
-function grayscaleOf(img: HTMLImageElement): ImageData {
-  const max = 480;
-  const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
-  const w = Math.max(1, Math.round(img.naturalWidth * scale));
-  const h = Math.max(1, Math.round(img.naturalHeight * scale));
+// Perceptual (Lab-L) grayscale of a square crop centered on (nx, ny), so it
+// shows just the region around the sampled color. Capped for speed.
+const CROP_FRAC = 0.4; // window side as a fraction of the image's short side
+
+function grayscaleCrop(
+  img: HTMLImageElement,
+  nx: number,
+  ny: number
+): ImageData {
+  const iw = img.naturalWidth;
+  const ih = img.naturalHeight;
+  const side = Math.max(8, Math.min(iw, ih) * CROP_FRAC);
+  const sx = Math.min(Math.max(0, nx * iw - side / 2), iw - side);
+  const sy = Math.min(Math.max(0, ny * ih - side / 2), ih - side);
+  const out = Math.min(360, Math.round(side));
   const c = document.createElement("canvas");
-  c.width = w;
-  c.height = h;
+  c.width = out;
+  c.height = out;
   const ctx = c.getContext("2d", { willReadFrequently: true })!;
-  ctx.drawImage(img, 0, 0, w, h);
-  return renderGrayscale(toLabField(ctx.getImageData(0, 0, w, h)));
+  ctx.drawImage(img, sx, sy, side, side, 0, 0, out, out);
+  return renderGrayscale(toLabField(ctx.getImageData(0, 0, out, out)));
 }
 
 function GrayCanvas({ data }: { data: ImageData }) {
@@ -78,9 +87,18 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
   const [mix, setMix] = useState<RGB | null>(null);
   const [refImg, setRefImg] = useState<HTMLImageElement | null>(null);
   const [mixImg, setMixImg] = useState<HTMLImageElement | null>(null);
+  const [refPos, setRefPos] = useState<{ x: number; y: number } | null>(null);
+  const [mixPos, setMixPos] = useState<{ x: number; y: number } | null>(null);
+  const [showGray, setShowGray] = useState(false);
 
-  const refGray = useMemo(() => (refImg ? grayscaleOf(refImg) : null), [refImg]);
-  const mixGray = useMemo(() => (mixImg ? grayscaleOf(mixImg) : null), [mixImg]);
+  const refGray = useMemo(
+    () => (refImg && refPos ? grayscaleCrop(refImg, refPos.x, refPos.y) : null),
+    [refImg, refPos]
+  );
+  const mixGray = useMemo(
+    () => (mixImg && mixPos ? grayscaleCrop(mixImg, mixPos.x, mixPos.y) : null),
+    [mixImg, mixPos]
+  );
 
   const advice = target && mix ? coach(target, mix, pigments, lang) : null;
   const tL = target ? rgbToLab(target).L : 0;
@@ -101,7 +119,11 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
             <CardTitle>{t("mix.referenceTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <ImageSampler onSample={setTarget} onImage={setRefImg} />
+            <ImageSampler
+              onSample={setTarget}
+              onImage={setRefImg}
+              onSamplePos={(x, y) => setRefPos({ x, y })}
+            />
             {target && <ColorCard rgb={target} label={t("mix.reference")} />}
           </CardContent>
         </Card>
@@ -111,14 +133,30 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
             <CardTitle>{t("mix.mixTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <ImageSampler onSample={setMix} onImage={setMixImg} />
+            <ImageSampler
+              onSample={setMix}
+              onImage={setMixImg}
+              onSamplePos={(x, y) => setMixPos({ x, y })}
+            />
             {mix && <ColorCard rgb={mix} label={t("mix.yourMix")} />}
           </CardContent>
         </Card>
       </div>
 
-      {/* Grayscale value view of both images (new) */}
-      {refGray && mixGray && (
+      {/* Grayscale value view — optional, cropped to the sampled regions */}
+      {target && mix && (
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <input
+            type="checkbox"
+            checked={showGray}
+            onChange={(e) => setShowGray(e.target.checked)}
+            className="h-4 w-4 accent-accent"
+          />
+          {t("mix.showGrayscale")}
+        </label>
+      )}
+
+      {showGray && refGray && mixGray && (
         <Card>
           <CardHeader>
             <CardTitle>{t("mix.grayscale")}</CardTitle>

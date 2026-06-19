@@ -147,6 +147,20 @@ full list.
   sRGB (standard matrix) → gamma-encode → ×255. Example: W&N-ish Winsor Yellow
   L*85.43 a*8.88 b*91.48 → `#FFCD00` (vs the prior `#FAC814` estimate).
 
+  **Progress (W&N Artists', 25 tubes): 11 refined from measured Lab** —
+  Titanium White (neutralized from cream), Ivory Black, Raw Umber, Burnt Umber,
+  Burnt Sienna, Yellow Ochre, French Ultramarine, Permanent Alizarin Crimson,
+  Payne's Gray, Pale Rose Blush (Griffin fallback), Winsor Yellow. Comments on
+  those entries say "measured Lab". **14 remain** (Terra Rosa, Venetian Red,
+  Cadmium Red, Cadmium Red Deep Hue, Naples Yellow, Cadmium Yellow Hue, Lemon
+  Yellow Hue, Cadmium Yellow Deep Hue, Permanent Rose, Quinacridone Deep Pink,
+  Cobalt Violet, Dioxazine Blue, Cerulean Blue, Viridian Green) — these have
+  **no published CIE Lab** (Artists' pages lack it, not in Griffin, not on
+  W&N's site), so their color stays an estimate; refine via swatch sampling or
+  calibration. NEXT: the user will provide each remaining tube's **transparency**
+  (read off the physical tube) so we can at least fix their `opacity` without
+  needing Lab. Corfix (19 tubes) is all estimates — not yet refined.
+
 ## Known limitations / roadmap
 
 - Pigment data is estimated, not measured (see Conventions). Calibration only

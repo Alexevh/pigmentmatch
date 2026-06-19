@@ -124,7 +124,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   { id: "wn-naples-yellow", name: "Naples Yellow", rgb: { r: 243, g: 222, b: 150 }, opacity: 0.85, temperature: "warm", strength: 0.6 }, // hue
   { id: "wn-cadmium-yellow-hue", name: "Cadmium Yellow Hue", rgb: { r: 252, g: 205, b: 42 }, opacity: 0.8, temperature: "warm", strength: 0.7 }, // hue
   { id: "wn-lemon-yellow-hue", name: "Lemon Yellow Hue", rgb: { r: 243, g: 232, b: 76 }, opacity: 0.7, temperature: "cool", strength: 0.65 }, // hue
-  { id: "wn-winsor-yellow", name: "Winsor Yellow", rgb: { r: 250, g: 206, b: 20 }, opacity: 0.7, temperature: "warm", strength: 0.8 }, // PY154
+  { id: "wn-winsor-yellow", name: "Winsor Yellow", rgb: { r: 255, g: 205, b: 0 }, opacity: 0.5, temperature: "warm", strength: 0.8 }, // PY154; masstone from measured Lab (Griffin line); Transparent
   { id: "wn-cadmium-yellow-deep-hue", name: "Cadmium Yellow Deep Hue", rgb: { r: 249, g: 170, b: 18 }, opacity: 0.8, temperature: "warm", strength: 0.75 }, // hue
   // reds / pinks / violets
   { id: "wn-cadmium-red", name: "Cadmium Red", rgb: { r: 196, g: 44, b: 36 }, opacity: 0.9, temperature: "warm", strength: 0.85 }, // PR108

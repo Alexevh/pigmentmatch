@@ -136,7 +136,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   { id: "wn-cobalt-violet", name: "Cobalt Violet", rgb: { r: 123, g: 73, b: 140 }, opacity: 0.6, temperature: "cool", strength: 0.4 }, // PV14
   { id: "wn-dioxazine-blue", name: "Dioxazine Blue", rgb: { r: 54, g: 32, b: 84 }, opacity: 0.5, temperature: "cool", strength: 0.95 }, // PV23
   // blues / greens
-  { id: "wn-french-ultramarine", name: "French Ultramarine", rgb: { r: 33, g: 38, b: 99 }, opacity: 0.5, temperature: "warm", strength: 0.95 }, // PB29
+  { id: "wn-french-ultramarine", name: "French Ultramarine", rgb: { r: 46, g: 46, b: 108 }, opacity: 0.3, temperature: "warm", strength: 0.95 }, // PB29; masstone from measured Lab (Griffin line); Transparent
   { id: "wn-cerulean-blue", name: "Cerulean Blue", rgb: { r: 44, g: 117, b: 170 }, opacity: 0.85, temperature: "cool", strength: 0.6 }, // PB35
   { id: "wn-viridian-green", name: "Viridian Green", rgb: { r: 16, g: 98, b: 80 }, opacity: 0.55, temperature: "cool", strength: 0.6 }, // PG18
   { id: "wn-paynes-gray", name: "Payne's Gray", rgb: { r: 40, g: 52, b: 66 }, opacity: 0.7, temperature: "cool", strength: 0.85 }, // mix

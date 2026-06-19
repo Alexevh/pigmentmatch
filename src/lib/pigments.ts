@@ -132,7 +132,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   { id: "wn-permanent-alizarin-crimson", name: "Permanent Alizarin Crimson", rgb: { r: 120, g: 24, b: 40 }, opacity: 0.45, temperature: "cool", strength: 0.85 }, // PR177
   { id: "wn-permanent-rose", name: "Permanent Rose", rgb: { r: 206, g: 42, b: 98 }, opacity: 0.6, temperature: "cool", strength: 0.85 }, // PV19
   { id: "wn-quinacridone-deep-pink", name: "Quinacridone Deep Pink", rgb: { r: 176, g: 22, b: 92 }, opacity: 0.55, temperature: "cool", strength: 0.9 }, // PV19
-  { id: "wn-pale-rose-blush", name: "Pale Rose Blush", rgb: { r: 233, g: 178, b: 178 }, opacity: 0.85, temperature: "warm", strength: 0.4 }, // mix
+  { id: "wn-pale-rose-blush", name: "Pale Rose Blush", rgb: { r: 224, g: 134, b: 125 }, opacity: 0.9, temperature: "warm", strength: 0.4 }, // PV19/PW4/PY42; masstone from measured Lab — Griffin-line fallback (Artists' not measured), approx
   { id: "wn-cobalt-violet", name: "Cobalt Violet", rgb: { r: 123, g: 73, b: 140 }, opacity: 0.6, temperature: "cool", strength: 0.4 }, // PV14
   { id: "wn-dioxazine-blue", name: "Dioxazine Blue", rgb: { r: 54, g: 32, b: 84 }, opacity: 0.5, temperature: "cool", strength: 0.95 }, // PV23
   // blues / greens

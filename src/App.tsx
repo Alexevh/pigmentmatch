@@ -6,6 +6,7 @@ import {
   Palette,
   GraduationCap,
   FlaskConical,
+  GitCompare,
 } from "lucide-react";
 import type { RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
@@ -22,6 +23,7 @@ import { PaletteExtractor } from "@/components/PaletteExtractor";
 import { PaletteManager } from "@/components/PaletteManager";
 import { CoachView } from "@/components/CoachView";
 import { CalibrateView } from "@/components/CalibrateView";
+import { CompareView } from "@/components/CompareView";
 
 export default function App() {
   const api = usePalettes();
@@ -95,6 +97,9 @@ export default function App() {
             </TabsTrigger>
             <TabsTrigger value="coach">
               <GraduationCap className="h-4 w-4" /> Coach
+            </TabsTrigger>
+            <TabsTrigger value="compare">
+              <GitCompare className="h-4 w-4" /> Compare
             </TabsTrigger>
             <TabsTrigger value="calibrate">
               <FlaskConical className="h-4 w-4" /> Calibrate
@@ -175,6 +180,11 @@ export default function App() {
               onTargetChange={setTarget}
               pigments={effectivePigments}
             />
+          </TabsContent>
+
+          {/* Compare: reference vs work-in-progress critique */}
+          <TabsContent value="compare">
+            <CompareView pigments={effectivePigments} />
           </TabsContent>
 
           {/* Calibrate: optional — fit the model to the painter's real paints */}

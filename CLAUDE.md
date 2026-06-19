@@ -56,6 +56,8 @@ Clean up the temp files afterward.
 ```
 src/
   lib/
+    compare.ts      reference-vs-WIP: 4-corner homography warp, Lab fields,
+                    value/color diff maps, histogram, scorecard
     color.ts        hex/rgb/hsl/Lab conversions, deltaE (CIE76) + deltaE2000, matchScore,
                     analyzeColor (painter analysis), buildVariations
     pigments.ts     Pigment type; DEFAULT (Traditional Oil 8), WINSOR_NEWTON (25),
@@ -76,8 +78,8 @@ src/
     ColorInput, Swatch, RecipeView, AnalysisView, VariationsView,
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
     ImageSampler (magnifier loupe, default off), PaletteExtractor,
-    CoachView, CalibrateView, ResultPanel, ui/ (button/card/input/tabs/...)
-  App.tsx           tabs: Match · Image · Extract · Coach · Calibrate · Palette
+    CoachView, CalibrateView, CompareView, ResultPanel, ui/ (button/card/...)
+  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Calibrate · Palette
 ```
 
 ## How the recipe engine works (`mixer.ts`)
@@ -130,6 +132,15 @@ src/
   to exclude a tube without deleting it; **preset dropdown** (add a whole
   preset); **Add from library** (cherry-pick individual pigments from any
   preset into the active palette).
+- **Compare:** upload a reference + a work-in-progress photo, align each with a
+  4-corner perspective warp (de-keystone), then critique: swipe/onion-skin
+  overlay with a squint (blur) slider; value views (grayscale, notan
+  posterization, value-difference heatmap, value histogram); color difference
+  heatmaps (ΔE / temperature / saturation / hue); click-a-region → Coach;
+  side-by-side palette extraction; and a scorecard (value & color accuracy,
+  bias readouts, plain-language summary). Optional "normalize lighting" toggle
+  shifts the WIP's mean Lab to the reference to ignore exposure/WB differences.
+  Value & relative comparisons are emphasized as the trustworthy ones.
 - **Calibrate (optional):** record "I mixed these parts → got this color"
   observations, fit each pigment's tinting strength (coordinate descent), and
   toggle the calibrated model on globally. Off by default; per-palette.

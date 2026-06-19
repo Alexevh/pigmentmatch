@@ -103,7 +103,16 @@ src/
 
 - **Match / Image / Extract** tabs produce recipes; **Image** has a click-to-
   sample canvas with an optional magnifier loupe (off by default).
-- **Recipe display:** Simple/Precise and Parts/% toggles (in `RecipeView`).
+- **Recipe display:** Classic/Spectral (mixing model), Simple/Precise, and
+  Parts/% toggles (in `RecipeView`).
+- **Mixing engines (pluggable):** `generateRecipe(target, pigments, mode,
+  engine)`. `classic` = our single-constant K-M per RGB channel (default).
+  `spectral` = **spectral.js** (MIT, npm) — reconstructs a full reflectance
+  curve from each pigment's sRGB (Scott Burns LHTSS) and mixes with K-M across
+  the spectrum; opt-in/experimental. `buildMix()` picks the backend; both feed
+  the same search/reduce/buildRecipe. NOTE: the search iteration counts are
+  tuned for `classic`, so `spectral` can occasionally land on a worse local
+  optimum — not yet tuned.
 - **Coach:** given target + current mix, gives value/saturation/hue advice.
 - **Palette:** create/rename/delete/reset palettes; per-pigment editor
   (color/opacity/temperature/strength); **availability checkbox** (`enabled`)
@@ -124,6 +133,11 @@ full list.
   fits **tinting strength**, not masstone color.
 - No real blue in the Corfix kit beyond phthalo/turquoise + Payne's Gray, so
   mid-blues match poorly there (expected).
-- Roadmap: full multi-constant **spectral Kubelka-Munk** (would need RGB→
-  spectrum reconstruction, e.g. Mallett-Yuksel); calibrate more than strength;
-  optional palette import/export (JSON) for backup/sharing across devices.
+- A **spectral** engine now exists (spectral.js, opt-in) but its search isn't
+  tuned and it's single-constant K-M (scattering assumed constant), not full
+  two-constant. Tuning the search per-engine and/or two-constant K-M is future
+  work.
+- Roadmap: tune the spectral search; calibrate more than strength (masstone /
+  K&S); optional palette import/export (JSON) for backup/sharing across
+  devices. artistpigments.org has measured spectral curves but is view-only
+  (no reusable data license) — reference only, or ask the author.

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { generateRecipe } from "@/lib/mixer";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
+import { useMixEngine } from "@/hooks/useMixEngine";
 import type { Pigment } from "@/lib/pigments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Swatch } from "./Swatch";
@@ -21,9 +22,10 @@ export function ResultPanel({
   onPick: (rgb: RGB) => void;
 }) {
   const mode = useRecipeMode();
+  const engine = useMixEngine();
   const recipe = useMemo(
-    () => generateRecipe(rgb, pigments, mode),
-    [rgb, pigments, mode]
+    () => generateRecipe(rgb, pigments, mode, engine),
+    [rgb, pigments, mode, engine]
   );
 
   return (

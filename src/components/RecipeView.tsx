@@ -16,6 +16,8 @@ import {
   useRecipeMode,
   type RecipeMode,
 } from "@/hooks/useRecipeMode";
+import { setMixEngine, useMixEngine } from "@/hooks/useMixEngine";
+import type { MixEngine } from "@/lib/mixer";
 
 function matchColor(match: number): string {
   if (match >= 90) return "text-emerald-400";
@@ -69,6 +71,30 @@ function ModeToggle() {
   );
 }
 
+function EngineToggle() {
+  const engine = useMixEngine();
+  const opt = (value: MixEngine, label: string) => (
+    <button
+      onClick={() => setMixEngine(value)}
+      className={cn(
+        "rounded px-2 py-0.5 text-xs font-medium transition-colors",
+        engine === value
+          ? "bg-background text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground"
+      )}
+      title="Mixing model"
+    >
+      {label}
+    </button>
+  );
+  return (
+    <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
+      {opt("classic", "Classic")}
+      {opt("spectral", "Spectral")}
+    </div>
+  );
+}
+
 function PigmentDot({ hex }: { hex: string }) {
   return (
     <span
@@ -99,6 +125,7 @@ export function RecipeView({
     <div className="space-y-4">
       {!compact && (
         <div className="flex flex-wrap items-center justify-end gap-2">
+          <EngineToggle />
           <ModeToggle />
           <UnitToggle />
         </div>

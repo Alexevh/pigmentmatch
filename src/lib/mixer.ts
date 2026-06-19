@@ -12,9 +12,11 @@ import {
   deltaE,
   matchScore,
   rgbToHex,
+  clamp255,
   type RGB,
 } from "./color";
 import type { Pigment } from "./pigments";
+import * as spectral from "spectral.js";
 
 // --- single-constant Kubelka-Munk per channel ---
 
@@ -70,10 +72,44 @@ function mixKS(items: PigmentKS[], weights: number[]): RGB {
   };
 }
 
-// Public mixing entry point: mix pigments by weight (parts) using the exact
-// model the recipe generator uses. Calibration reuses this.
+// Public mixing entry point: mix pigments by weight (parts) using the classic
+// single-constant model. Calibration reuses this.
 export function mixColor(pigments: Pigment[], weights: number[]): RGB {
   return mixKS(pigments.map(pigmentToKS), weights);
+}
+
+// --- Mixing engines (pluggable) ---
+// "classic": our single-constant Kubelka-Munk per sRGB channel.
+// "spectral": spectral.js — reconstructs a full reflectance curve from each
+// pigment's sRGB (LHTSS) and mixes with Kubelka-Munk across the spectrum.
+export type MixEngine = "classic" | "spectral";
+
+// A backend that turns a weight vector into the mixed color.
+type MixFn = (weights: number[]) => RGB;
+
+const EMPTY: RGB = { r: 255, g: 255, b: 255 };
+
+function buildSpectralMix(pigments: Pigment[]): MixFn {
+  const colors = pigments.map((p) => {
+    const c = new spectral.Color([p.rgb.r, p.rgb.g, p.rgb.b]);
+    c.tintingStrength = p.strength;
+    return c;
+  });
+  return (weights) => {
+    const pairs: Array<[spectral.Color, number]> = [];
+    for (let i = 0; i < colors.length; i++) {
+      if (weights[i] > 0) pairs.push([colors[i], weights[i]]);
+    }
+    if (pairs.length === 0) return EMPTY;
+    const [r, g, b] = spectral.mix(...pairs).sRGB;
+    return { r: clamp255(r), g: clamp255(g), b: clamp255(b) };
+  };
+}
+
+function buildMix(engine: MixEngine, pigments: Pigment[]): MixFn {
+  if (engine === "spectral") return buildSpectralMix(pigments);
+  const ks = pigments.map(pigmentToKS);
+  return (weights) => mixKS(ks, weights);
 }
 
 // --- Recipe ---
@@ -132,7 +168,8 @@ interface Candidate {
 export function generateRecipe(
   target: RGB,
   pigments: Pigment[],
-  mode: RecipeMode = "precise"
+  mode: RecipeMode = "precise",
+  engine: MixEngine = "classic"
 ): Recipe {
   if (pigments.length === 0) {
     return {
@@ -144,7 +181,7 @@ export function generateRecipe(
     };
   }
 
-  const ks = pigments.map(pigmentToKS);
+  const mix = buildMix(engine, pigments);
   const targetLab = rgbToLab(target);
   const n = pigments.length;
   const rng = makeRng(
@@ -152,7 +189,7 @@ export function generateRecipe(
   );
 
   const evalWeights = (weights: number[]): Candidate => {
-    const rgb = mixKS(ks, weights);
+    const rgb = mix(weights);
     return { weights, rgb, dE: deltaE(rgbToLab(rgb), targetLab) };
   };
 
@@ -208,15 +245,15 @@ export function generateRecipe(
   // load-bearing touches (e.g. the warm tint in a near-white) are never lost.
   const tolerance =
     mode === "simple" ? SIMPLIFY_TOLERANCE : PRECISE_TOLERANCE;
-  const weights = reduceWeights(final, ks, targetLab, tolerance);
-  return buildRecipe(pigments, ks, weights, targetLab);
+  const weights = reduceWeights(final, mix, targetLab, tolerance);
+  return buildRecipe(pigments, mix, weights, targetLab);
 }
 
 // Greedily drop the least-useful pigment while the match stays within
 // `tolerance` ΔE of the best achievable. Returns the reduced weight vector.
 function reduceWeights(
   cand: Candidate,
-  ks: PigmentKS[],
+  mix: MixFn,
   targetLab: ReturnType<typeof rgbToLab>,
   tolerance: number
 ): number[] {
@@ -237,7 +274,7 @@ function reduceWeights(
       const sum = trial.reduce((a, b) => a + b, 0);
       if (sum <= 0) continue;
       const norm = trial.map((x) => x / sum);
-      const dE = deltaE(rgbToLab(mixKS(ks, norm)), targetLab);
+      const dE = deltaE(rgbToLab(mix(norm)), targetLab);
       if (!bestRemoval || dE < bestRemoval.dE) {
         bestRemoval = { weights: norm, dE };
       }
@@ -254,7 +291,7 @@ function reduceWeights(
 
 function buildRecipe(
   pigments: Pigment[],
-  ks: PigmentKS[],
+  mix: MixFn,
   weights: number[],
   targetLab: ReturnType<typeof rgbToLab>
 ): Recipe {
@@ -271,7 +308,7 @@ function buildRecipe(
   // Recompute the mixed color and error from exactly the weights we display,
   // so the match score always reflects the recipe shown (no stale value).
   const fullWeights = pigments.map((_, i) => weights[i] || 0);
-  const mixed = mixKS(ks, fullWeights);
+  const mixed = mix(fullWeights);
   const dE = deltaE(rgbToLab(mixed), targetLab);
 
   const top = norm[0]?.weight ?? 1;

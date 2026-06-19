@@ -4,6 +4,7 @@ import { rgbToHex, type RGB } from "@/lib/color";
 import type { Pigment } from "@/lib/pigments";
 import { extractPalette } from "@/lib/extract";
 import { coach } from "@/lib/coach";
+import { useT, type Lang } from "@/lib/i18n";
 import {
   warpImage,
   toLabField,
@@ -192,6 +193,7 @@ interface Analyzed {
 type View = "overlay" | "value" | "color" | "region" | "palette" | "score";
 
 export function CompareView({ pigments }: { pigments: Pigment[] }) {
+  const { lang, t } = useT();
   const [refImg, setRefImg] = useState<HTMLImageElement | null>(null);
   const [wipImg, setWipImg] = useState<HTMLImageElement | null>(null);
   const [refCorners, setRefCorners] = useState<Pt[]>(DEFAULT_CORNERS);
@@ -232,12 +234,12 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
           {refImg ? (
             <img src={refImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
           ) : (
-            <Dropzone label="Upload the reference / original" onFile={(f) => loadImage(f).then(setRefImg)} />
+            <Dropzone label={t("compare.uploadRef")} onFile={(f) => loadImage(f).then(setRefImg)} />
           )}
           {wipImg ? (
             <img src={wipImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
           ) : (
-            <Dropzone label="Upload your painting in progress" onFile={(f) => loadImage(f).then(setWipImg)} />
+            <Dropzone label={t("compare.uploadWip")} onFile={(f) => loadImage(f).then(setWipImg)} />
           )}
         </div>
       )}
@@ -246,22 +248,22 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
       {refImg && wipImg && (
         <Card>
           <CardHeader>
-            <CardTitle>Align — drag the 4 dots to each painting's corners</CardTitle>
+            <CardTitle>{t("compare.alignTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Reference</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("compare.reference")}</p>
                 <CornerAligner img={refImg} corners={refCorners} onChange={(c) => { setRefCorners(c); setAnalyzed(null); }} />
               </div>
               <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Your painting</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("compare.yourPainting")}</p>
                 <CornerAligner img={wipImg} corners={wipCorners} onChange={(c) => { setWipCorners(c); setAnalyzed(null); }} />
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="accent" onClick={analyze}>Analyze differences</Button>
-              <Button variant="ghost" size="sm" onClick={() => { setRefImg(null); setWipImg(null); setAnalyzed(null); }} className="text-muted-foreground">Start over</Button>
+              <Button variant="accent" onClick={analyze}>{t("compare.analyze")}</Button>
+              <Button variant="ghost" size="sm" onClick={() => { setRefImg(null); setWipImg(null); setAnalyzed(null); }} className="text-muted-foreground">{t("compare.startOver")}</Button>
             </div>
           </CardContent>
         </Card>
@@ -271,21 +273,21 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
       {analyzed && wipLabEff && (
         <Card>
           <CardHeader className="flex-row flex-wrap items-center justify-between gap-2">
-            <CardTitle className="normal-case tracking-normal text-foreground">Comparison</CardTitle>
+            <CardTitle className="normal-case tracking-normal text-foreground">{t("compare.title")}</CardTitle>
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <input type="checkbox" checked={normalize} onChange={(e) => setNormalize(e.target.checked)} className="h-3.5 w-3.5 accent-accent" />
-              Normalize lighting (ignore exposure/WB differences)
+              {t("compare.normalize")}
             </label>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-1">
               {([
-                ["overlay", "Overlay", Layers],
-                ["value", "Values", BarChart3],
-                ["color", "Color", Grid2x2],
-                ["region", "Region coach", Pipette],
-                ["palette", "Palettes", Grid2x2],
-                ["score", "Scorecard", Award],
+                ["overlay", t("compare.overlay"), Layers],
+                ["value", t("compare.values"), BarChart3],
+                ["color", t("compare.color"), Grid2x2],
+                ["region", t("compare.regionCoach"), Pipette],
+                ["palette", t("compare.palettes"), Grid2x2],
+                ["score", t("compare.scorecard"), Award],
               ] as const).map(([id, label, Icon]) => (
                 <button
                   key={id}
@@ -301,25 +303,23 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
             </div>
 
             {view === "overlay" && <OverlayView a={analyzed} />}
-            {view === "value" && <ValueView refLab={analyzed.refLab} wipLab={wipLabEff} />}
-            {view === "color" && <ColorView refLab={analyzed.refLab} wipLab={wipLabEff} />}
+            {view === "value" && <ValueView refLab={analyzed.refLab} wipLab={wipLabEff} lang={lang} />}
+            {view === "color" && <ColorView refLab={analyzed.refLab} wipLab={wipLabEff} lang={lang} />}
             {view === "region" && <RegionView a={analyzed} pigments={pigments} />}
             {view === "palette" && <PaletteCompare a={analyzed} />}
-            {view === "score" && <ScoreView refLab={analyzed.refLab} wipLab={wipLabEff} />}
+            {view === "score" && <ScoreView refLab={analyzed.refLab} wipLab={wipLabEff} lang={lang} />}
           </CardContent>
         </Card>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        Tip: value (light/dark) and relative comparisons are the most reliable —
-        photo color and lighting are never exact. Use this as guidance.
-      </p>
+      <p className="text-xs text-muted-foreground">{t("compare.tip")}</p>
     </div>
   );
 }
 
 // --- Overlay: swipe / onion-skin / squint ---
 function OverlayView({ a }: { a: Analyzed }) {
+  const { t } = useT();
   const [mode, setMode] = useState<"swipe" | "onion">("swipe");
   const [pos, setPos] = useState(50);
   const [blur, setBlur] = useState(0);
@@ -328,15 +328,15 @@ function OverlayView({ a }: { a: Analyzed }) {
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-1 rounded-md bg-secondary/60 p-0.5 text-xs">
           {(["swipe", "onion"] as const).map((m) => (
-            <button key={m} onClick={() => setMode(m)} className={cn("rounded px-2 py-0.5 font-medium capitalize", mode === m ? "bg-background shadow-sm" : "text-muted-foreground")}>{m}</button>
+            <button key={m} onClick={() => setMode(m)} className={cn("rounded px-2 py-0.5 font-medium", mode === m ? "bg-background shadow-sm" : "text-muted-foreground")}>{t(`compare.${m}`)}</button>
           ))}
         </div>
         <label className="flex flex-1 items-center gap-2 text-xs text-muted-foreground">
-          {mode === "swipe" ? "Swipe" : "Painting opacity"}
+          {mode === "swipe" ? t("compare.swipe") : t("compare.paintingOpacity")}
           <Slider value={pos} min={0} max={100} step={1} onChange={setPos} />
         </label>
         <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          Squint
+          {t("compare.squint")}
           <Slider value={blur} min={0} max={12} step={1} onChange={setBlur} className="w-28" />
         </label>
       </div>
@@ -352,35 +352,36 @@ function OverlayView({ a }: { a: Analyzed }) {
           <div className="absolute top-0 bottom-0 w-0.5 bg-white/80" style={{ left: `${pos}%` }} />
         )}
       </div>
-      <p className="text-xs text-muted-foreground">Left/under = reference · right/over = your painting.</p>
+      <p className="text-xs text-muted-foreground">{t("compare.overlayHint")}</p>
     </div>
   );
 }
 
 // --- Values ---
-function ValueView({ refLab, wipLab }: { refLab: LabField; wipLab: LabField }) {
+function ValueView({ refLab, wipLab, lang }: { refLab: LabField; wipLab: LabField; lang: Lang }) {
+  const { t } = useT();
   const [steps, setSteps] = useState(4);
   const grayRef = useMemo(() => renderGrayscale(refLab), [refLab]);
   const grayWip = useMemo(() => renderGrayscale(wipLab), [wipLab]);
   const notanRef = useMemo(() => renderNotan(refLab, steps), [refLab, steps]);
   const notanWip = useMemo(() => renderNotan(wipLab, steps), [wipLab, steps]);
-  const diff = useMemo(() => renderDiff(refLab, wipLab, "value"), [refLab, wipLab]);
+  const diff = useMemo(() => renderDiff(refLab, wipLab, "value", lang), [refLab, wipLab, lang]);
   const hRef = useMemo(() => valueHistogram(refLab), [refLab]);
   const hWip = useMemo(() => valueHistogram(wipLab), [wipLab]);
   return (
     <div className="space-y-4">
-      <Pair title="Grayscale (value)" left={grayRef} right={grayWip} />
+      <Pair title={t("compare.grayscale")} left={grayRef} right={grayWip} />
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        Notan steps
+        {t("compare.notanSteps")}
         <Slider value={steps} min={2} max={6} step={1} onChange={setSteps} className="w-40" />
         <span className="tabular-nums">{steps}</span>
       </div>
-      <Pair title="Notan (posterized value masses)" left={notanRef} right={notanWip} />
-      <DiffPanel title="Value difference" diff={diff} />
+      <Pair title={t("compare.notan")} left={notanRef} right={notanWip} />
+      <DiffPanel title={t("compare.valueDiff")} diff={diff} />
       <div>
-        <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Value distribution</p>
+        <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("compare.valueDist")}</p>
         <Histogram ref={hRef} wip={hWip} />
-        <p className="mt-1 text-xs text-muted-foreground">Orange = reference, white = your painting. A narrow spread means a washed-out value range.</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t("compare.histHint")}</p>
       </div>
     </div>
   );
@@ -400,14 +401,15 @@ function Histogram({ ref: r, wip }: { ref: number[]; wip: number[] }) {
 }
 
 // --- Color heatmaps ---
-function ColorView({ refLab, wipLab }: { refLab: LabField; wipLab: LabField }) {
+function ColorView({ refLab, wipLab, lang }: { refLab: LabField; wipLab: LabField; lang: Lang }) {
+  const { t } = useT();
   const [metric, setMetric] = useState<DiffMetric>("deltaE");
-  const diff = useMemo(() => renderDiff(refLab, wipLab, metric), [refLab, wipLab, metric]);
+  const diff = useMemo(() => renderDiff(refLab, wipLab, metric, lang), [refLab, wipLab, metric, lang]);
   const opts: [DiffMetric, string][] = [
-    ["deltaE", "Overall (ΔE)"],
-    ["temp", "Temperature"],
-    ["sat", "Saturation"],
-    ["hue", "Hue"],
+    ["deltaE", t("compare.overallDE")],
+    ["temp", t("compare.temperature")],
+    ["sat", t("compare.saturation")],
+    ["hue", t("compare.hue")],
   ];
   return (
     <div className="space-y-3">
@@ -416,7 +418,7 @@ function ColorView({ refLab, wipLab }: { refLab: LabField; wipLab: LabField }) {
           <button key={id} onClick={() => setMetric(id)} className={cn("rounded-md px-2.5 py-1 font-medium", metric === id ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground")}>{label}</button>
         ))}
       </div>
-      <DiffPanel title={`${opts.find((o) => o[0] === metric)![1]} difference`} diff={diff} />
+      <DiffPanel title={`${opts.find((o) => o[0] === metric)![1]}${t("compare.diffSuffix")}`} diff={diff} />
     </div>
   );
 }
@@ -453,13 +455,14 @@ function Pair({ title, left, right }: { title: string; left: ImageData; right: I
 
 // --- Region coach ---
 function RegionView({ a, pigments }: { a: Analyzed; pigments: Pigment[] }) {
+  const { lang, t } = useT();
   const [pick, setPick] = useState<{ nx: number; ny: number } | null>(null);
   const result = useMemo(() => {
     if (!pick) return null;
     const target = sampleRegion(a.refData, pick.nx, pick.ny);
     const current = sampleRegion(a.wipData, pick.nx, pick.ny);
-    return { target, current, advice: coach(target, current, pigments) };
-  }, [pick, a, pigments]);
+    return { target, current, advice: coach(target, current, pigments, lang) };
+  }, [pick, a, pigments, lang]);
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="relative">
@@ -467,16 +470,16 @@ function RegionView({ a, pigments }: { a: Analyzed; pigments: Pigment[] }) {
         {pick && (
           <span className="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow" style={{ left: `${pick.nx * 100}%`, top: `${pick.ny * 100}%` }} />
         )}
-        <p className="mt-1 text-xs text-muted-foreground">Click a spot on the reference to critique that region.</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t("compare.pickHint")}</p>
       </div>
       <div>
         {!result ? (
-          <p className="text-sm text-muted-foreground">Pick a region to see how your painting compares there.</p>
+          <p className="text-sm text-muted-foreground">{t("compare.pickPrompt")}</p>
         ) : (
           <div className="space-y-3">
             <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-2"><span className="h-8 w-8 rounded border border-border" style={{ background: rgbToHex(result.target) }} /> reference</div>
-              <div className="flex items-center gap-2"><span className="h-8 w-8 rounded border border-border" style={{ background: rgbToHex(result.current) }} /> yours</div>
+              <div className="flex items-center gap-2"><span className="h-8 w-8 rounded border border-border" style={{ background: rgbToHex(result.target) }} /> {t("compare.refLabel")}</div>
+              <div className="flex items-center gap-2"><span className="h-8 w-8 rounded border border-border" style={{ background: rgbToHex(result.current) }} /> {t("compare.yoursLabel")}</div>
               <span className="ml-auto font-bold text-foreground">{result.advice.match}%</span>
             </div>
             <p className="text-sm font-medium">{result.advice.headline}</p>
@@ -497,6 +500,7 @@ function RegionView({ a, pigments }: { a: Analyzed; pigments: Pigment[] }) {
 
 // --- Palette compare ---
 function PaletteCompare({ a }: { a: Analyzed }) {
+  const { t } = useT();
   const refPal = useMemo(() => extractPalette(dataToPixels(a.refData), 8), [a]);
   const wipPal = useMemo(() => extractPalette(dataToPixels(a.wipData), 8), [a]);
   const row = (title: string, pal: RGB[]) => (
@@ -509,36 +513,37 @@ function PaletteCompare({ a }: { a: Analyzed }) {
   );
   return (
     <div className="space-y-3">
-      {row("Reference palette", refPal)}
-      {row("Your palette", wipPal)}
-      <p className="text-xs text-muted-foreground">Both arranged light → dark. Compare which families are missing or pushed.</p>
+      {row(t("compare.refPalette"), refPal)}
+      {row(t("compare.yourPalette"), wipPal)}
+      <p className="text-xs text-muted-foreground">{t("compare.paletteHint")}</p>
     </div>
   );
 }
 
 // --- Scorecard ---
-function ScoreView({ refLab, wipLab }: { refLab: LabField; wipLab: LabField }) {
-  const s = useMemo(() => scoreCompare(refLab, wipLab), [refLab, wipLab]);
+function ScoreView({ refLab, wipLab, lang }: { refLab: LabField; wipLab: LabField; lang: Lang }) {
+  const { t } = useT();
+  const s = useMemo(() => scoreCompare(refLab, wipLab, lang), [refLab, wipLab, lang]);
   const color = (v: number) => (v >= 85 ? "text-emerald-400" : v >= 70 ? "text-amber-400" : "text-rose-400");
   const bias = (v: number, neg: string, pos: string) =>
-    Math.abs(v) < 1 ? "neutral" : `${v > 0 ? pos : neg} (${v > 0 ? "+" : ""}${v.toFixed(1)})`;
+    Math.abs(v) < 1 ? t("compare.neutral") : `${v > 0 ? pos : neg} (${v > 0 ? "+" : ""}${v.toFixed(1)})`;
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-border bg-secondary/20 p-4 text-center">
           <div className={cn("text-3xl font-bold", color(s.valueScore))}>{s.valueScore}%</div>
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">Value accuracy</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("compare.valueAccuracy")}</div>
         </div>
         <div className="rounded-lg border border-border bg-secondary/20 p-4 text-center">
           <div className={cn("text-3xl font-bold", color(s.colorScore))}>{s.colorScore}%</div>
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">Color accuracy</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("compare.colorAccuracy")}</div>
         </div>
       </div>
       <div className="divide-y divide-border/50 text-sm">
-        <Row label="Value bias" value={bias(s.valueBias, "darker", "lighter")} />
-        <Row label="Temperature bias" value={bias(s.tempBias, "cooler", "warmer")} />
-        <Row label="Saturation bias" value={bias(s.satBias, "duller", "more saturated")} />
-        <Row label="Mean color error" value={`ΔE ${s.meanDE.toFixed(1)}`} />
+        <Row label={t("compare.valueBias")} value={bias(s.valueBias, t("compare.darker"), t("compare.lighter"))} />
+        <Row label={t("compare.tempBias")} value={bias(s.tempBias, t("compare.cooler"), t("compare.warmer"))} />
+        <Row label={t("compare.satBias")} value={bias(s.satBias, t("compare.duller"), t("compare.moreSat"))} />
+        <Row label={t("compare.meanError")} value={`ΔE ${s.meanDE.toFixed(1)}`} />
       </div>
       <p className="rounded-lg border border-border bg-secondary/20 p-3 text-sm italic text-foreground/90">"{s.sentence}"</p>
     </div>

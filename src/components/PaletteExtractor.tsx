@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
 import { Upload, Loader2 } from "lucide-react";
-import { rgbToHex, analyzeColor, type RGB } from "@/lib/color";
+import { rgbToHex, type RGB } from "@/lib/color";
 import { extractPalette, samplePixels, relationshipHint } from "@/lib/extract";
 import { generateRecipe, type Recipe } from "@/lib/mixer";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
+import { useT } from "@/lib/i18n";
+import { analysisSentence } from "@/lib/describe";
 import type { Pigment } from "@/lib/pigments";
 import { Button } from "@/components/ui/button";
 import { Swatch } from "./Swatch";
@@ -33,6 +35,7 @@ export function PaletteExtractor({
   const pixelsRef = useRef<RGB[] | null>(null);
   const mode = useRecipeMode();
   const engine = useMixEngine();
+  const { lang, t } = useT();
 
   const run = (pixels: RGB[], k: number) => {
     setBusy(true);
@@ -43,8 +46,8 @@ export function PaletteExtractor({
       const result: Extracted[] = palette.map((rgb) => ({
         rgb,
         recipe: generateRecipe(rgb, pigments, mode, engine),
-        description: analyzeColor(rgb).sentence,
-        hint: relationshipHint(rgb, rgbs, pigments),
+        description: analysisSentence(rgb, lang),
+        hint: relationshipHint(rgb, rgbs, pigments, lang),
       }));
       setColors(result);
       setBusy(false);
@@ -77,7 +80,7 @@ export function PaletteExtractor({
 
       <div className="flex flex-wrap items-center gap-3">
         <Button variant="secondary" onClick={() => fileRef.current?.click()}>
-          <Upload className="h-4 w-4" /> Upload a painting
+          <Upload className="h-4 w-4" /> {t("extract.upload")}
         </Button>
         <div className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1">
           {COUNTS.map((c) => (
@@ -94,22 +97,19 @@ export function PaletteExtractor({
                   : "text-muted-foreground hover:text-foreground")
               }
             >
-              {c} colors
+              {t("extract.colors", { n: c })}
             </button>
           ))}
         </div>
         {busy && (
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> Extracting…
+            <Loader2 className="h-4 w-4 animate-spin" /> {t("extract.extracting")}
           </span>
         )}
       </div>
 
       {!colors && !busy && (
-        <p className="text-sm text-muted-foreground">
-          Upload a painting to extract its dominant colors, arranged from light
-          to dark — each with a mixing recipe and a painter's description.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("extract.prompt")}</p>
       )}
 
       {colors && (

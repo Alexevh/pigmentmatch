@@ -15,6 +15,7 @@ import {
   type Temperature,
 } from "@/lib/pigments";
 import type { usePalettes } from "@/hooks/usePalettes";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +35,7 @@ function PigmentRow({
   onUpdate: (patch: Partial<Pigment>) => void;
   onRemove: () => void;
 }) {
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const available = isEnabled(pigment);
   return (
@@ -45,9 +47,7 @@ function PigmentRow({
           onChange={(e) => onUpdate({ enabled: e.target.checked })}
           className="h-4 w-4 shrink-0 cursor-pointer accent-accent"
           title={
-            available
-              ? "Available — used in mix suggestions"
-              : "Unavailable — ignored in mix suggestions"
+            available ? t("palette.available") : t("palette.unavailable")
           }
           aria-label={`${pigment.name} available for mixing`}
         />
@@ -70,7 +70,7 @@ function PigmentRow({
         />
         {!available && (
           <span className="shrink-0 rounded-full bg-secondary px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-            out
+            {t("palette.out")}
           </span>
         )}
         <Button
@@ -79,7 +79,7 @@ function PigmentRow({
           onClick={() => setOpen((o) => !o)}
           className="text-muted-foreground"
         >
-          {open ? "Hide" : "Edit"}
+          {open ? t("palette.hide") : t("palette.edit")}
         </Button>
         <Button
           variant="ghost"
@@ -96,7 +96,7 @@ function PigmentRow({
         <CardContent className="space-y-3 border-t border-border/60 bg-secondary/20 pt-3">
           <div>
             <div className="mb-1 flex justify-between text-xs text-muted-foreground">
-              <span>Opacity</span>
+              <span>{t("palette.opacity")}</span>
               <span className="tabular-nums">
                 {Math.round(pigment.opacity * 100)}%
               </span>
@@ -108,7 +108,7 @@ function PigmentRow({
           </div>
           <div>
             <div className="mb-1 flex justify-between text-xs text-muted-foreground">
-              <span>Tinting strength</span>
+              <span>{t("palette.strength")}</span>
               <span className="tabular-nums">
                 {Math.round(pigment.strength * 100)}%
               </span>
@@ -120,18 +120,18 @@ function PigmentRow({
           </div>
           <div>
             <div className="mb-1.5 text-xs text-muted-foreground">
-              Temperature
+              {t("palette.temperature")}
             </div>
             <div className="flex gap-1.5">
-              {TEMPS.map((t) => (
+              {TEMPS.map((temp) => (
                 <Button
-                  key={t}
+                  key={temp}
                   size="sm"
-                  variant={pigment.temperature === t ? "accent" : "outline"}
-                  onClick={() => onUpdate({ temperature: t })}
-                  className="flex-1 capitalize"
+                  variant={pigment.temperature === temp ? "accent" : "outline"}
+                  onClick={() => onUpdate({ temperature: temp })}
+                  className="flex-1"
                 >
-                  {t}
+                  {t(`palette.${temp}`)}
                 </Button>
               ))}
             </div>
@@ -157,6 +157,7 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
     deleteActive,
     resetActive,
   } = api;
+  const { t } = useT();
   const [showLibrary, setShowLibrary] = useState(false);
 
   if (!active) return null;
@@ -166,7 +167,7 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Palette
+            {t("palette.label")}
           </span>
           <select
             value={activeId}
@@ -193,10 +194,10 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
               if (preset) addPreset(preset.make);
             }}
             className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-            aria-label="Add palette from preset"
+            aria-label={t("palette.addPreset")}
           >
             <option value="" disabled>
-              Add preset…
+              {t("palette.addPreset")}
             </option>
             {PALETTE_PRESETS.map((p) => (
               <option key={p.id} value={p.id}>
@@ -209,10 +210,10 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
             size="sm"
             onClick={() => addPalette("New Palette")}
           >
-            <PaletteIcon className="h-4 w-4" /> New
+            <PaletteIcon className="h-4 w-4" /> {t("palette.new")}
           </Button>
           <Button variant="outline" size="sm" onClick={resetActive}>
-            <RotateCcw className="h-4 w-4" /> Reset
+            <RotateCcw className="h-4 w-4" /> {t("palette.reset")}
           </Button>
           <Button
             variant="outline"
@@ -221,7 +222,7 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
             disabled={palettes.length <= 1}
             className="text-muted-foreground hover:text-rose-400"
           >
-            <Trash2 className="h-4 w-4" /> Delete
+            <Trash2 className="h-4 w-4" /> {t("palette.delete")}
           </Button>
         </div>
       </div>
@@ -242,7 +243,7 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
           variant="secondary"
           onClick={() =>
             addPigment({
-              name: "New Pigment",
+              name: t("palette.newPigment"),
               rgb: { r: 128, g: 128, b: 128 },
               opacity: 0.8,
               temperature: "neutral",
@@ -251,14 +252,14 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
           }
           className="flex-1"
         >
-          <Plus className="h-4 w-4" /> Add new pigment
+          <Plus className="h-4 w-4" /> {t("palette.addNew")}
         </Button>
         <Button
           variant={showLibrary ? "accent" : "outline"}
           onClick={() => setShowLibrary((s) => !s)}
           className="flex-1"
         >
-          <Library className="h-4 w-4" /> Add from library
+          <Library className="h-4 w-4" /> {t("palette.addFromLibrary")}
         </Button>
       </div>
 
@@ -284,6 +285,7 @@ function PigmentLibrary({
   existingNames: string[];
   onAdd: (pigment: Pigment) => void;
 }) {
+  const { t } = useT();
   const [query, setQuery] = useState("");
   const all = useMemo(() => libraryPigments(), []);
 
@@ -308,7 +310,7 @@ function PigmentLibrary({
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search pigments across all presets…"
+          placeholder={t("palette.librarySearch")}
           className="h-9"
         />
         <div className="max-h-80 space-y-3 overflow-y-auto pr-1">
@@ -333,7 +335,7 @@ function PigmentLibrary({
                     </span>
                     {already && (
                       <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                        in palette
+                        {t("palette.inPalette")}
                       </span>
                     )}
                     <Button
@@ -342,7 +344,7 @@ function PigmentLibrary({
                       onClick={() => onAdd(pigment)}
                       className="h-7 px-2 text-xs"
                     >
-                      <Plus className="h-3.5 w-3.5" /> Add
+                      <Plus className="h-3.5 w-3.5" /> {t("palette.add")}
                     </Button>
                   </div>
                 );
@@ -351,7 +353,7 @@ function PigmentLibrary({
           ))}
           {filtered.length === 0 && (
             <p className="py-4 text-center text-sm text-muted-foreground">
-              No pigments match “{query}”.
+              {t("palette.noMatch", { q: query })}
             </p>
           )}
         </div>

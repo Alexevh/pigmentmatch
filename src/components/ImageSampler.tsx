@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import { Upload, Search } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +9,7 @@ const LOUPE = 132; // px diameter of the magnifier
 const ZOOM = 6; // magnification factor
 
 export function ImageSampler({ onSample }: { onSample: (rgb: RGB) => void }) {
+  const { t } = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -139,10 +141,8 @@ export function ImageSampler({ onSample }: { onSample: (rgb: RGB) => void }) {
           className="flex h-64 w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
         >
           <Upload className="h-8 w-8" />
-          <span className="text-sm font-medium">
-            Upload an image to sample colors
-          </span>
-          <span className="text-xs">Click anywhere on it to pick a color</span>
+          <span className="text-sm font-medium">{t("image.uploadTitle")}</span>
+          <span className="text-xs">{t("image.uploadHint")}</span>
         </button>
       )}
 
@@ -169,7 +169,7 @@ export function ImageSampler({ onSample }: { onSample: (rgb: RGB) => void }) {
             size="sm"
             onClick={() => fileRef.current?.click()}
           >
-            <Upload className="h-4 w-4" /> Replace image
+            <Upload className="h-4 w-4" /> {t("image.replace")}
           </Button>
           <Button
             variant={loupeOn ? "accent" : "outline"}
@@ -177,7 +177,7 @@ export function ImageSampler({ onSample }: { onSample: (rgb: RGB) => void }) {
             onClick={() => setLoupeOn((z) => !z)}
             title="Magnifier loupe for precise sampling"
           >
-            <Search className="h-4 w-4" /> Zoom {loupeOn ? "on" : "off"}
+            <Search className="h-4 w-4" /> {loupeOn ? t("image.zoomOn") : t("image.zoomOff")}
           </Button>
           {hover && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

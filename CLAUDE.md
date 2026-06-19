@@ -15,6 +15,17 @@ terms (value / temperature / saturation / hue) rather than math.
 - **Repo:** `Alexevh/pigmentmatch` · branch **`main`** · local git user **Alex
   / alex2005.uy@gmail.com** (set per-repo, not global).
 
+## Localization (i18n)
+
+English (default) + Spanish, toggled in the header (persisted to localStorage).
+Strings live in `src/lib/i18n.ts` (nested `en`/`es` dicts); components call
+`const { lang, t } = useT()` and `t("key.path", {params})`. Generated sentences
+(painter analysis, coach tips, scorecard, relationship hints) are localized too:
+the lib functions (`coach`, `scoreCompare`, `renderDiff`, `relationshipHint`,
+`analysisSentence`) take a `lang` param and look strings up via `translate()`.
+Pigment names and HEX/RGB are intentionally NOT translated. When adding UI text,
+add a key to BOTH `en` and `es` rather than hardcoding a string.
+
 ## Conventions (important)
 
 - **NEVER add a `Co-Authored-By: Claude` trailer** (or any Claude attribution)
@@ -56,6 +67,8 @@ Clean up the temp files afterward.
 ```
 src/
   lib/
+    i18n.ts         EN/ES localization: lang store, dictionary, translate()/useT()
+    describe.ts     localized painter-analysis sentence (shared by Analysis + Extract)
     compare.ts      reference-vs-WIP: 4-corner homography warp, Lab fields,
                     value/color diff maps, histogram, scorecard
     color.ts        hex/rgb/hsl/Lab conversions, deltaE (CIE76) + deltaE2000, matchScore,

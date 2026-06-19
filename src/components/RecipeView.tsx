@@ -1,16 +1,8 @@
-import {
-  amountLabel,
-  percentLabel,
-  recipePercentages,
-  type Recipe,
-} from "@/lib/mixer";
+import { recipePercentages, percentLabel, type Recipe } from "@/lib/mixer";
 import { rgbToHex } from "@/lib/color";
 import { cn } from "@/lib/utils";
-import {
-  setRecipeUnit,
-  useRecipeUnit,
-  type RecipeUnit,
-} from "@/hooks/useRecipeUnit";
+import { useT } from "@/lib/i18n";
+import { setRecipeUnit, useRecipeUnit } from "@/hooks/useRecipeUnit";
 import {
   setRecipeMode,
   useRecipeMode,
@@ -18,6 +10,7 @@ import {
 } from "@/hooks/useRecipeMode";
 import { setMixEngine, useMixEngine } from "@/hooks/useMixEngine";
 import type { MixEngine } from "@/lib/mixer";
+import type { RecipeItem } from "@/lib/mixer";
 
 function matchColor(match: number): string {
   if (match >= 90) return "text-emerald-400";
@@ -25,48 +18,35 @@ function matchColor(match: number): string {
   return "text-rose-400";
 }
 
-function UnitToggle() {
-  const unit = useRecipeUnit();
-  const opt = (value: RecipeUnit, label: string) => (
-    <button
-      onClick={() => setRecipeUnit(value)}
-      className={cn(
-        "rounded px-2 py-0.5 text-xs font-medium transition-colors",
-        unit === value
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {label}
-    </button>
+const toggleBtn = (active: boolean) =>
+  cn(
+    "rounded px-2 py-0.5 text-xs font-medium transition-colors",
+    active
+      ? "bg-background text-foreground shadow-sm"
+      : "text-muted-foreground hover:text-foreground"
   );
+
+function UnitToggle() {
+  const { t } = useT();
+  const unit = useRecipeUnit();
   return (
     <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
-      {opt("parts", "Parts")}
-      {opt("percent", "%")}
+      <button onClick={() => setRecipeUnit("parts")} className={toggleBtn(unit === "parts")}>{t("recipe.partsLabel")}</button>
+      <button onClick={() => setRecipeUnit("percent")} className={toggleBtn(unit === "percent")}>%</button>
     </div>
   );
 }
 
 function ModeToggle() {
+  const { t } = useT();
   const mode = useRecipeMode();
   const opt = (value: RecipeMode, label: string) => (
-    <button
-      onClick={() => setRecipeMode(value)}
-      className={cn(
-        "rounded px-2 py-0.5 text-xs font-medium transition-colors",
-        mode === value
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {label}
-    </button>
+    <button onClick={() => setRecipeMode(value)} className={toggleBtn(mode === value)}>{label}</button>
   );
   return (
     <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
-      {opt("simple", "Simple")}
-      {opt("precise", "Precise")}
+      {opt("simple", t("recipe.simple"))}
+      {opt("precise", t("recipe.precise"))}
     </div>
   );
 }
@@ -74,18 +54,7 @@ function ModeToggle() {
 function EngineToggle() {
   const engine = useMixEngine();
   const opt = (value: MixEngine, label: string) => (
-    <button
-      onClick={() => setMixEngine(value)}
-      className={cn(
-        "rounded px-2 py-0.5 text-xs font-medium transition-colors",
-        engine === value
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-      )}
-      title="Mixing model"
-    >
-      {label}
-    </button>
+    <button onClick={() => setMixEngine(value)} className={toggleBtn(engine === value)} title="Mixing model">{label}</button>
   );
   return (
     <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
@@ -111,14 +80,11 @@ export function RecipeView({
   recipe: Recipe;
   compact?: boolean;
 }) {
+  const { t } = useT();
   const unit = useRecipeUnit();
 
   if (recipe.items.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No pigments in this palette. Add some to generate a recipe.
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">{t("recipe.none")}</p>;
   }
 
   return (
@@ -140,7 +106,7 @@ export function RecipeView({
       {!compact ? (
         <div className="flex items-center gap-4 border-t border-border/60 pt-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Mixed</span>
+            <span className="text-xs text-muted-foreground">{t("recipe.mixed")}</span>
             <span
               className="h-6 w-6 rounded-md border border-border/50"
               style={{ backgroundColor: recipe.mixedHex }}
@@ -154,13 +120,13 @@ export function RecipeView({
               {recipe.match}%
             </div>
             <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              match · ΔE {recipe.deltaE.toFixed(1)}
+              {t("recipe.match")} · ΔE {recipe.deltaE.toFixed(1)}
             </div>
           </div>
         </div>
       ) : (
         <div className="flex items-center justify-between border-t border-border/60 pt-2 text-xs">
-          <span className="text-muted-foreground">Match</span>
+          <span className="text-muted-foreground">{t("recipe.match")}</span>
           <span className={cn("font-bold", matchColor(recipe.match))}>
             {recipe.match}%
           </span>
@@ -170,7 +136,10 @@ export function RecipeView({
   );
 }
 
-// Percentages: a single list sorted by amount, each pigment with its share.
+function partsText(item: RecipeItem, t: (k: string) => string): string {
+  return `${item.parts} ${t(item.parts === 1 ? "recipe.part" : "recipe.parts")}`;
+}
+
 function PercentList({ recipe }: { recipe: Recipe }) {
   const pcts = recipePercentages(recipe.items);
   return (
@@ -188,21 +157,18 @@ function PercentList({ recipe }: { recipe: Recipe }) {
   );
 }
 
-// Parts: base pigments as integer parts, small contributions as touches.
 function PartsList({ recipe }: { recipe: Recipe }) {
+  const { t } = useT();
   const base = recipe.items.filter((i) => i.parts != null);
   const touches = recipe.items.filter((i) => i.parts == null);
   return (
     <>
       <div className="space-y-2">
         {base.map((item) => (
-          <div
-            key={item.pigment.id}
-            className="flex items-center gap-3 text-sm"
-          >
+          <div key={item.pigment.id} className="flex items-center gap-3 text-sm">
             <PigmentDot hex={rgbToHex(item.pigment.rgb)} />
             <span className="font-semibold tabular-nums w-16 shrink-0">
-              {amountLabel(item)}
+              {partsText(item, t)}
             </span>
             <span className="text-foreground/90">{item.pigment.name}</span>
           </div>
@@ -212,19 +178,16 @@ function PartsList({ recipe }: { recipe: Recipe }) {
       {touches.length > 0 && (
         <div className="space-y-1.5 border-t border-border/60 pt-3">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Adjustments
+            {t("recipe.adjustments")}
           </p>
           {touches.map((item) => (
-            <div
-              key={item.pigment.id}
-              className="flex items-center gap-3 text-sm"
-            >
+            <div key={item.pigment.id} className="flex items-center gap-3 text-sm">
               <span
                 className="h-4 w-4 shrink-0 rounded-full border border-border/50"
                 style={{ backgroundColor: rgbToHex(item.pigment.rgb) }}
               />
               <span className="italic text-muted-foreground">
-                {item.amount} of
+                {t(`recipe.${item.amount}`)} {t("recipe.of")}
               </span>
               <span className="text-foreground/90">{item.pigment.name}</span>
             </div>

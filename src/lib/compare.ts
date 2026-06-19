@@ -3,6 +3,7 @@
 // All analyses run on Lab fields sampled from the two aligned images.
 
 import { rgbToLab, deltaE2000, clamp255, type RGB } from "./color";
+import { translate, type Lang } from "./i18n";
 
 export interface Pt {
   x: number;
@@ -263,7 +264,8 @@ const MAX = { value: 35, deltaE: 18, hue: 60, temp: 25, sat: 30 };
 export function renderDiff(
   ref: LabField,
   wip: LabField,
-  metric: DiffMetric
+  metric: DiffMetric,
+  lang: Lang = "en"
 ): DiffMap {
   const out = new ImageData(ref.w, ref.h);
   const c: number[] = [0, 0, 0];
@@ -304,12 +306,13 @@ export function renderDiff(
     out.data[i * 4 + 2] = c[2];
     out.data[i * 4 + 3] = 255;
   }
+  const L = (k: string) => translate(lang, k);
   const legends: Record<DiffMetric, DiffMap["legend"]> = {
-    value: { low: "too dark", high: "too light", signedScale: true, unit: "ΔL" },
-    temp: { low: "too cool", high: "too warm", signedScale: true, unit: "Δtemp" },
-    sat: { low: "undersaturated", high: "oversaturated", signedScale: true, unit: "Δchroma" },
-    hue: { low: "on hue", high: "hue way off", signedScale: false, unit: "Δhue°" },
-    deltaE: { low: "matches", high: "very different", signedScale: false, unit: "ΔE00" },
+    value: { low: L("compare.tooDark"), high: L("compare.tooLight"), signedScale: true, unit: "ΔL" },
+    temp: { low: L("compare.tooCool"), high: L("compare.tooWarm"), signedScale: true, unit: "Δtemp" },
+    sat: { low: L("compare.underSat"), high: L("compare.overSat"), signedScale: true, unit: "Δchroma" },
+    hue: { low: L("compare.onHue"), high: L("compare.hueOff"), signedScale: false, unit: "Δhue°" },
+    deltaE: { low: L("compare.matches"), high: L("compare.veryDiff"), signedScale: false, unit: "ΔE00" },
   };
   return { image: out, legend: legends[metric] };
 }
@@ -338,7 +341,11 @@ export interface CompareScore {
   sentence: string;
 }
 
-export function scoreCompare(ref: LabField, wip: LabField): CompareScore {
+export function scoreCompare(
+  ref: LabField,
+  wip: LabField,
+  lang: Lang = "en"
+): CompareScore {
   const n = ref.L.length;
   let sumDE = 0,
     sumDL = 0,
@@ -372,46 +379,53 @@ export function scoreCompare(ref: LabField, wip: LabField): CompareScore {
     satBias,
     valueScore,
     colorScore,
-    sentence: buildSentence(valueBias, tempBias, satBias, meanAbsDL),
+    sentence: buildSentence(valueBias, tempBias, satBias, meanAbsDL, lang),
   };
-}
-
-function mag(v: number, mid: number, big: number): string {
-  const a = Math.abs(v);
-  if (a >= big) return "much ";
-  if (a >= mid) return "a bit ";
-  return "slightly ";
 }
 
 function buildSentence(
   valueBias: number,
   tempBias: number,
   satBias: number,
-  meanAbsDL: number
+  meanAbsDL: number,
+  lang: Lang
 ): string {
+  const L = (k: string, p?: Record<string, string | number>) =>
+    translate(lang, k, p);
+  const mag = (v: number, mid: number, big: number) => {
+    const a = Math.abs(v);
+    return L(a >= big ? "compare.much" : a >= mid ? "compare.aBit" : "compare.slightlyW");
+  };
   const parts: string[] = [];
   if (Math.abs(valueBias) >= 2) {
     parts.push(
-      `your values run ${mag(valueBias, 6, 14)}${
-        valueBias > 0 ? "too light" : "too dark"
-      }`
+      L("compare.valRun", {
+        mag: mag(valueBias, 6, 14),
+        dir: L(valueBias > 0 ? "compare.tooLight" : "compare.tooDark"),
+      })
     );
   } else if (meanAbsDL >= 8) {
-    parts.push("your values are off in places but balanced overall");
+    parts.push(L("compare.valBalanced"));
   } else {
-    parts.push("your values are close");
+    parts.push(L("compare.valClose"));
   }
   if (Math.abs(tempBias) >= 2) {
     parts.push(
-      `the mix is ${mag(tempBias, 5, 12)}too ${tempBias > 0 ? "warm" : "cool"}`
+      L("compare.mixTemp", {
+        mag: mag(tempBias, 5, 12),
+        dir: L(tempBias > 0 ? "compare.warmer" : "compare.cooler"),
+      })
     );
   }
   if (Math.abs(satBias) >= 3) {
     parts.push(
-      `${mag(satBias, 6, 14)}${satBias > 0 ? "oversaturated" : "undersaturated"}`
+      L("compare.satState", {
+        mag: mag(satBias, 6, 14),
+        dir: L(satBias > 0 ? "compare.overSat" : "compare.underSat"),
+      })
     );
   }
-  if (parts.length === 1) parts.push("color is well matched");
+  if (parts.length === 1) parts.push(L("compare.colorMatched"));
   return capitalize(parts.join(", ")) + ".";
 }
 

@@ -14,6 +14,7 @@ import {
   useCalibratedEngine,
 } from "@/hooks/useCalibratedEngine";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ export function CalibrateView({
   cal: CalibrationApi;
   pigments: Pigment[];
 }) {
+  const { t } = useT();
   const calibrated = useCalibratedEngine();
   const [parts, setParts] = useState<Record<string, string>>({});
   const [observed, setObserved] = useState<RGB>({ r: 150, g: 120, b: 100 });
@@ -77,7 +79,7 @@ export function CalibrateView({
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 normal-case tracking-normal text-foreground">
             <FlaskConical className="h-4 w-4 text-accent" />
-            Calibrated mixing
+            {t("calibrate.title")}
           </CardTitle>
           <button
             disabled={!cal.calibration}
@@ -99,33 +101,25 @@ export function CalibrateView({
           </button>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            Teach the model your real paints. Record a few mixes you've actually
-            made, then calibrate — recipes across the whole app will use the
-            fitted model while this is on.
-          </p>
+          <p>{t("calibrate.intro")}</p>
           {!cal.calibration ? (
-            <p className="text-xs">
-              Record observations below and press{" "}
-              <span className="font-medium text-foreground">Calibrate</span> to
-              enable this.
-            </p>
+            <p className="text-xs">{t("calibrate.enableHint")}</p>
           ) : (
             <div className="flex flex-wrap items-center gap-x-6 gap-y-1 rounded-lg border border-border/50 bg-secondary/20 p-3 text-xs">
               <span>
-                Average error before:{" "}
+                {t("calibrate.avgBefore")}{" "}
                 <span className="font-semibold text-foreground">
                   ΔE {cal.beforeError.toFixed(1)}
                 </span>
               </span>
               <span>
-                after:{" "}
+                {t("calibrate.after")}{" "}
                 <span className="font-semibold text-emerald-400">
                   ΔE {afterError!.toFixed(1)}
                 </span>
               </span>
               <span className="text-muted-foreground">
-                {calibrated ? "Active everywhere" : "Ready — toggle on to use"}
+                {calibrated ? t("calibrate.active") : t("calibrate.ready")}
               </span>
             </div>
           )}
@@ -135,12 +129,11 @@ export function CalibrateView({
       {/* Record a mix ----------------------------------------------------- */}
       <Card>
         <CardHeader>
-          <CardTitle>Record a mix you made</CardTitle>
+          <CardTitle>{t("calibrate.recordTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-xs text-muted-foreground">
-            Enter the parts you used of each pigment, then set the real color you
-            got (type it or sample a photo of your swatch).
+            {t("calibrate.recordHint")}
           </p>
 
           <div className="grid gap-2 sm:grid-cols-2">
@@ -170,11 +163,11 @@ export function CalibrateView({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
-            <Dot rgb={observed} label="Got" />
+            <Dot rgb={observed} label={t("calibrate.got")} />
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  Real color you got
+                  {t("calibrate.realColor")}
                 </span>
                 <Button
                   variant="ghost"
@@ -182,7 +175,9 @@ export function CalibrateView({
                   onClick={() => setSampling((s) => !s)}
                   className="text-xs text-muted-foreground"
                 >
-                  {sampling ? "Enter manually" : "Sample from photo"}
+                  {sampling
+                    ? t("calibrate.enterManually")
+                    : t("calibrate.sampleFromPhoto")}
                 </Button>
               </div>
               {sampling ? (
@@ -194,7 +189,7 @@ export function CalibrateView({
           </div>
 
           <Button onClick={handleAdd} disabled={!canAdd} className="w-full">
-            <Plus className="h-4 w-4" /> Add observation
+            <Plus className="h-4 w-4" /> {t("calibrate.addObservation")}
           </Button>
         </CardContent>
       </Card>
@@ -202,7 +197,9 @@ export function CalibrateView({
       {/* Observations + calibrate ---------------------------------------- */}
       <Card>
         <CardHeader className="flex-row items-center justify-between">
-          <CardTitle>Observations ({validObs.length})</CardTitle>
+          <CardTitle>
+            {t("calibrate.observations", { n: validObs.length })}
+          </CardTitle>
           {cal.observations.length > 0 && (
             <Button
               variant="ghost"
@@ -210,16 +207,13 @@ export function CalibrateView({
               onClick={cal.clearObservations}
               className="text-xs text-muted-foreground hover:text-rose-400"
             >
-              Clear all
+              {t("calibrate.clearAll")}
             </Button>
           )}
         </CardHeader>
         <CardContent className="space-y-3">
           {cal.observations.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No observations yet. Record a few mixes above — three or more gives
-              the best fit.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("calibrate.noObs")}</p>
           ) : (
             <ul className="space-y-2">
               {cal.observations.map((obs) => {
@@ -227,7 +221,7 @@ export function CalibrateView({
                   .filter((i) => i.weight > 0)
                   .map((i) => {
                     const pig = pigments.find((p) => p.id === i.pigmentId);
-                    return `${i.weight}× ${pig?.name ?? "removed pigment"}`;
+                    return `${i.weight}× ${pig?.name ?? t("calibrate.removedPigment")}`;
                   })
                   .join("  +  ");
                 const predicted = predictObservation(obs, enginePigments);
@@ -237,12 +231,12 @@ export function CalibrateView({
                     key={obs.id}
                     className="flex items-center gap-3 rounded-lg border border-border/50 bg-secondary/20 p-2.5"
                   >
-                    <Dot rgb={obs.observed} label="got" />
-                    <Dot rgb={predicted} label="model" />
+                    <Dot rgb={obs.observed} label={t("calibrate.got")} />
+                    <Dot rgb={predicted} label={t("calibrate.model")} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm">{recipe || "—"}</p>
                       <p className="text-xs text-muted-foreground">
-                        model is ΔE {dE.toFixed(1)} away
+                        {t("calibrate.modelAway", { de: dE.toFixed(1) })}
                       </p>
                     </div>
                     <Button
@@ -267,8 +261,15 @@ export function CalibrateView({
             className="w-full"
           >
             <Sparkles className="h-4 w-4" />
-            {cal.calibration ? "Re-calibrate" : "Calibrate"} from{" "}
-            {validObs.length} observation{validObs.length === 1 ? "" : "s"}
+            {cal.calibration ? t("calibrate.recalibrate") : t("calibrate.calibrate")}{" "}
+            {t("calibrate.fromN", {
+              n: validObs.length,
+              word: t(
+                validObs.length === 1
+                  ? "calibrate.obsSingular"
+                  : "calibrate.obsPlural"
+              ),
+            })}
           </Button>
 
           {cal.calibration && (
@@ -277,7 +278,7 @@ export function CalibrateView({
               onClick={cal.clearCalibration}
               className="w-full text-xs text-muted-foreground hover:text-rose-400"
             >
-              Discard calibration
+              {t("calibrate.discard")}
             </Button>
           )}
         </CardContent>

@@ -1,0 +1,639 @@
+// Lightweight i18n. English (default) + Spanish, switchable at runtime.
+// Strings live in a nested dictionary; `t("a.b.c", {n: 5})` looks up the path
+// and interpolates {placeholders}.
+import { useSyncExternalStore } from "react";
+
+export type Lang = "en" | "es";
+
+const KEY = "pigment-match.lang.v1";
+
+function read(): Lang {
+  try {
+    return localStorage.getItem(KEY) === "es" ? "es" : "en";
+  } catch {
+    return "en";
+  }
+}
+
+let value: Lang = read();
+const listeners = new Set<() => void>();
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+export function setLang(next: Lang) {
+  value = next;
+  try {
+    localStorage.setItem(KEY, next);
+  } catch {
+    /* ignore */
+  }
+  listeners.forEach((l) => l());
+}
+export function useLang(): Lang {
+  return useSyncExternalStore(
+    subscribe,
+    () => value,
+    () => value
+  );
+}
+
+type Dict = { [k: string]: string | Dict };
+
+const en: Dict = {
+  app: {
+    tagline: "Think in paint, not in RGB",
+    pigments: "{n} pigments",
+    pigmentsOf: "{enabled}/{total} pigments",
+    calibrated: "Calibrated",
+    footer:
+      "Runs entirely in your browser — palettes are saved locally. Recipes use a subtractive Kubelka-Munk approximation and are a starting point; trust your eye on the easel.",
+  },
+  tabs: {
+    match: "Match",
+    image: "Image",
+    extract: "Extract",
+    coach: "Coach",
+    compare: "Compare",
+    calibrate: "Calibrate",
+    palette: "Palette",
+  },
+  match: {
+    targetColor: "Target color",
+    sampleFromImage: "Sample from image",
+    sampledColor: "Sampled color",
+    picker: "Picker",
+  },
+  recipe: {
+    title: "Mixing recipe",
+    none: "No pigments in this palette. Add some to generate a recipe.",
+    adjustments: "Adjustments",
+    of: "of",
+    mixed: "Mixed",
+    match: "match",
+    part: "part",
+    parts: "parts",
+    partsLabel: "Parts",
+    simple: "Simple",
+    precise: "Precise",
+    classic: "Classic",
+    spectral: "Spectral",
+    "small touch": "small touch",
+    "tiny touch": "tiny touch",
+    "microscopic touch": "microscopic touch",
+  },
+  analysis: {
+    title: "Painter analysis",
+    value: "Value",
+    temperature: "Temperature",
+    saturation: "Saturation",
+    hue: "Hue tendency",
+    // enum labels
+    Light: "Light",
+    Medium: "Medium",
+    Dark: "Dark",
+    Warm: "Warm",
+    Neutral: "Neutral",
+    Cool: "Cool",
+    High: "High",
+    Low: "Low",
+    "Very low": "Very low",
+    Reddish: "Reddish",
+    Orange: "Orange",
+    Yellowish: "Yellowish",
+    Green: "Green",
+    Blue: "Blue",
+    Violet: "Violet",
+    // sentence fragments
+    grey: "grey",
+    lightGrey: "light grey",
+    deepGrey: "deep grey",
+    light: "light",
+    midValue: "mid-value",
+    dark: "dark",
+    veryLowSat: "very low saturation",
+    lowSat: "low saturation",
+    medSat: "moderately saturated",
+    highSat: "highly saturated",
+    neutralTemp: "neutral in temperature",
+    slightly: "slightly",
+    tendency: "with a slight {hue} tendency",
+    sentence: "A {sat} {noun}, {temp}{tendency}.",
+  },
+  variations: {
+    title: "Variations",
+    Lighter: "Lighter",
+    Darker: "Darker",
+    Warmer: "Warmer",
+    Cooler: "Cooler",
+    "More saturated": "More saturated",
+    "Less saturated": "Less saturated",
+  },
+  image: {
+    uploadTitle: "Upload an image to sample colors",
+    uploadHint: "Click anywhere on it to pick a color",
+    replace: "Replace image",
+    zoomOn: "Zoom on",
+    zoomOff: "Zoom off",
+  },
+  extract: {
+    title: "Palette extraction",
+    upload: "Upload a painting",
+    colors: "{n} colors",
+    extracting: "Extracting…",
+    prompt:
+      "Upload a painting to extract its dominant colors, arranged from light to dark — each with a mixing recipe and a painter's description.",
+    colorN: "Color #{n}",
+    and: "and",
+    lightening: "lightening it",
+    darkening: "darkening it",
+    hintAdd: "Close to {from} — reach it by adding a touch of {push}{extra}.",
+    hintAdjust: "Close to {from} — reach it by {extra}.",
+    hintVeryClose: "Very close to {from}.",
+    coolBlue: "a cool blue",
+    warmYellow: "a warm yellow",
+    aRed: "a red",
+  },
+  coach: {
+    title: "Coach",
+    target: "Target color",
+    yourMix: "Your current mix",
+    sampleFromPhoto: "Sample from photo",
+    enterManually: "Enter manually",
+    footer:
+      "Add color in tiny steps and re-sample — chasing a target is always a few small corrections, not one big one.",
+    headlineThere: "You're there — the difference is barely perceptible.",
+    headlineVeryClose: "Very close — just fine-tune from here.",
+    headlineClose: "Close. A couple of adjustments and you'll have it.",
+    headlineFar: "Not there yet — work through these in order.",
+    done: "Lay it in and trust it.",
+    subtle: "The differences are subtle — adjust by eye in tiny steps.",
+    much: "much ",
+    aBit: "a bit ",
+    slightly: "slightly ",
+    tooDark: "Your mix is {mag}too dark — lift the value with {pig}.",
+    tooLight:
+      "Your mix is {mag}too light — bring the value down with a touch of {pig}.",
+    tooSat:
+      "It's {mag}too saturated — knock it back with a touch of {pig}.",
+    tooDull: "It's {mag}too grey — intensify it with more {pig}.",
+    hueWarmer:
+      "The hue leans off — it needs to go warmer. Nudge it with a touch of {pig}.",
+    hueCooler:
+      "The hue leans off — it needs to go cooler. Nudge it with a touch of {pig}.",
+    white: "white",
+    darkPigment: "a dark pigment",
+    neutralEarth: "a neutral / earth tone",
+    satPigment: "a saturated pigment",
+    rightPigment: "the right pigment",
+  },
+  palette: {
+    title: "Pigment palette",
+    label: "Palette",
+    addPreset: "Add preset…",
+    new: "New",
+    reset: "Reset",
+    delete: "Delete",
+    addNew: "Add new pigment",
+    addFromLibrary: "Add from library",
+    newPigment: "New Pigment",
+    opacity: "Opacity",
+    strength: "Tinting strength",
+    temperature: "Temperature",
+    warm: "warm",
+    cool: "cool",
+    neutral: "neutral",
+    edit: "Edit",
+    hide: "Hide",
+    available: "Available — used in mix suggestions",
+    unavailable: "Unavailable — ignored in mix suggestions",
+    out: "out",
+    inPalette: "in palette",
+    add: "Add",
+    librarySearch: "Search pigments across all presets…",
+    noMatch: "No pigments match “{q}”.",
+  },
+  calibrate: {
+    title: "Calibrated mixing",
+    intro:
+      "Teach the model your real paints. Record a few mixes you've actually made, then calibrate — recipes across the whole app will use the fitted model while this is on.",
+    enableHint: "Record observations below and press Calibrate to enable this.",
+    avgBefore: "Average error before:",
+    after: "after:",
+    active: "Active everywhere",
+    ready: "Ready — toggle on to use",
+    recordTitle: "Record a mix you made",
+    recordHint:
+      "Enter the parts you used of each pigment, then set the real color you got (type it or sample a photo of your swatch).",
+    realColor: "Real color you got",
+    got: "got",
+    model: "model",
+    removedPigment: "removed pigment",
+    addObservation: "Add observation",
+    observations: "Observations ({n})",
+    clearAll: "Clear all",
+    noObs:
+      "No observations yet. Record a few mixes above — three or more gives the best fit.",
+    modelAway: "model is ΔE {de} away",
+    calibrate: "Calibrate",
+    recalibrate: "Re-calibrate",
+    fromN: "from {n} {word}",
+    obsSingular: "observation",
+    obsPlural: "observations",
+    discard: "Discard calibration",
+    sampleFromPhoto: "Sample from photo",
+    enterManually: "Enter manually",
+  },
+  compare: {
+    title: "Comparison",
+    uploadRef: "Upload the reference / original",
+    uploadWip: "Upload your painting in progress",
+    alignTitle: "Align — drag the 4 dots to each painting's corners",
+    reference: "Reference",
+    yourPainting: "Your painting",
+    analyze: "Analyze differences",
+    startOver: "Start over",
+    normalize: "Normalize lighting (ignore exposure/WB differences)",
+    overlay: "Overlay",
+    values: "Values",
+    color: "Color",
+    regionCoach: "Region coach",
+    palettes: "Palettes",
+    scorecard: "Scorecard",
+    swipe: "swipe",
+    onion: "onion",
+    paintingOpacity: "Painting opacity",
+    squint: "Squint",
+    overlayHint: "Left/under = reference · right/over = your painting.",
+    grayscale: "Grayscale (value)",
+    notanSteps: "Notan steps",
+    notan: "Notan (posterized value masses)",
+    valueDiff: "Value difference",
+    valueDist: "Value distribution",
+    histHint:
+      "Orange = reference, white = your painting. A narrow spread means a washed-out value range.",
+    overallDE: "Overall (ΔE)",
+    temperature: "Temperature",
+    saturation: "Saturation",
+    hue: "Hue",
+    diffSuffix: " difference",
+    pickHint: "Click a spot on the reference to critique that region.",
+    pickPrompt: "Pick a region to see how your painting compares there.",
+    refLabel: "reference",
+    yoursLabel: "yours",
+    refPalette: "Reference palette",
+    yourPalette: "Your palette",
+    paletteHint:
+      "Both arranged light → dark. Compare which families are missing or pushed.",
+    valueAccuracy: "Value accuracy",
+    colorAccuracy: "Color accuracy",
+    valueBias: "Value bias",
+    tempBias: "Temperature bias",
+    satBias: "Saturation bias",
+    meanError: "Mean color error",
+    tip: "Tip: value (light/dark) and relative comparisons are the most reliable — photo color and lighting are never exact. Use this as guidance.",
+    // legends
+    tooDark: "too dark",
+    tooLight: "too light",
+    tooCool: "too cool",
+    tooWarm: "too warm",
+    underSat: "undersaturated",
+    overSat: "oversaturated",
+    onHue: "on hue",
+    hueOff: "hue way off",
+    matches: "matches",
+    veryDiff: "very different",
+    neutral: "neutral",
+    darker: "darker",
+    lighter: "lighter",
+    cooler: "cooler",
+    warmer: "warmer",
+    duller: "duller",
+    moreSat: "more saturated",
+    // scorecard sentence
+    much: "much ",
+    aBit: "a bit ",
+    slightlyW: "slightly ",
+    valClose: "your values are close",
+    valBalanced: "your values are off in places but balanced overall",
+    valRun: "your values run {mag}{dir}",
+    mixTemp: "the mix is {mag}too {dir}",
+    satState: "{mag}{dir}",
+    colorMatched: "color is well matched",
+  },
+};
+
+// Spanish — same shape.
+const es: Dict = {
+  app: {
+    tagline: "Pensá en pintura, no en RGB",
+    pigments: "{n} pigmentos",
+    pigmentsOf: "{enabled}/{total} pigmentos",
+    calibrated: "Calibrado",
+    footer:
+      "Corre enteramente en tu navegador — las paletas se guardan localmente. Las recetas usan una aproximación sustractiva de Kubelka-Munk y son un punto de partida; confiá en tu ojo en el caballete.",
+  },
+  tabs: {
+    match: "Match",
+    image: "Imagen",
+    extract: "Extraer",
+    coach: "Coach",
+    compare: "Comparar",
+    calibrate: "Calibrar",
+    palette: "Paleta",
+  },
+  match: {
+    targetColor: "Color objetivo",
+    sampleFromImage: "Muestrear de imagen",
+    sampledColor: "Color muestreado",
+    picker: "Selector",
+  },
+  recipe: {
+    title: "Receta de mezcla",
+    none: "No hay pigmentos en esta paleta. Agregá algunos para generar una receta.",
+    adjustments: "Ajustes",
+    of: "de",
+    mixed: "Mezcla",
+    match: "match",
+    part: "parte",
+    parts: "partes",
+    partsLabel: "Partes",
+    simple: "Simple",
+    precise: "Preciso",
+    classic: "Classic",
+    spectral: "Spectral",
+    "small touch": "toque pequeño",
+    "tiny touch": "toque mínimo",
+    "microscopic touch": "toque microscópico",
+  },
+  analysis: {
+    title: "Análisis de pintor",
+    value: "Valor",
+    temperature: "Temperatura",
+    saturation: "Saturación",
+    hue: "Tendencia de matiz",
+    Light: "Claro",
+    Medium: "Medio",
+    Dark: "Oscuro",
+    Warm: "Cálido",
+    Neutral: "Neutro",
+    Cool: "Frío",
+    High: "Alta",
+    Low: "Baja",
+    "Very low": "Muy baja",
+    Reddish: "Rojizo",
+    Orange: "Naranja",
+    Yellowish: "Amarillento",
+    Green: "Verde",
+    Blue: "Azul",
+    Violet: "Violeta",
+    grey: "gris",
+    lightGrey: "gris claro",
+    deepGrey: "gris profundo",
+    light: "claro",
+    midValue: "de valor medio",
+    dark: "oscuro",
+    veryLowSat: "saturación muy baja",
+    lowSat: "baja saturación",
+    medSat: "moderadamente saturado",
+    highSat: "muy saturado",
+    neutralTemp: "neutro en temperatura",
+    slightly: "ligeramente",
+    tendency: "con una leve tendencia al {hue}",
+    sentence: "Un {noun} de {sat}, {temp}{tendency}.",
+  },
+  variations: {
+    title: "Variaciones",
+    Lighter: "Más claro",
+    Darker: "Más oscuro",
+    Warmer: "Más cálido",
+    Cooler: "Más frío",
+    "More saturated": "Más saturado",
+    "Less saturated": "Menos saturado",
+  },
+  image: {
+    uploadTitle: "Subí una imagen para muestrear colores",
+    uploadHint: "Hacé clic en cualquier punto para tomar un color",
+    replace: "Reemplazar imagen",
+    zoomOn: "Zoom activado",
+    zoomOff: "Zoom desactivado",
+  },
+  extract: {
+    title: "Extracción de paleta",
+    upload: "Subí una pintura",
+    colors: "{n} colores",
+    extracting: "Extrayendo…",
+    prompt:
+      "Subí una pintura para extraer sus colores dominantes, ordenados de claro a oscuro — cada uno con su receta de mezcla y una descripción de pintor.",
+    colorN: "Color #{n}",
+    and: "y",
+    lightening: "aclarándolo",
+    darkening: "oscureciéndolo",
+    hintAdd: "Cercano a {from} — llegás agregando un toque de {push}{extra}.",
+    hintAdjust: "Cercano a {from} — llegás {extra}.",
+    hintVeryClose: "Muy cercano a {from}.",
+    coolBlue: "un azul frío",
+    warmYellow: "un amarillo cálido",
+    aRed: "un rojo",
+  },
+  coach: {
+    title: "Coach",
+    target: "Color objetivo",
+    yourMix: "Tu mezcla actual",
+    sampleFromPhoto: "Muestrear de foto",
+    enterManually: "Ingresar a mano",
+    footer:
+      "Agregá color de a poquito y volvé a muestrear — igualar un color son siempre varias correcciones chicas, nunca una grande.",
+    headlineThere: "Llegaste — la diferencia es casi imperceptible.",
+    headlineVeryClose: "Muy cerca — solo ajustá un poco desde acá.",
+    headlineClose: "Cerca. Un par de ajustes y lo tenés.",
+    headlineFar: "Todavía no — seguí estos pasos en orden.",
+    done: "Aplicalo y confiá.",
+    subtle: "Las diferencias son sutiles — ajustá a ojo en pasos mínimos.",
+    much: "muy ",
+    aBit: "un poco ",
+    slightly: "ligeramente ",
+    tooDark: "Tu mezcla está {mag}oscura — levantá el valor con {pig}.",
+    tooLight:
+      "Tu mezcla está {mag}clara — bajá el valor con un toque de {pig}.",
+    tooSat:
+      "Está {mag}saturada — bajala con un toque de {pig}.",
+    tooDull: "Está {mag}gris — intensificala con más {pig}.",
+    hueWarmer:
+      "El matiz está corrido — necesita ir más cálido. Empujalo con un toque de {pig}.",
+    hueCooler:
+      "El matiz está corrido — necesita ir más frío. Empujalo con un toque de {pig}.",
+    white: "blanco",
+    darkPigment: "un pigmento oscuro",
+    neutralEarth: "un tierra / neutro",
+    satPigment: "un pigmento saturado",
+    rightPigment: "el pigmento adecuado",
+  },
+  palette: {
+    title: "Paleta de pigmentos",
+    label: "Paleta",
+    addPreset: "Agregar preset…",
+    new: "Nueva",
+    reset: "Reset",
+    delete: "Eliminar",
+    addNew: "Agregar pigmento nuevo",
+    addFromLibrary: "Agregar de la biblioteca",
+    newPigment: "Pigmento nuevo",
+    opacity: "Opacidad",
+    strength: "Fuerza tintórea",
+    temperature: "Temperatura",
+    warm: "cálido",
+    cool: "frío",
+    neutral: "neutro",
+    edit: "Editar",
+    hide: "Ocultar",
+    available: "Disponible — se usa en las sugerencias",
+    unavailable: "No disponible — se ignora en las sugerencias",
+    out: "fuera",
+    inPalette: "en paleta",
+    add: "Agregar",
+    librarySearch: "Buscar pigmentos en todos los presets…",
+    noMatch: "Ningún pigmento coincide con “{q}”.",
+  },
+  calibrate: {
+    title: "Mezcla calibrada",
+    intro:
+      "Enseñale el modelo a tus pinturas reales. Registrá unas mezclas que hayas hecho y calibrá — mientras esté activo, todas las recetas usan el modelo ajustado.",
+    enableHint:
+      "Registrá observaciones abajo y apretá Calibrar para activarlo.",
+    avgBefore: "Error promedio antes:",
+    after: "después:",
+    active: "Activo en todo",
+    ready: "Listo — activá el toggle para usarlo",
+    recordTitle: "Registrá una mezcla que hiciste",
+    recordHint:
+      "Ingresá las partes que usaste de cada pigmento y fijá el color real que obtuviste (escribilo o muestrealo de una foto del swatch).",
+    realColor: "Color real que obtuviste",
+    got: "obtenido",
+    model: "modelo",
+    removedPigment: "pigmento eliminado",
+    addObservation: "Agregar observación",
+    observations: "Observaciones ({n})",
+    clearAll: "Borrar todo",
+    noObs:
+      "Sin observaciones todavía. Registrá unas mezclas arriba — tres o más da el mejor ajuste.",
+    modelAway: "el modelo está a ΔE {de}",
+    calibrate: "Calibrar",
+    recalibrate: "Recalibrar",
+    fromN: "desde {n} {word}",
+    obsSingular: "observación",
+    obsPlural: "observaciones",
+    discard: "Descartar calibración",
+    sampleFromPhoto: "Muestrear de foto",
+    enterManually: "Ingresar a mano",
+  },
+  compare: {
+    title: "Comparación",
+    uploadRef: "Subí la referencia / original",
+    uploadWip: "Subí tu pintura en curso",
+    alignTitle: "Alineá — arrastrá los 4 puntos a las esquinas de cada cuadro",
+    reference: "Referencia",
+    yourPainting: "Tu pintura",
+    analyze: "Analizar diferencias",
+    startOver: "Empezar de nuevo",
+    normalize: "Normalizar luz (ignorar diferencias de exposición/BB)",
+    overlay: "Superponer",
+    values: "Valores",
+    color: "Color",
+    regionCoach: "Coach por zona",
+    palettes: "Paletas",
+    scorecard: "Puntaje",
+    swipe: "deslizar",
+    onion: "opacidad",
+    paintingOpacity: "Opacidad de la pintura",
+    squint: "Entrecerrar",
+    overlayHint: "Izquierda/abajo = referencia · derecha/arriba = tu pintura.",
+    grayscale: "Escala de grises (valor)",
+    notanSteps: "Pasos de notan",
+    notan: "Notan (masas de valor posterizadas)",
+    valueDiff: "Diferencia de valor",
+    valueDist: "Distribución de valor",
+    histHint:
+      "Naranja = referencia, blanco = tu pintura. Un rango angosto = valores lavados.",
+    overallDE: "General (ΔE)",
+    temperature: "Temperatura",
+    saturation: "Saturación",
+    hue: "Matiz",
+    diffSuffix: " — diferencia",
+    pickHint: "Hacé clic en la referencia para criticar esa zona.",
+    pickPrompt: "Elegí una zona para ver cómo compara tu pintura ahí.",
+    refLabel: "referencia",
+    yoursLabel: "tuya",
+    refPalette: "Paleta de la referencia",
+    yourPalette: "Tu paleta",
+    paletteHint:
+      "Ambas ordenadas de claro a oscuro. Compará qué familias faltan o están corridas.",
+    valueAccuracy: "Precisión de valor",
+    colorAccuracy: "Precisión de color",
+    valueBias: "Sesgo de valor",
+    tempBias: "Sesgo de temperatura",
+    satBias: "Sesgo de saturación",
+    meanError: "Error de color medio",
+    tip: "Tip: el valor (claro/oscuro) y la comparación relativa son lo más confiable — el color y la luz de las fotos nunca son exactos. Usalo como guía.",
+    tooDark: "muy oscuro",
+    tooLight: "muy claro",
+    tooCool: "muy frío",
+    tooWarm: "muy cálido",
+    underSat: "sub-saturado",
+    overSat: "sobre-saturado",
+    onHue: "matiz ok",
+    hueOff: "matiz muy corrido",
+    matches: "coincide",
+    veryDiff: "muy distinto",
+    neutral: "neutro",
+    darker: "más oscuro",
+    lighter: "más claro",
+    cooler: "más frío",
+    warmer: "más cálido",
+    duller: "más apagado",
+    moreSat: "más saturado",
+    much: "muy ",
+    aBit: "un poco ",
+    slightlyW: "ligeramente ",
+    valClose: "tus valores están cerca",
+    valBalanced: "tus valores fallan por zonas pero equilibran en general",
+    valRun: "tus valores están {mag}{dir}",
+    mixTemp: "la mezcla está {mag}{dir}",
+    satState: "{mag}{dir}",
+    colorMatched: "el color está bien igualado",
+  },
+};
+
+const DICTS: Record<Lang, Dict> = { en, es };
+
+function lookup(dict: Dict, path: string): string | undefined {
+  const parts = path.split(".");
+  let cur: string | Dict | undefined = dict;
+  for (const p of parts) {
+    if (typeof cur !== "object" || cur == null) return undefined;
+    cur = cur[p];
+  }
+  return typeof cur === "string" ? cur : undefined;
+}
+
+export function translate(
+  lang: Lang,
+  key: string,
+  params?: Record<string, string | number>
+): string {
+  let s = lookup(DICTS[lang], key) ?? lookup(en, key) ?? key;
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      s = s.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+    }
+  }
+  return s;
+}
+
+export function useT(): {
+  lang: Lang;
+  t: (key: string, params?: Record<string, string | number>) => string;
+} {
+  const lang = useLang();
+  return { lang, t: (key, params) => translate(lang, key, params) };
+}

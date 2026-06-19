@@ -3,6 +3,7 @@
 
 import { rgbToLab, deltaE, type RGB, type Lab } from "./color";
 import type { Pigment } from "./pigments";
+import { translate, type Lang } from "./i18n";
 
 // Pull pixels from an already-loaded image, downsampled for speed.
 export function samplePixels(
@@ -129,8 +130,11 @@ export function extractPalette(pixels: RGB[], k: number): RGB[] {
 export function relationshipHint(
   target: RGB,
   others: RGB[],
-  pigments: Pigment[]
+  pigments: Pigment[],
+  lang: Lang = "en"
 ): string | null {
+  const L = (k: string, p?: Record<string, string | number>) =>
+    translate(lang, k, p);
   const tl = rgbToLab(target);
   // find the nearest *other* color
   let nearest: RGB | null = null;
@@ -153,25 +157,25 @@ export function relationshipHint(
   const dB = tl.b - ol.b;
 
   // pick the pigment that best matches the direction of change
-  const push = pickDirectionPigment(dA, dB, dL, pigments);
+  const push = pickDirectionPigment(dA, dB, dL, pigments, lang);
   const lighten =
-    dL > 6 ? "lightening it" : dL < -6 ? "darkening it" : null;
+    dL > 6 ? L("extract.lightening") : dL < -6 ? L("extract.darkening") : null;
 
-  const fromLabel = `Color #${nearestIdx + 1}`;
+  const from = L("extract.colorN", { n: nearestIdx + 1 });
   if (push) {
-    return `Close to ${fromLabel} — reach it by adding a touch of ${push}${
-      lighten ? ` and ${lighten}` : ""
-    }.`;
+    const extra = lighten ? ` ${L("extract.and")} ${lighten}` : "";
+    return L("extract.hintAdd", { from, push, extra });
   }
-  if (lighten) return `Close to ${fromLabel} — reach it by ${lighten}.`;
-  return `Very close to ${fromLabel}.`;
+  if (lighten) return L("extract.hintAdjust", { from, extra: lighten });
+  return L("extract.hintVeryClose", { from });
 }
 
 function pickDirectionPigment(
   dA: number,
   dB: number,
   dL: number,
-  pigments: Pigment[]
+  pigments: Pigment[],
+  lang: Lang
 ): string | null {
   // describe the needed shift and find a pigment whose hue pushes that way
   const wantRed = dA > 8;
@@ -182,9 +186,11 @@ function pickDirectionPigment(
   const byName = (frag: string) =>
     pigments.find((p) => p.name.toLowerCase().includes(frag))?.name;
 
-  if (wantBlue) return byName("ultramarine") || byName("blue") || "a cool blue";
-  if (wantYellow) return byName("ochre") || byName("yellow") || "a warm yellow";
-  if (wantRed) return byName("red") || byName("crimson") || "a red";
+  if (wantBlue)
+    return byName("ultramarine") || byName("blue") || translate(lang, "extract.coolBlue");
+  if (wantYellow)
+    return byName("ochre") || byName("yellow") || translate(lang, "extract.warmYellow");
+  if (wantRed) return byName("red") || byName("crimson") || translate(lang, "extract.aRed");
   if (wantGreen) return byName("green") || null;
   if (Math.abs(dL) > 6) return byName("white") || byName("umber") || null;
   return null;

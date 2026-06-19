@@ -3,6 +3,7 @@ import { rgbToHex, type RGB } from "@/lib/color";
 import { generateRecipe } from "@/lib/mixer";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
+import { useT } from "@/lib/i18n";
 import type { Pigment } from "@/lib/pigments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Swatch } from "./Swatch";
@@ -21,6 +22,7 @@ export function ResultPanel({
   pigments: Pigment[];
   onPick: (rgb: RGB) => void;
 }) {
+  const { t } = useT();
   const mode = useRecipeMode();
   const engine = useMixEngine();
   const recipe = useMemo(
@@ -33,13 +35,13 @@ export function ResultPanel({
       <div className="space-y-4">
         <Swatch
           rgb={rgb}
-          label="Target color"
+          label={t("match.targetColor")}
           sub={`${rgbToHex(rgb)} · rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}
           className="h-44"
         />
         <Card>
           <CardHeader>
-            <CardTitle>Painter analysis</CardTitle>
+            <CardTitle>{t("analysis.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <AnalysisView rgb={rgb} />
@@ -50,7 +52,7 @@ export function ResultPanel({
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Mixing recipe</CardTitle>
+            <CardTitle>{t("recipe.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <RecipeView recipe={recipe} />
@@ -58,7 +60,7 @@ export function ResultPanel({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Variations</CardTitle>
+            <CardTitle>{t("variations.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <VariationsView rgb={rgb} onPick={onPick} />

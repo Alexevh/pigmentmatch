@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { coach, type TipKind } from "@/lib/coach";
+import { useT } from "@/lib/i18n";
 import type { Pigment } from "@/lib/pigments";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,18 +38,19 @@ export function CoachView({
   onTargetChange: (rgb: RGB) => void;
   pigments: Pigment[];
 }) {
+  const { lang, t } = useT();
   // The current mixture on the painter's palette — starts as a neutral grey.
   const [current, setCurrent] = useState<RGB>({ r: 170, g: 170, b: 165 });
   const [sampling, setSampling] = useState(false);
 
-  const result = coach(target, current, pigments);
+  const result = coach(target, current, pigments, lang);
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Target color</CardTitle>
+            <CardTitle>{t("coach.target")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div
@@ -61,14 +63,14 @@ export function CoachView({
 
         <Card>
           <CardHeader className="flex-row items-center justify-between">
-            <CardTitle>Your current mix</CardTitle>
+            <CardTitle>{t("coach.yourMix")}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSampling((s) => !s)}
               className="text-xs text-muted-foreground"
             >
-              {sampling ? "Enter manually" : "Sample from photo"}
+              {sampling ? t("coach.enterManually") : t("coach.sampleFromPhoto")}
             </Button>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -89,14 +91,14 @@ export function CoachView({
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 normal-case tracking-normal text-foreground">
             <GraduationCap className="h-4 w-4 text-accent" />
-            Coach
+            {t("coach.title")}
           </CardTitle>
           <div className="text-right">
             <div className={cn("text-lg font-bold", matchColor(result.match))}>
               {result.match}%
             </div>
             <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              match · ΔE {result.deltaE.toFixed(1)}
+              {t("recipe.match")} · ΔE {result.deltaE.toFixed(1)}
             </div>
           </div>
         </CardHeader>
@@ -136,8 +138,7 @@ export function CoachView({
           </ol>
 
           <p className="border-t border-border/60 pt-3 text-xs text-muted-foreground">
-            Add color in tiny steps and re-sample — chasing a target is always a
-            few small corrections, not one big one.
+            {t("coach.footer")}
           </p>
         </CardContent>
       </Card>

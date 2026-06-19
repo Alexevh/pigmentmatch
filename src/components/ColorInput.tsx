@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { hexToRgb, rgbToHex, clamp255, type RGB } from "@/lib/color";
+import { useT } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
 
 function Channel({
@@ -35,6 +36,7 @@ export function ColorInput({
   rgb: RGB;
   onChange: (rgb: RGB) => void;
 }) {
+  const { t } = useT();
   const [hexText, setHexText] = useState(rgbToHex(rgb));
 
   // keep the hex field in sync when rgb changes from elsewhere (picker, image…)
@@ -53,7 +55,7 @@ export function ColorInput({
       <div className="flex items-end gap-3">
         <label className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            Picker
+            {t("match.picker")}
           </span>
           <input
             type="color"

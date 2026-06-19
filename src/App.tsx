@@ -14,6 +14,7 @@ import { useCalibration } from "@/hooks/useCalibration";
 import { useCalibratedEngine } from "@/hooks/useCalibratedEngine";
 import { applyCalibration } from "@/lib/calibration";
 import { isEnabled } from "@/lib/pigments";
+import { useT, setLang, type Lang } from "@/lib/i18n";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ColorInput } from "@/components/ColorInput";
@@ -26,6 +27,7 @@ import { CalibrateView } from "@/components/CalibrateView";
 import { CompareView } from "@/components/CompareView";
 
 export default function App() {
+  const { lang, t } = useT();
   const api = usePalettes();
   const pigments = api.active?.pigments ?? [];
   const [tab, setTab] = useState("match");
@@ -62,23 +64,39 @@ export default function App() {
             <h1 className="text-base font-semibold leading-tight">
               Pigment Match
             </h1>
-            <p className="text-xs text-muted-foreground">
-              Think in paint, not in RGB
-            </p>
+            <p className="text-xs text-muted-foreground">{t("app.tagline")}</p>
           </div>
-          <div className="ml-auto hidden items-center gap-2 text-xs text-muted-foreground sm:flex">
+          <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
             {engineOn && (
-              <span className="flex items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 font-medium text-accent">
-                <FlaskConical className="h-3 w-3" /> Calibrated
+              <span className="hidden items-center gap-1 rounded-full bg-accent/15 px-2 py-0.5 font-medium text-accent sm:flex">
+                <FlaskConical className="h-3 w-3" /> {t("app.calibrated")}
               </span>
             )}
-            <span>
+            <span className="hidden sm:inline">
               {api.active?.name} ·{" "}
               {enabledPigments.length < pigments.length
-                ? `${enabledPigments.length}/${pigments.length}`
-                : pigments.length}{" "}
-              pigments
+                ? t("app.pigmentsOf", {
+                    enabled: enabledPigments.length,
+                    total: pigments.length,
+                  })
+                : t("app.pigments", { n: pigments.length })}
             </span>
+            <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
+              {(["en", "es"] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={
+                    "rounded px-2 py-0.5 font-medium uppercase transition-colors " +
+                    (lang === l
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground")
+                  }
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </header>
@@ -87,25 +105,25 @@ export default function App() {
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
           <TabsList>
             <TabsTrigger value="match">
-              <Pipette className="h-4 w-4" /> Match
+              <Pipette className="h-4 w-4" /> {t("tabs.match")}
             </TabsTrigger>
             <TabsTrigger value="image">
-              <ImageIcon className="h-4 w-4" /> Image
+              <ImageIcon className="h-4 w-4" /> {t("tabs.image")}
             </TabsTrigger>
             <TabsTrigger value="extract">
-              <Grid2x2 className="h-4 w-4" /> Extract
+              <Grid2x2 className="h-4 w-4" /> {t("tabs.extract")}
             </TabsTrigger>
             <TabsTrigger value="coach">
-              <GraduationCap className="h-4 w-4" /> Coach
+              <GraduationCap className="h-4 w-4" /> {t("tabs.coach")}
             </TabsTrigger>
             <TabsTrigger value="compare">
-              <GitCompare className="h-4 w-4" /> Compare
+              <GitCompare className="h-4 w-4" /> {t("tabs.compare")}
             </TabsTrigger>
             <TabsTrigger value="calibrate">
-              <FlaskConical className="h-4 w-4" /> Calibrate
+              <FlaskConical className="h-4 w-4" /> {t("tabs.calibrate")}
             </TabsTrigger>
             <TabsTrigger value="palette">
-              <Palette className="h-4 w-4" /> Palette
+              <Palette className="h-4 w-4" /> {t("tabs.palette")}
             </TabsTrigger>
           </TabsList>
 
@@ -114,7 +132,7 @@ export default function App() {
             <div className="grid gap-4 lg:grid-cols-[300px_1fr]">
               <Card className="h-fit">
                 <CardHeader>
-                  <CardTitle>Target color</CardTitle>
+                  <CardTitle>{t("match.targetColor")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ColorInput rgb={target} onChange={setTarget} />
@@ -133,7 +151,7 @@ export default function App() {
             <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
               <Card className="h-fit">
                 <CardHeader>
-                  <CardTitle>Sample from image</CardTitle>
+                  <CardTitle>{t("match.sampleFromImage")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ImageSampler onSample={setTarget} />
@@ -141,7 +159,7 @@ export default function App() {
               </Card>
               <Card className="h-fit">
                 <CardHeader>
-                  <CardTitle>Sampled color</CardTitle>
+                  <CardTitle>{t("match.sampledColor")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ColorInput rgb={target} onChange={setTarget} />
@@ -159,7 +177,7 @@ export default function App() {
           <TabsContent value="extract">
             <Card>
               <CardHeader>
-                <CardTitle>Palette extraction</CardTitle>
+                <CardTitle>{t("extract.title")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <PaletteExtractor
@@ -196,7 +214,7 @@ export default function App() {
           <TabsContent value="palette">
             <Card>
               <CardHeader>
-                <CardTitle>Pigment palette</CardTitle>
+                <CardTitle>{t("palette.title")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <PaletteManager api={api} />
@@ -206,9 +224,7 @@ export default function App() {
         </Tabs>
 
         <footer className="mt-10 border-t border-border/60 pt-5 text-center text-xs text-muted-foreground">
-          Runs entirely in your browser — palettes are saved locally. Recipes
-          use a subtractive Kubelka-Munk approximation and are a starting point;
-          trust your eye on the easel.
+          {t("app.footer")}
         </footer>
       </main>
     </div>

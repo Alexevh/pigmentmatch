@@ -12,6 +12,7 @@ import {
   type Lab,
 } from "./color";
 import type { Pigment } from "./pigments";
+import { translate, type Lang } from "./i18n";
 
 export type TipKind = "value" | "saturation" | "hue" | "done";
 
@@ -103,20 +104,21 @@ function mostNeutralEarth(pigments: Pigment[]): Pigment | null {
   return best;
 }
 
-function magnitudeWord(v: number, mid: number, big: number): string {
-  const a = Math.abs(v);
-  if (a >= big) return "much ";
-  if (a >= mid) return "a bit ";
-  return "slightly ";
-}
-
-const named = (p: Pigment | null, fallback: string) => p?.name ?? fallback;
-
 export function coach(
   target: RGB,
   current: RGB,
-  pigments: Pigment[]
+  pigments: Pigment[],
+  lang: Lang = "en"
 ): CoachResult {
+  const tr = (k: string, p?: Record<string, string | number>) =>
+    translate(lang, k, p);
+  const named = (pig: Pigment | null, fallbackKey: string) =>
+    pig?.name ?? tr(fallbackKey);
+  const magWord = (v: number, mid: number, big: number) => {
+    const a = Math.abs(v);
+    return tr(a >= big ? "coach.much" : a >= mid ? "coach.aBit" : "coach.slightly");
+  };
+
   const t = rgbToLab(target);
   const c = rgbToLab(current);
   const dE = deltaE2000(t, c);
@@ -127,15 +129,15 @@ export function coach(
       deltaE: dE,
       match,
       onTarget: true,
-      headline: "You're there — the difference is barely perceptible.",
-      tips: [{ id: "done", text: "Lay it in and trust it." }],
+      headline: tr("coach.headlineThere"),
+      tips: [{ id: "done", text: tr("coach.done") }],
     };
   }
 
   const tips: { tip: CoachTip; severity: number }[] = [];
 
-  // 1) Value (lightness) ----------------------------------------------------
-  const dL = t.L - c.L; // + => target is lighter => need to lighten
+  // 1) Value (lightness)
+  const dL = t.L - c.L;
   if (Math.abs(dL) >= 4) {
     if (dL > 0) {
       const white = lightestPigment(pigments);
@@ -143,10 +145,10 @@ export function coach(
         severity: Math.abs(dL),
         tip: {
           id: "value",
-          text: `Your mix is ${magnitudeWord(dL, 10, 22)}too dark — lift the value with ${named(
-            white,
-            "white"
-          )}.`,
+          text: tr("coach.tooDark", {
+            mag: magWord(dL, 10, 22),
+            pig: named(white, "coach.white"),
+          }),
           swatchHex: white ? rgbToHex(white.rgb) : undefined,
         },
       });
@@ -156,69 +158,64 @@ export function coach(
         severity: Math.abs(dL),
         tip: {
           id: "value",
-          text: `Your mix is ${magnitudeWord(dL, 10, 22)}too light — bring the value down with a touch of ${named(
-            dark,
-            "a dark pigment"
-          )}.`,
+          text: tr("coach.tooLight", {
+            mag: magWord(dL, 10, 22),
+            pig: named(dark, "coach.darkPigment"),
+          }),
           swatchHex: dark ? rgbToHex(dark.rgb) : undefined,
         },
       });
     }
   }
 
-  // 2) Saturation (chroma) --------------------------------------------------
-  const dC = chroma(t) - chroma(c); // + => target more saturated
+  // 2) Saturation (chroma)
+  const dC = chroma(t) - chroma(c);
   if (Math.abs(dC) >= 6) {
     if (dC < 0) {
-      // current too saturated -> neutralize toward the complement, or fall
-      // back to the most neutral earth in the palette
       const comp =
         pickByDirection(-c.a, -c.b, pigments) ?? mostNeutralEarth(pigments);
       tips.push({
         severity: Math.abs(dC),
         tip: {
           id: "saturation",
-          text: `It's ${magnitudeWord(dC, 12, 28)}too saturated — knock it back with a touch of ${named(
-            comp,
-            "a neutral / earth tone"
-          )}.`,
+          text: tr("coach.tooSat", {
+            mag: magWord(dC, 12, 28),
+            pig: named(comp, "coach.neutralEarth"),
+          }),
           swatchHex: comp ? rgbToHex(comp.rgb) : undefined,
         },
       });
     } else {
-      // current too dull -> push toward the target's own hue
       const pure = pickByDirection(t.a, t.b, pigments);
       tips.push({
         severity: Math.abs(dC),
         tip: {
           id: "saturation",
-          text: `It's ${magnitudeWord(dC, 12, 28)}too grey — intensify it with more ${named(
-            pure,
-            "a saturated pigment"
-          )}.`,
+          text: tr("coach.tooDull", {
+            mag: magWord(dC, 12, 28),
+            pig: named(pure, "coach.satPigment"),
+          }),
           swatchHex: pure ? rgbToHex(pure.rgb) : undefined,
         },
       });
     }
   }
 
-  // 3) Hue / temperature (angle in a*/b*) -----------------------------------
-  // only meaningful if both colors carry some chroma
+  // 3) Hue / temperature
   if (chroma(t) > 4 && chroma(c) > 6) {
-    const angle = hueAngleDiff(c, t); // degrees to rotate current toward target
+    const angle = hueAngleDiff(c, t);
     if (Math.abs(angle) >= 10) {
-      // direction to push = target hue minus current hue, as an (a,b) vector
       const da = t.a - c.a;
       const db = t.b - c.b;
       const pig = pickByDirection(da, db, pigments);
-      const warmer = t.b > c.b || t.a > c.a; // toward yellow/red reads warmer
+      const warmer = t.b > c.b || t.a > c.a;
       tips.push({
         severity: Math.abs(angle) / 3,
         tip: {
           id: "hue",
-          text: `The hue leans off — it needs to go ${
-            warmer ? "warmer" : "cooler"
-          }. Nudge it with a touch of ${named(pig, "the right pigment")}.`,
+          text: tr(warmer ? "coach.hueWarmer" : "coach.hueCooler", {
+            pig: named(pig, "coach.rightPigment"),
+          }),
           swatchHex: pig ? rgbToHex(pig.rgb) : undefined,
         },
       });
@@ -229,10 +226,10 @@ export function coach(
 
   const headline =
     dE < 4
-      ? "Very close — just fine-tune from here."
+      ? tr("coach.headlineVeryClose")
       : dE < 12
-      ? "Close. A couple of adjustments and you'll have it."
-      : "Not there yet — work through these in order.";
+      ? tr("coach.headlineClose")
+      : tr("coach.headlineFar");
 
   return {
     deltaE: dE,
@@ -241,11 +238,6 @@ export function coach(
     headline,
     tips: tips.length
       ? tips.map((x) => x.tip)
-      : [
-          {
-            id: "done",
-            text: "The differences are subtle — adjust by eye in tiny steps.",
-          },
-        ],
+      : [{ id: "done", text: tr("coach.subtle") }],
   };
 }

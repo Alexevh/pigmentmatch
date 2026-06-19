@@ -12,12 +12,17 @@ export function ImageSampler({
   onSample,
   onImage,
   onSamplePos,
+  probe,
 }: {
   onSample: (rgb: RGB) => void;
   onImage?: (img: HTMLImageElement) => void;
   onSamplePos?: (nx: number, ny: number) => void;
+  probe?: string;
 }) {
   const { t } = useT();
+  const [probePos, setProbePos] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -121,6 +126,7 @@ export function ImageSampler({
     const c = coordsAt(e);
     if (!c) return;
     setHover(pixelAt(c.x, c.y));
+    if (probe) setProbePos({ x: e.clientX, y: e.clientY });
     if (loupeOn) {
       drawLoupe(c.x, c.y);
       // place the loupe near the cursor without covering the target, clamped
@@ -170,6 +176,7 @@ export function ImageSampler({
           onMouseLeave={() => {
             setHover(null);
             setLoupePos(null);
+            setProbePos(null);
           }}
           className="w-full cursor-crosshair rounded-lg border border-border"
         />
@@ -217,6 +224,14 @@ export function ImageSampler({
           loupePos ? { left: loupePos.x, top: loupePos.y } : undefined
         }
       />
+
+      {/* Optional value/color probe — a swatch of `probe` following the cursor */}
+      {probe && probePos && (
+        <span
+          className="pointer-events-none fixed z-50 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded border-2 border-white shadow-md"
+          style={{ left: probePos.x, top: probePos.y, backgroundColor: probe }}
+        />
+      )}
     </div>
   );
 }

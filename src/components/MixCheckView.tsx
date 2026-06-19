@@ -155,6 +155,7 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
               onSample={setTarget}
               onImage={setRefImg}
               onSamplePos={(x, y) => setRefPos({ x, y })}
+              probe={mix ? rgbToHex(mix) : undefined}
             />
             {target && <ColorCard rgb={target} label={t("mix.reference")} />}
           </CardContent>

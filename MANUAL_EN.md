@@ -220,9 +220,13 @@ this in sync with your real paints.
 
 - **Palette dropdown** — switch between saved palettes.
 - **Name field** — rename the active palette.
+- **Add preset…** — spin up a palette from a known kit (Traditional Oil,
+  Winsor & Newton Artists', Corfix).
 - **New** — create a new palette (starts from the default oil set).
 - **Reset** — restore the active palette to the default 8 pigments.
 - **Delete** — remove the active palette (you always keep at least one).
+- **Export** — download the active palette as a JSON file (backup or share).
+- **Import** — load a palette from a JSON file; it's added as a new palette.
 
 ### Editing a pigment
 
@@ -246,7 +250,9 @@ new one.
 ### Saving
 
 Everything saves automatically to your browser (`localStorage`). Close the tab
-and your palettes are still there next time.
+and your palettes are still there next time. Since storage is per-browser, use
+**Export** to back a palette up or move it to another device, and **Import** to
+bring it back.
 
 ---
 

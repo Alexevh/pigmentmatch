@@ -225,9 +225,14 @@ mantené esto en sintonía con tus pinturas reales.
 
 - **Menú desplegable** — cambiar entre paletas guardadas.
 - **Campo de nombre** — renombrar la paleta activa.
+- **Add preset…** — crear una paleta desde un kit conocido (Traditional Oil,
+  Winsor & Newton Artists', Corfix).
 - **New** — crear una paleta nueva (parte del set de óleo por defecto).
 - **Reset** — restaurar la paleta activa a los 8 pigmentos por defecto.
 - **Delete** — eliminar la paleta activa (siempre queda al menos una).
+- **Export** — descargar la paleta activa como archivo JSON (respaldo o para
+  compartir).
+- **Import** — cargar una paleta desde un JSON; se agrega como paleta nueva.
 
 ### Editar un pigmento
 
@@ -253,7 +258,9 @@ agrega uno nuevo.
 ### Guardado
 
 Todo se guarda automáticamente en tu navegador (`localStorage`). Cerrá la
-pestaña y tus paletas seguirán ahí la próxima vez.
+pestaña y tus paletas seguirán ahí la próxima vez. Como el guardado es por
+navegador, usá **Export** para respaldar una paleta o llevarla a otra compu, e
+**Import** para traerla de vuelta.
 
 ---
 

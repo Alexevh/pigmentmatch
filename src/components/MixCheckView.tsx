@@ -1,13 +1,46 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GraduationCap } from "lucide-react";
 import { rgbToHex, rgbToLab, type RGB } from "@/lib/color";
 import { coach } from "@/lib/coach";
 import { analysisSentence } from "@/lib/describe";
+import { toLabField, renderGrayscale } from "@/lib/compare";
 import { useT } from "@/lib/i18n";
 import type { Pigment } from "@/lib/pigments";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageSampler } from "./ImageSampler";
+
+// Perceptual (Lab-L) grayscale of an image, capped for speed.
+function grayscaleOf(img: HTMLImageElement): ImageData {
+  const max = 480;
+  const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.max(1, Math.round(img.naturalWidth * scale));
+  const h = Math.max(1, Math.round(img.naturalHeight * scale));
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  const ctx = c.getContext("2d", { willReadFrequently: true })!;
+  ctx.drawImage(img, 0, 0, w, h);
+  return renderGrayscale(toLabField(ctx.getImageData(0, 0, w, h)));
+}
+
+function GrayCanvas({ data }: { data: ImageData }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current;
+    if (!c) return;
+    c.width = data.width;
+    c.height = data.height;
+    c.getContext("2d")!.putImageData(data, 0, 0);
+  }, [data]);
+  return (
+    <canvas
+      ref={ref}
+      className="rounded-lg border border-border"
+      style={{ width: "100%", height: "auto", display: "block" }}
+    />
+  );
+}
 
 function matchColor(match: number): string {
   if (match >= 90) return "text-emerald-400";
@@ -43,6 +76,11 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
   const { lang, t } = useT();
   const [target, setTarget] = useState<RGB | null>(null);
   const [mix, setMix] = useState<RGB | null>(null);
+  const [refImg, setRefImg] = useState<HTMLImageElement | null>(null);
+  const [mixImg, setMixImg] = useState<HTMLImageElement | null>(null);
+
+  const refGray = useMemo(() => (refImg ? grayscaleOf(refImg) : null), [refImg]);
+  const mixGray = useMemo(() => (mixImg ? grayscaleOf(mixImg) : null), [mixImg]);
 
   const advice = target && mix ? coach(target, mix, pigments, lang) : null;
   const tL = target ? rgbToLab(target).L : 0;
@@ -63,7 +101,7 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
             <CardTitle>{t("mix.referenceTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <ImageSampler onSample={setTarget} />
+            <ImageSampler onSample={setTarget} onImage={setRefImg} />
             {target && <ColorCard rgb={target} label={t("mix.reference")} />}
           </CardContent>
         </Card>
@@ -73,11 +111,36 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
             <CardTitle>{t("mix.mixTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <ImageSampler onSample={setMix} />
+            <ImageSampler onSample={setMix} onImage={setMixImg} />
             {mix && <ColorCard rgb={mix} label={t("mix.yourMix")} />}
           </CardContent>
         </Card>
       </div>
+
+      {/* Grayscale value view of both images (new) */}
+      {refGray && mixGray && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("mix.grayscale")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {t("mix.reference")}
+                </p>
+                <GrayCanvas data={refGray} />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {t("mix.yourMix")}
+                </p>
+                <GrayCanvas data={mixGray} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {!target || !mix ? (
         <p className="text-sm text-muted-foreground">{t("mix.prompt")}</p>

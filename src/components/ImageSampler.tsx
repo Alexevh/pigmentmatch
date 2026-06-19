@@ -8,7 +8,13 @@ import { cn } from "@/lib/utils";
 const LOUPE = 132; // px diameter of the magnifier
 const ZOOM = 6; // magnification factor
 
-export function ImageSampler({ onSample }: { onSample: (rgb: RGB) => void }) {
+export function ImageSampler({
+  onSample,
+  onImage,
+}: {
+  onSample: (rgb: RGB) => void;
+  onImage?: (img: HTMLImageElement) => void;
+}) {
   const { t } = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const loupeRef = useRef<HTMLCanvasElement>(null);
@@ -36,10 +42,11 @@ export function ImageSampler({ onSample }: { onSample: (rgb: RGB) => void }) {
       ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
       imgRef.current = img; // keep the full-res image for a crisp loupe
       setHasImage(true);
+      onImage?.(img);
       URL.revokeObjectURL(url);
     };
     img.src = url;
-  }, []);
+  }, [onImage]);
 
   // cursor -> canvas pixel coordinates
   const coordsAt = useCallback(

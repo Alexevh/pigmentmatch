@@ -33,8 +33,16 @@ function grayscaleCrop(
   return renderGrayscale(toLabField(ctx.getImageData(0, 0, out, out)));
 }
 
-function GrayCanvas({ data }: { data: ImageData }) {
+// The grayscale value of a color as a #gggggg hex (Lab L mapped to 0..255).
+function grayHex(rgb: RGB): string {
+  const v = Math.max(0, Math.min(255, Math.round((rgbToLab(rgb).L / 100) * 255)));
+  const h = v.toString(16).padStart(2, "0");
+  return `#${h}${h}${h}`;
+}
+
+function GrayCanvas({ data, probe }: { data: ImageData; probe?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   useEffect(() => {
     const c = ref.current;
     if (!c) return;
@@ -43,11 +51,35 @@ function GrayCanvas({ data }: { data: ImageData }) {
     c.getContext("2d")!.putImageData(data, 0, 0);
   }, [data]);
   return (
-    <canvas
-      ref={ref}
-      className="rounded-lg border border-border"
-      style={{ width: "100%", height: "auto", display: "block" }}
-    />
+    <div
+      className="relative"
+      onMouseMove={
+        probe
+          ? (e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+            }
+          : undefined
+      }
+      onMouseLeave={() => setPos(null)}
+    >
+      <canvas
+        ref={ref}
+        className="rounded-lg border border-border"
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "block",
+          cursor: probe ? "crosshair" : undefined,
+        }}
+      />
+      {probe && pos && (
+        <span
+          className="pointer-events-none absolute h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded border-2 border-white shadow-md"
+          style={{ left: pos.x, top: pos.y, backgroundColor: probe }}
+        />
+      )}
+    </div>
   );
 }
 
@@ -161,13 +193,13 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
           <CardHeader>
             <CardTitle>{t("mix.grayscale")}</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-2">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   {t("mix.reference")}
                 </p>
-                <GrayCanvas data={refGray} />
+                <GrayCanvas data={refGray} probe={mix ? grayHex(mix) : undefined} />
               </div>
               <div className="space-y-1">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -176,6 +208,7 @@ export function MixCheckView({ pigments }: { pigments: Pigment[] }) {
                 <GrayCanvas data={mixGray} />
               </div>
             </div>
+            <p className="text-xs text-muted-foreground">{t("mix.probeHint")}</p>
           </CardContent>
         </Card>
       )}

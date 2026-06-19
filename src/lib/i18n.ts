@@ -69,6 +69,8 @@ const en: Dict = {
     colorHeading: "Color & advice",
     grayscale: "Grayscale — judge the values",
     showGrayscale: "Show grayscale (cropped to your samples)",
+    probeHint:
+      "Move over the reference — the square is your mix's value. Where it blends in, your value matches.",
     lighter: "your mix is lighter",
     darker: "your mix is darker",
     sameValue: "values match closely",
@@ -369,6 +371,8 @@ const es: Dict = {
     colorHeading: "Color y consejos",
     grayscale: "Escala de grises — juzgá los valores",
     showGrayscale: "Mostrar grises (recortado a lo que muestreaste)",
+    probeHint:
+      "Movete sobre la referencia — el cuadradito es el valor de tu mezcla. Donde se funde, tu valor coincide.",
     lighter: "tu mezcla está más clara",
     darker: "tu mezcla está más oscura",
     sameValue: "los valores coinciden",

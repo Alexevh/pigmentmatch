@@ -13,6 +13,8 @@ Everything runs **entirely in your browser**. There is no backend; palettes are
 saved to `localStorage`.
 
 > 📖 User manuals: [English](MANUAL_EN.md) · [Español](MANUAL_ES.md)
+>
+> 🌐 Available in **English and Spanish** — toggle in the header (`EN / ES`).
 
 ## Features
 
@@ -27,6 +29,19 @@ saved to `localStorage`.
 - **Coach** — give the app your target and the mix currently on your palette;
   it tells you what to do next in painter language ("too dark — lift the value
   with white", "a bit too saturated — knock it back with Raw Umber").
+- **Compare** — upload a reference and a work-in-progress photo, align both
+  with a 4-corner perspective warp, then critique the differences: swipe /
+  onion-skin overlay with a squint (blur) slider; value views (grayscale,
+  notan posterization, value-difference heatmap, value histogram); color
+  difference heatmaps (ΔE / temperature / saturation / hue); click-a-region →
+  Coach; side-by-side palette extraction; and a scorecard (value & color
+  accuracy + a plain-language summary).
+- **Mix** — sample the target from a reference photo and your actual paint from
+  a photo of the palette mix; get each color's description, a value scale with
+  both marked (ΔL), and the Coach's advice + match %. Optional cropped
+  grayscale of both, with a value/color **probe** that follows the cursor on
+  the reference (under-cursor color on the left, your mix on the right) for
+  real-time matching.
 - **Calibrate** *(optional)* — teach the model your real paints: record a few
   "I mixed these parts and got this color" observations and fit each pigment's
   tinting strength. Off by default; flip one toggle and every recipe in the app
@@ -45,6 +60,11 @@ proportions whose mix is closest to the target in **CIE Lab**, scored with the
 perceptual **CIEDE2000 (ΔE₀₀)** color difference. Results are a starting point —
 trust your eye on the easel.
 
+The recipe display also has an optional **Spectral** engine ([spectral.js](https://github.com/rvanwijnen/spectral.js),
+opt-in) that reconstructs a full reflectance curve per pigment and mixes across
+the spectrum — and a **Simple / Precise** toggle that trades a few pigments for
+a slightly closer match.
+
 This follows the same single-constant Kubelka-Munk approach used in color
 science for paint matching — see Mohammadi, Nezamabadi, Taplin & Berns (RIT
 Munsell Color Science Lab, 2004), *Pigment Selection Using Kubelka–Munk Turbid
@@ -53,7 +73,8 @@ Media Theory and Non-Negative Least Square Technique*
 
 ## Tech
 
-React + TypeScript + Vite, Tailwind CSS, shadcn-style components, Lucide icons.
+React + TypeScript + Vite, Tailwind CSS, shadcn-style components, Lucide icons,
+spectral.js (optional spectral mixing engine). English/Spanish i18n built in.
 
 ## Commands
 
@@ -68,10 +89,13 @@ npm run preview # preview the production build
 
 ```
 src/
-  lib/        color math, pigment model, mixer, coach, calibration, extraction, storage
-  hooks/      usePalettes, useRecipeUnit, useRecipeMode, useCalibration, useCalibratedEngine
+  lib/        color math (deltaE2000), pigment model, mixer (classic + spectral),
+              coach, calibration, extraction, compare, describe, storage, i18n
+  hooks/      usePalettes, useRecipeUnit, useRecipeMode, useMixEngine,
+              useCalibration, useCalibratedEngine
   components/ feature components + ui/ (shadcn-style primitives)
-  App.tsx     tabbed layout (Match · Image · Extract · Coach · Calibrate · Palette)
+  App.tsx     tabbed layout (Match · Image · Extract · Coach · Compare · Mix ·
+              Calibrate · Palette)
 ```
 
 ## Deployment
@@ -95,4 +119,7 @@ redirect rules are required (the app uses tab state, not URL routes).
 
 - Calibrate more than tinting strength (fit masstone colors / a per-pigment
   K/S scale) from observations.
-- Full multi-constant Kubelka-Munk spectral mixing.
+- Two-constant Kubelka-Munk (use opacity as the scattering coefficient) for
+  realistic glazing/layering.
+- Tune the optional spectral engine's search; per-pigment undertone.
+- Palette import/export (JSON) for backup/sharing across devices.

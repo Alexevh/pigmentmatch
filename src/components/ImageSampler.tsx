@@ -225,11 +225,12 @@ export function ImageSampler({
         }
       />
 
-      {/* Optional value/color probe — a swatch of `probe` following the cursor */}
+      {/* Optional value/color probe — a swatch of `probe` offset to the right
+          of the cursor so it doesn't cover the pointer */}
       {probe && probePos && (
         <span
-          className="pointer-events-none fixed z-50 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded border-2 border-white shadow-md"
-          style={{ left: probePos.x, top: probePos.y, backgroundColor: probe }}
+          className="pointer-events-none fixed z-50 h-9 w-9 -translate-y-1/2 rounded border-2 border-white shadow-md"
+          style={{ left: probePos.x + 18, top: probePos.y, backgroundColor: probe }}
         />
       )}
     </div>

@@ -75,8 +75,8 @@ function GrayCanvas({ data, probe }: { data: ImageData; probe?: string }) {
       />
       {probe && pos && (
         <span
-          className="pointer-events-none absolute h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded border-2 border-white shadow-md"
-          style={{ left: pos.x, top: pos.y, backgroundColor: probe }}
+          className="pointer-events-none absolute h-9 w-9 -translate-y-1/2 rounded border-2 border-white shadow-md"
+          style={{ left: pos.x + 18, top: pos.y, backgroundColor: probe }}
         />
       )}
     </div>

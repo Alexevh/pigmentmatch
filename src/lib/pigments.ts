@@ -117,7 +117,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   { id: "wn-raw-umber", name: "Raw Umber", rgb: { r: 69, g: 64, b: 60 }, opacity: 0.35, temperature: "cool", strength: 0.75 }, // PBk11/PBr7; masstone from measured Lab (Griffin line); Transparent
   { id: "wn-burnt-umber", name: "Burnt Umber", rgb: { r: 68, g: 58, b: 54 }, opacity: 0.35, temperature: "warm", strength: 0.8 }, // PBr7; masstone from measured Lab (Griffin line); Transparent
   { id: "wn-burnt-sienna", name: "Burnt Sienna", rgb: { r: 124, g: 62, b: 55 }, opacity: 0.35, temperature: "warm", strength: 0.75 }, // PR101; masstone from measured Lab (Griffin line); Transparent
-  { id: "wn-yellow-ochre", name: "Yellow Ochre", rgb: { r: 196, g: 145, b: 56 }, opacity: 0.8, temperature: "warm", strength: 0.7 }, // PY43
+  { id: "wn-yellow-ochre", name: "Yellow Ochre", rgb: { r: 170, g: 110, b: 47 }, opacity: 0.85, temperature: "warm", strength: 0.7 }, // PY43; masstone from measured Lab (Griffin line); Opaque
   { id: "wn-terra-rosa", name: "Terra Rosa", rgb: { r: 150, g: 77, b: 62 }, opacity: 0.8, temperature: "warm", strength: 0.7 }, // PR101
   { id: "wn-venetian-red", name: "Venetian Red", rgb: { r: 126, g: 52, b: 42 }, opacity: 0.8, temperature: "warm", strength: 0.75 }, // PR101
   // yellows

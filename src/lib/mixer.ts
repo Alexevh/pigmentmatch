@@ -9,7 +9,7 @@
 
 import {
   rgbToLab,
-  deltaE,
+  deltaE2000,
   matchScore,
   rgbToHex,
   clamp255,
@@ -190,7 +190,7 @@ export function generateRecipe(
 
   const evalWeights = (weights: number[]): Candidate => {
     const rgb = mix(weights);
-    return { weights, rgb, dE: deltaE(rgbToLab(rgb), targetLab) };
+    return { weights, rgb, dE: deltaE2000(rgbToLab(rgb), targetLab) };
   };
 
   let best: Candidate | null = null;
@@ -291,7 +291,7 @@ function reduceWeights(
       const sum = trial.reduce((a, b) => a + b, 0);
       if (sum <= 0) continue;
       const norm = trial.map((x) => x / sum);
-      const dE = deltaE(rgbToLab(mix(norm)), targetLab);
+      const dE = deltaE2000(rgbToLab(mix(norm)), targetLab);
       if (!bestRemoval || dE < bestRemoval.dE) {
         bestRemoval = { weights: norm, dE };
       }
@@ -326,7 +326,7 @@ function buildRecipe(
   // so the match score always reflects the recipe shown (no stale value).
   const fullWeights = pigments.map((_, i) => weights[i] || 0);
   const mixed = mix(fullWeights);
-  const dE = deltaE(rgbToLab(mixed), targetLab);
+  const dE = deltaE2000(rgbToLab(mixed), targetLab);
 
   const top = norm[0]?.weight ?? 1;
   // structural pigments are a meaningful fraction of the mix; the rest are touches

@@ -56,7 +56,7 @@ Clean up the temp files afterward.
 ```
 src/
   lib/
-    color.ts        hex/rgb/hsl/Lab conversions, deltaE (CIE76), matchScore,
+    color.ts        hex/rgb/hsl/Lab conversions, deltaE (CIE76) + deltaE2000, matchScore,
                     analyzeColor (painter analysis), buildVariations
     pigments.ts     Pigment type; DEFAULT (Traditional Oil 8), WINSOR_NEWTON (25),
                     CORFIX (19); makeX palettes; PALETTE_PRESETS; libraryPigments();
@@ -86,7 +86,9 @@ src/
   approximation per sRGB channel, weighted by each pigment's `strength`
   (`mixColor` / `mixKS`). Blue+yellow drifts to green, white dilutes correctly.
 - `generateRecipe(target, pigments, mode)` searches for the proportions whose
-  predicted mix is closest to the target in **CIE Lab (ΔE)**: single-pigment
+  predicted mix is closest to the target in **CIE Lab using ΔE2000** (CIEDE2000,
+  perceptual; CIE76 is kept only for fast k-means clustering in extraction):
+  single-pigment
   seeds → random sparse restarts (1–4 pigments) → hill-climbing. Deterministic
   (seeded PRNG; no `Math.random`).
 - **`reduceWeights`** then drops pigments greedily while staying within a ΔE
@@ -97,7 +99,14 @@ src/
 - **`buildRecipe` recomputes ΔE/match from exactly the displayed weights** — the
   score must always match the recipe shown. (A past bug showed "100% white" at
   99% when white alone was 91%; this is the fix — do not regress it.)
-- `matchScore(dE) = round(clamp(100 - dE*1.5, 0, 100))`.
+- `matchScore(dE) = round(clamp(100 - dE*1.5, 0, 100))` (dE is now ΔE2000).
+- Recipe matching, scoring, the Coach and calibration all use **ΔE2000**
+  (`deltaE2000` in color.ts, validated against the Sharma reference 2.0425).
+  Method adopted from the Mohammadi/Berns RIT 2004 report (same single-constant
+  K-M as ours). That report also points at **NNLS** (non-negative least squares)
+  as a direct, deterministic recipe solver — only worthwhile with spectral data
+  (many bands), so it's a future upgrade for the spectral engine using
+  spectral.js's per-pigment K/S curves, not the 3-channel RGB classic engine.
 
 ## Features (all shipped)
 

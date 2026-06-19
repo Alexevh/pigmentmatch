@@ -6,7 +6,7 @@
 import {
   rgbToLab,
   rgbToHex,
-  deltaE,
+  deltaE2000,
   matchScore,
   type RGB,
   type Lab,
@@ -119,7 +119,7 @@ export function coach(
 ): CoachResult {
   const t = rgbToLab(target);
   const c = rgbToLab(current);
-  const dE = deltaE(t, c);
+  const dE = deltaE2000(t, c);
   const match = matchScore(dE);
 
   if (dE < 1.5) {

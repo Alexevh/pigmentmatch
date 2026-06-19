@@ -131,7 +131,8 @@ export function rgbToLab({ r, g, b }: RGB): Lab {
   };
 }
 
-// CIE76 deltaE — simple, fast, good enough for paint matching guidance.
+// CIE76 deltaE — simple, fast. Used where speed matters more than perceptual
+// accuracy (e.g. k-means clustering in palette extraction).
 export function deltaE(a: Lab, b: Lab): number {
   return Math.sqrt(
     (a.L - b.L) ** 2 + (a.a - b.a) ** 2 + (a.b - b.b) ** 2
@@ -140,6 +141,86 @@ export function deltaE(a: Lab, b: Lab): number {
 
 export function rgbDeltaE(a: RGB, b: RGB): number {
   return deltaE(rgbToLab(a), rgbToLab(b));
+}
+
+// CIEDE2000 (ΔE00) — perceptually accurate color difference. Better than CIE76
+// for blues and near-neutrals; used for recipe matching, scoring, coaching and
+// calibration. Standard formula (Sharma et al. / CIE).
+const D2R = Math.PI / 180;
+function hueDeg(a: number, b: number): number {
+  if (a === 0 && b === 0) return 0;
+  let h = Math.atan2(b, a) / D2R;
+  if (h < 0) h += 360;
+  return h;
+}
+
+export function deltaE2000(c1: Lab, c2: Lab): number {
+  const L1 = c1.L,
+    a1 = c1.a,
+    b1 = c1.b;
+  const L2 = c2.L,
+    a2 = c2.a,
+    b2 = c2.b;
+
+  const C1 = Math.hypot(a1, b1);
+  const C2 = Math.hypot(a2, b2);
+  const Cbar = (C1 + C2) / 2;
+  const Cbar7 = Cbar ** 7;
+  const G = 0.5 * (1 - Math.sqrt(Cbar7 / (Cbar7 + 25 ** 7)));
+
+  const a1p = (1 + G) * a1;
+  const a2p = (1 + G) * a2;
+  const C1p = Math.hypot(a1p, b1);
+  const C2p = Math.hypot(a2p, b2);
+  const h1p = hueDeg(a1p, b1);
+  const h2p = hueDeg(a2p, b2);
+
+  const dLp = L2 - L1;
+  const dCp = C2p - C1p;
+
+  let dhp = 0;
+  if (C1p * C2p !== 0) {
+    dhp = h2p - h1p;
+    if (dhp > 180) dhp -= 360;
+    else if (dhp < -180) dhp += 360;
+  }
+  const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin((dhp * D2R) / 2);
+
+  const Lbarp = (L1 + L2) / 2;
+  const Cbarp = (C1p + C2p) / 2;
+
+  let hbarp = h1p + h2p;
+  if (C1p * C2p !== 0) {
+    if (Math.abs(h1p - h2p) > 180) hbarp = (h1p + h2p + 360) / 2;
+    else hbarp = (h1p + h2p) / 2;
+  }
+
+  const T =
+    1 -
+    0.17 * Math.cos((hbarp - 30) * D2R) +
+    0.24 * Math.cos(2 * hbarp * D2R) +
+    0.32 * Math.cos((3 * hbarp + 6) * D2R) -
+    0.2 * Math.cos((4 * hbarp - 63) * D2R);
+
+  const dTheta = 30 * Math.exp(-(((hbarp - 275) / 25) ** 2));
+  const Cbarp7 = Cbarp ** 7;
+  const Rc = 2 * Math.sqrt(Cbarp7 / (Cbarp7 + 25 ** 7));
+  const Sl =
+    1 + (0.015 * (Lbarp - 50) ** 2) / Math.sqrt(20 + (Lbarp - 50) ** 2);
+  const Sc = 1 + 0.045 * Cbarp;
+  const Sh = 1 + 0.015 * Cbarp * T;
+  const Rt = -Math.sin(2 * dTheta * D2R) * Rc;
+
+  return Math.sqrt(
+    (dLp / Sl) ** 2 +
+      (dCp / Sc) ** 2 +
+      (dHp / Sh) ** 2 +
+      Rt * (dCp / Sc) * (dHp / Sh)
+  );
+}
+
+export function rgbDeltaE2000(a: RGB, b: RGB): number {
+  return deltaE2000(rgbToLab(a), rgbToLab(b));
 }
 
 // Map a perceptual distance to a friendly "match" percentage.

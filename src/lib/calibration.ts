@@ -9,7 +9,7 @@
 // pigment can already be set directly in the Palette tab. The fit is a simple,
 // deterministic coordinate descent that minimizes mean ΔE over the observations.
 
-import { rgbToLab, deltaE, type RGB } from "./color";
+import { rgbToLab, deltaE2000, type RGB } from "./color";
 import { mixColor } from "./mixer";
 import type { Pigment } from "./pigments";
 
@@ -49,7 +49,7 @@ export function averageError(
   let total = 0;
   for (const obs of valid) {
     const predicted = mixColor(pigments, weightsFor(obs, pigments));
-    total += deltaE(rgbToLab(predicted), rgbToLab(obs.observed));
+    total += deltaE2000(rgbToLab(predicted), rgbToLab(obs.observed));
   }
   return total / valid.length;
 }

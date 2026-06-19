@@ -112,7 +112,7 @@ export function makeDefaultPalette(): Palette {
 // tubes via the Calibrate tab for the best results.
 export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   // whites / blacks / earths
-  { id: "wn-titanium-white", name: "Titanium White", rgb: { r: 245, g: 237, b: 215 }, opacity: 1, temperature: "cool", strength: 0.55 }, // PW6; masstone from measured Lab (Griffin chart sample, reads cream/warm — likely binder yellowing); Opaque
+  { id: "wn-titanium-white", name: "Titanium White", rgb: { r: 248, g: 244, b: 234 }, opacity: 1, temperature: "cool", strength: 0.55 }, // PW6; neutralized from measured cream (#F5EDD7) — keeps a slight oil warmth; Opaque
   { id: "wn-ivory-black", name: "Ivory Black", rgb: { r: 53, g: 54, b: 54 }, opacity: 0.9, temperature: "warm", strength: 0.9 }, // PBk9; masstone from measured Lab (Griffin chart sample, reads grey); Opaque
   { id: "wn-raw-umber", name: "Raw Umber", rgb: { r: 69, g: 64, b: 60 }, opacity: 0.35, temperature: "cool", strength: 0.75 }, // PBk11/PBr7; masstone from measured Lab (Griffin line); Transparent
   { id: "wn-burnt-umber", name: "Burnt Umber", rgb: { r: 68, g: 58, b: 54 }, opacity: 0.35, temperature: "warm", strength: 0.8 }, // PBr7; masstone from measured Lab (Griffin line); Transparent

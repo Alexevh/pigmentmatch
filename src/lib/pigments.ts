@@ -129,7 +129,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   // reds / pinks / violets
   { id: "wn-cadmium-red", name: "Cadmium Red", rgb: { r: 196, g: 44, b: 36 }, opacity: 0.9, temperature: "warm", strength: 0.85 }, // PR108
   { id: "wn-cadmium-red-deep-hue", name: "Cadmium Red Deep Hue", rgb: { r: 161, g: 28, b: 42 }, opacity: 0.85, temperature: "warm", strength: 0.8 }, // hue
-  { id: "wn-permanent-alizarin-crimson", name: "Permanent Alizarin Crimson", rgb: { r: 120, g: 24, b: 40 }, opacity: 0.45, temperature: "cool", strength: 0.85 }, // PR177
+  { id: "wn-permanent-alizarin-crimson", name: "Permanent Alizarin Crimson", rgb: { r: 175, g: 0, b: 38 }, opacity: 0.3, temperature: "cool", strength: 0.85 }, // PR177; masstone from measured Lab (Griffin line, gamut-clipped); Transparent
   { id: "wn-permanent-rose", name: "Permanent Rose", rgb: { r: 206, g: 42, b: 98 }, opacity: 0.6, temperature: "cool", strength: 0.85 }, // PV19
   { id: "wn-quinacridone-deep-pink", name: "Quinacridone Deep Pink", rgb: { r: 176, g: 22, b: 92 }, opacity: 0.55, temperature: "cool", strength: 0.9 }, // PV19
   { id: "wn-pale-rose-blush", name: "Pale Rose Blush", rgb: { r: 224, g: 134, b: 125 }, opacity: 0.9, temperature: "warm", strength: 0.4 }, // PV19/PW4/PY42; masstone from measured Lab — Griffin-line fallback (Artists' not measured), approx

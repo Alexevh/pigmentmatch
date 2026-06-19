@@ -184,7 +184,12 @@ full list.
   - **Two-constant K-M** using opacity as scattering S — mainly helps
     transparent+opaque mixes and glazing/layering (which we don't simulate);
     modest gain on flat opaque mixes. Biggest engine change; wants calibrated
-    data.
+    data. REFERENCE: Roy Berns / RIT Munsell Color Science Lab built exactly
+    this (two-constant K-M + Saunderson correction) with measured K/S for the
+    **Gamblin Conservation Colors** set + a %-recommendation matching tool. It's
+    the canonical method — but the data is for conservation paints (not W&N/
+    Corfix) and availability/license is unconfirmed. Could power a real
+    two-constant engine for a Gamblin-Conservation-Colors preset if obtained.
   - Further spectral search tuning (e.g. multi-start refine).
   - Calibrate more than strength (masstone / K&S).
   - Palette import/export (JSON) for backup/sharing across devices.

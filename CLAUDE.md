@@ -138,8 +138,24 @@ full list.
 - The **spectral** engine (spectral.js, opt-in) is single-constant K-M
   (scattering assumed constant), not full two-constant. Its search is tuned
   separately from classic but still weaker on some hard colors.
-- Roadmap: further spectral search tuning (e.g. multi-start refine);
-  two-constant K-M; calibrate more than strength (masstone / K&S); optional
-  palette import/export (JSON) for backup/sharing across devices.
-  artistpigments.org has measured spectral curves but is view-only (no reusable
-  data license) — reference only, or ask the author.
+- We store only a single masstone RGB per pigment, so **undertone** (the
+  color a pigment shows thinned / glazed / tinted — e.g. ultramarine goes
+  violet, phthalo goes cyan) is NOT modeled. Two pigments with similar masstone
+  but different undertone look identical to us.
+- Opacity is stored but **not used by the mixing math** — it's metadata only.
+  Using it properly means two-constant K-M (opacity → scattering coefficient
+  S); a naive "weight × opacity" would be wrong (transparent pigments like
+  phthalo are very strong tinters).
+- Roadmap, possible improvements:
+  - **Undertone**: add a second per-pigment color (the tint/undertone), or use
+    a measured spectral curve, so thinned/glazed/tinted behavior is correct.
+  - **Two-constant K-M** using opacity as scattering S — mainly helps
+    transparent+opaque mixes and glazing/layering (which we don't simulate);
+    modest gain on flat opaque mixes. Biggest engine change; wants calibrated
+    data.
+  - Further spectral search tuning (e.g. multi-start refine).
+  - Calibrate more than strength (masstone / K&S).
+  - Palette import/export (JSON) for backup/sharing across devices.
+  - artistpigments.org has measured spectral curves + undertone tinting strips
+    but is view-only (no reusable data license) — reference only, or ask the
+    author.

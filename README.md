@@ -46,9 +46,10 @@ saved to `localStorage`.
   "I mixed these parts and got this color" observations and fit each pigment's
   tinting strength. Off by default; flip one toggle and every recipe in the app
   uses the model tuned to your tubes.
-- **Palette** — create, edit, save and switch palettes. Each pigment has a
-  color, opacity, temperature, and tinting strength. Ships with a traditional
-  8-pigment oil palette.
+- **Palette** — create, edit, save and switch palettes; **import/export** any
+  palette as JSON for backup or sharing. Each pigment has a color, opacity,
+  temperature, and tinting strength. Ships with a traditional 8-pigment oil
+  palette (plus Winsor & Newton and Corfix presets).
 
 ## How the mixing works
 
@@ -122,4 +123,3 @@ redirect rules are required (the app uses tab state, not URL routes).
 - Two-constant Kubelka-Munk (use opacity as the scattering coefficient) for
   realistic glazing/layering.
 - Tune the optional spectral engine's search; per-pigment undertone.
-- Palette import/export (JSON) for backup/sharing across devices.

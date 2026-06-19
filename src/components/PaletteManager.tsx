@@ -1,17 +1,20 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Plus,
   Trash2,
   RotateCcw,
   Palette as PaletteIcon,
   Library,
+  Download,
+  Upload,
 } from "lucide-react";
-import { hexToRgb, rgbToHex } from "@/lib/color";
+import { hexToRgb, rgbToHex, clamp255 } from "@/lib/color";
 import {
   PALETTE_PRESETS,
   isEnabled,
   libraryPigments,
   type Pigment,
+  type Palette,
   type Temperature,
 } from "@/lib/pigments";
 import type { usePalettes } from "@/hooks/usePalettes";
@@ -25,6 +28,45 @@ import { cn } from "@/lib/utils";
 type PaletteApi = ReturnType<typeof usePalettes>;
 
 const TEMPS: Temperature[] = ["warm", "neutral", "cool"];
+
+// Validate + coerce a parsed JSON object into a Palette (for import).
+function normalizePalette(obj: unknown): Palette | null {
+  if (!obj || typeof obj !== "object") return null;
+  const o = obj as Record<string, unknown>;
+  if (!Array.isArray(o.pigments)) return null;
+  const num = (v: unknown, d: number) =>
+    typeof v === "number" && isFinite(v) ? v : d;
+  const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+  const pigments: Pigment[] = [];
+  o.pigments.forEach((raw, i) => {
+    const p = raw as Record<string, unknown>;
+    const rgb = p.rgb as Record<string, unknown> | undefined;
+    if (!rgb || typeof rgb !== "object") return;
+    const temp = p.temperature;
+    pigments.push({
+      id: typeof p.id === "string" ? p.id : `imp-${i}`,
+      name: typeof p.name === "string" ? p.name : `Pigment ${i + 1}`,
+      rgb: {
+        r: clamp255(num(rgb.r, 128)),
+        g: clamp255(num(rgb.g, 128)),
+        b: clamp255(num(rgb.b, 128)),
+      },
+      opacity: clamp01(num(p.opacity, 0.8)),
+      temperature:
+        temp === "warm" || temp === "cool" || temp === "neutral"
+          ? temp
+          : "neutral",
+      strength: clamp01(num(p.strength, 0.7)),
+      enabled: p.enabled === false ? false : undefined,
+    });
+  });
+  if (!pigments.length) return null;
+  return {
+    id: "imported",
+    name: typeof o.name === "string" ? o.name : "Imported palette",
+    pigments,
+  };
+}
 
 function PigmentRow({
   pigment,
@@ -159,8 +201,39 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
   } = api;
   const { t } = useT();
   const [showLibrary, setShowLibrary] = useState(false);
+  const importRef = useRef<HTMLInputElement>(null);
 
   if (!active) return null;
+
+  const exportActive = () => {
+    const json = JSON.stringify(
+      { name: active.name, pigments: active.pigments },
+      null,
+      2
+    );
+    const url = URL.createObjectURL(
+      new Blob([json], { type: "application/json" })
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${active.name.replace(/[^\w-]+/g, "_") || "palette"}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const pal = normalizePalette(JSON.parse(String(reader.result)));
+        if (!pal) throw new Error("invalid");
+        addPreset(() => pal);
+      } catch {
+        alert(t("palette.importError"));
+      }
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <div className="space-y-5">
@@ -224,6 +297,27 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
           >
             <Trash2 className="h-4 w-4" /> {t("palette.delete")}
           </Button>
+          <Button variant="outline" size="sm" onClick={exportActive}>
+            <Download className="h-4 w-4" /> {t("palette.export")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => importRef.current?.click()}
+          >
+            <Upload className="h-4 w-4" /> {t("palette.import")}
+          </Button>
+          <input
+            ref={importRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) importFile(f);
+              e.target.value = "";
+            }}
+          />
         </div>
       </div>
 

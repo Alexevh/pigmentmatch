@@ -192,7 +192,9 @@ proyecto**. Usá **Renombrar** y **Eliminar** en el encabezado del proyecto.
 2. Completá lo que te sirva — todo opcional salvo tus propias costumbres:
    - **Nombre del color** — ej. *Piel caucásica genérica*.
    - **Color del swatch** — un chip de color opcional (un marcador visual
-     rápido).
+     rápido). Si agregaste una foto del swatch, apretá **Tomar color de la foto
+     del swatch** y hacé clic en la pintura para tomar el color directamente de
+     ella.
    - **Mezcla / receta** — texto libre, escrito como vos pensás:
      *"5 Blanco de Titanio · 1 Ocre Amarillo · toque Rojo Cadmio · mínimo Tierra
      Sombra Tostada."*

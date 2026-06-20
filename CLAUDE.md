@@ -167,7 +167,9 @@ src/
 - **Logbook (Bitácora):** a painter's notebook of color mixes grouped into
   **projects**. Each color **entry** holds a name, a free-text recipe, notes, an
   optional swatch color chip, and optional **swatch + reference photos**. Full
-  CRUD; per-project. **Storage is IndexedDB, not localStorage** (`logbook.ts`):
+  CRUD; per-project. The chip color can be picked with a native color input or
+  **sampled by clicking the uploaded swatch photo** (`SwatchSampler` in
+  `LogbookView` draws the stored Blob to a canvas and reads a pixel). **Storage is IndexedDB, not localStorage** (`logbook.ts`):
   photos are stored as **Blobs** (no base64 bloat, large quota) and downscaled
   to ≤1000px JPEG on upload. **Export/Import** is a single self-contained JSON
   file with images inlined as base64 data URLs (portable backup; base64 only in

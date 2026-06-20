@@ -188,7 +188,9 @@ project removes its colors too.)
 1. Press **Add color**.
 2. Fill in what's useful — all optional except your own habits:
    - **Color name** — e.g. *Generic caucasian skin*.
-   - **Swatch color** — an optional color chip (a quick visual marker).
+   - **Swatch color** — an optional color chip (a quick visual marker). If
+     you've added a swatch photo, press **Pick color from swatch photo** and
+     click the paint to lift the chip color straight from it.
    - **Mix / recipe** — free text, written however you think:
      *"5 Titanium White · 1 Yellow Ochre · touch Cadmium Red · tiny Burnt Umber."*
    - **Notes** — lighting, where it's used, what to tweak next time.

@@ -12,8 +12,10 @@ import {
   Database,
   AlertTriangle,
   Save,
+  Pipette,
   Image as ImageIcon,
 } from "lucide-react";
+import { rgbToHex } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import {
   getProjects,
@@ -119,6 +121,85 @@ function PhotoField({
   );
 }
 
+// Click the already-uploaded swatch photo to lift its color into the chip —
+// no second upload needed (draws the stored Blob to a canvas and reads a pixel).
+function SwatchSampler({
+  blob,
+  onPick,
+}: {
+  blob: Blob;
+  onPick: (hex: string) => void;
+}) {
+  const { t } = useT();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hover, setHover] = useState<string | null>(null);
+
+  useEffect(() => {
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      const c = canvasRef.current;
+      if (!c) {
+        URL.revokeObjectURL(url);
+        return;
+      }
+      const maxW = 360;
+      const scale = Math.min(1, maxW / img.width);
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext("2d", { willReadFrequently: true })?.drawImage(
+        img,
+        0,
+        0,
+        c.width,
+        c.height
+      );
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
+  }, [blob]);
+
+  const sampleAt = (e: React.MouseEvent<HTMLCanvasElement>): string | null => {
+    const c = canvasRef.current;
+    if (!c) return null;
+    const rect = c.getBoundingClientRect();
+    const x = Math.round(((e.clientX - rect.left) / rect.width) * c.width);
+    const y = Math.round(((e.clientY - rect.top) / rect.height) * c.height);
+    const d = c
+      .getContext("2d", { willReadFrequently: true })
+      ?.getImageData(x, y, 1, 1).data;
+    if (!d) return null;
+    return rgbToHex({ r: d[0], g: d[1], b: d[2] });
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs text-muted-foreground">
+        {t("logbook.pickFromSwatch")}
+      </p>
+      <canvas
+        ref={canvasRef}
+        onMouseMove={(e) => setHover(sampleAt(e))}
+        onMouseLeave={() => setHover(null)}
+        onClick={(e) => {
+          const hex = sampleAt(e);
+          if (hex) onPick(hex);
+        }}
+        className="max-w-sm cursor-crosshair rounded-md border border-border"
+      />
+      {hover && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span
+            className="h-4 w-4 rounded border border-border"
+            style={{ backgroundColor: hover }}
+          />
+          <span className="font-mono">{hover}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Inline editor for creating or editing a color entry.
 function EntryEditor({
   projectId,
@@ -138,6 +219,7 @@ function EntryEditor({
   const [hex, setHex] = useState(entry?.hex ?? "");
   const [ref, setRef] = useState<Blob | undefined>(entry?.ref);
   const [swatch, setSwatch] = useState<Blob | undefined>(entry?.swatch);
+  const [picking, setPicking] = useState(false);
 
   async function save() {
     const now = Date.now();
@@ -196,8 +278,27 @@ function EntryEditor({
                 <span className="text-xs text-muted-foreground">—</span>
               )}
             </div>
+            {swatch && (
+              <Button
+                variant={picking ? "accent" : "outline"}
+                size="sm"
+                onClick={() => setPicking((p) => !p)}
+              >
+                <Pipette className="h-3.5 w-3.5" /> {t("logbook.pickFromSwatch")}
+              </Button>
+            )}
           </div>
         </div>
+
+        {picking && swatch && (
+          <SwatchSampler
+            blob={swatch}
+            onPick={(hex) => {
+              setHex(hex);
+              setPicking(false);
+            }}
+          />
+        )}
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted-foreground">

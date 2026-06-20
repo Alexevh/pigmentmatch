@@ -71,7 +71,9 @@ trust your eye on the easel.
 The recipe display also has an optional **Spectral** engine ([spectral.js](https://github.com/rvanwijnen/spectral.js),
 opt-in) that reconstructs a full reflectance curve per pigment and mixes across
 the spectrum — and a **Simple / Precise** toggle that trades a few pigments for
-a slightly closer match.
+a slightly closer match. A **"What do these options do?"** link above the recipe
+opens a plain-language explainer of all three toggles (mixing model, detail,
+units).
 
 This follows the same single-constant Kubelka-Munk approach used in color
 science for paint matching — see Mohammadi, Nezamabadi, Taplin & Berns (RIT

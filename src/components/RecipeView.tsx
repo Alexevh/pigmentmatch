@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
+import { HelpCircle, X } from "lucide-react";
 import { recipePercentages, percentLabel, type Recipe } from "@/lib/mixer";
 import { rgbToHex } from "@/lib/color";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
+import { Button } from "@/components/ui/button";
 import { setRecipeUnit, useRecipeUnit } from "@/hooks/useRecipeUnit";
 import {
   setRecipeMode,
@@ -64,6 +67,87 @@ function EngineToggle() {
   );
 }
 
+// Explains the three recipe toggles (mixing model, detail, units) in plain
+// language so the user knows what each one changes.
+function OptionsHelpModal({ onClose }: { onClose: () => void }) {
+  const { t } = useT();
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const Section = ({
+    title,
+    intro,
+    a,
+    b,
+  }: {
+    title: string;
+    intro: string;
+    a: string;
+    b: string;
+  }) => (
+    <div>
+      <p className="font-medium">{title}</p>
+      <p className="text-muted-foreground">{intro}</p>
+      <ul className="mt-1.5 list-disc space-y-1 pl-5 text-muted-foreground">
+        <li>{a}</li>
+        <li>{b}</li>
+      </ul>
+    </div>
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-lg border border-border bg-background shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-border/60 px-5 py-3.5">
+          <h3 className="flex items-center gap-2 font-semibold">
+            <HelpCircle className="h-4 w-4 text-accent" />
+            {t("recipeHelp.title")}
+          </h3>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <div className="space-y-4 px-5 py-4 text-sm">
+          <Section
+            title={t("recipeHelp.modelTitle")}
+            intro={t("recipeHelp.modelIntro")}
+            a={t("recipeHelp.classic")}
+            b={t("recipeHelp.spectral")}
+          />
+          <Section
+            title={t("recipeHelp.modeTitle")}
+            intro={t("recipeHelp.modeIntro")}
+            a={t("recipeHelp.simple")}
+            b={t("recipeHelp.precise")}
+          />
+          <Section
+            title={t("recipeHelp.unitTitle")}
+            intro={t("recipeHelp.unitIntro")}
+            a={t("recipeHelp.parts")}
+            b={t("recipeHelp.percent")}
+          />
+        </div>
+
+        <div className="flex justify-end border-t border-border/60 px-5 py-3">
+          <Button variant="accent" size="sm" onClick={onClose}>
+            {t("recipeHelp.close")}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PigmentDot({ hex }: { hex: string }) {
   return (
     <span
@@ -82,6 +166,7 @@ export function RecipeView({
 }) {
   const { t } = useT();
   const unit = useRecipeUnit();
+  const [showHelp, setShowHelp] = useState(false);
 
   if (recipe.items.length === 0) {
     return <p className="text-sm text-muted-foreground">{t("recipe.none")}</p>;
@@ -89,8 +174,17 @@ export function RecipeView({
 
   return (
     <div className="space-y-4">
+      {showHelp && <OptionsHelpModal onClose={() => setShowHelp(false)} />}
       {!compact && (
         <div className="flex flex-wrap items-center justify-end gap-2">
+          <button
+            onClick={() => setShowHelp(true)}
+            title={t("recipeHelp.button")}
+            aria-label={t("recipeHelp.button")}
+            className="mr-auto inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+          >
+            <HelpCircle className="h-3.5 w-3.5" /> {t("recipeHelp.button")}
+          </button>
           <EngineToggle />
           <ModeToggle />
           <UnitToggle />

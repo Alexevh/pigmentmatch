@@ -62,6 +62,11 @@ Arriba de la receta hay un toggle chico: **Parts | %**.
 
 Tu elección se recuerda y aplica en todos lados (incluida la pestaña Extract).
 
+> ¿No sabés qué hacen los tres toggles arriba de la receta? Hacé clic en **"¿Qué
+> hacen estas opciones?"** ahí — una explicación corta cubre el modelo de mezcla
+> (Classic / Spectral), el nivel de detalle (Simple / Preciso) y las unidades
+> (Partes / %).
+
 > **Qué significa el match score:** es la confianza del modelo en su propia
 > predicción, medida en CIE Lab (ΔE). Un puntaje alto significa "esta mezcla
 > *debería* caer muy cerca". Es un excelente punto de partida, no una garantía

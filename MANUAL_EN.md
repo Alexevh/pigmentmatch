@@ -62,6 +62,10 @@ Above the recipe there's a small toggle: **Parts | %**.
 
 Your choice is remembered and applies everywhere (including the Extract tab).
 
+> Not sure what the three toggles above the recipe do? Click **"What do these
+> options do?"** there — a short explainer covers the mixing model (Classic /
+> Spectral), the detail level (Simple / Precise), and the units (Parts / %).
+
 > **What the match score means:** it's the model's confidence in its own
 > prediction, measured in CIE Lab (ΔE). A high score means "this mix *should*
 > land very close." It is a strong starting point, not a guarantee about real

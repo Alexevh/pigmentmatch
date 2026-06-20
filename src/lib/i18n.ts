@@ -172,6 +172,29 @@ const en: Dict = {
     "tiny touch": "tiny touch",
     "microscopic touch": "microscopic touch",
   },
+  recipeHelp: {
+    button: "What do these options do?",
+    title: "Recipe options",
+    close: "Got it",
+    modelTitle: "Mixing model — Classic / Spectral",
+    modelIntro: "How the app predicts the color a mix will produce.",
+    classic:
+      "Classic (default): fast and reliable — a single-constant Kubelka-Munk approximation per color channel. This is the recommended starting point.",
+    spectral:
+      "Spectral (experimental): rebuilds a full reflectance curve for each pigment and mixes it across the light spectrum, so it's more physically detailed. It can match some mixes better, but on tricky colors in a limited palette it's sometimes slightly worse, and it's a bit slower. Switch to it to compare.",
+    modeTitle: "Detail — Simple / Precise",
+    modeIntro: "How many pigments the recipe is allowed to use.",
+    simple:
+      "Simple (default): favors fewer pigments — a practical mix you can actually pour. It drops any pigment whose removal barely changes the color.",
+    precise:
+      "Precise: squeezes the lowest possible color error, even if that means a few extra touches.",
+    unitTitle: "Units — Parts / %",
+    unitIntro: "How the amounts are shown.",
+    parts:
+      "Parts: painter-style ratios (1 part white, 2 parts ochre…), with the smallest amounts written as touches.",
+    percent:
+      "%: each pigment as a percentage of the whole mix — they add up to 100, and anything under 1% shows as <1%.",
+  },
   analysis: {
     title: "Painter analysis",
     value: "Value",
@@ -548,6 +571,29 @@ const es: Dict = {
     "small touch": "toque pequeño",
     "tiny touch": "toque mínimo",
     "microscopic touch": "toque microscópico",
+  },
+  recipeHelp: {
+    button: "¿Qué hacen estas opciones?",
+    title: "Opciones de receta",
+    close: "Entendido",
+    modelTitle: "Modelo de mezcla — Classic / Spectral",
+    modelIntro: "Cómo la app predice el color que va a dar una mezcla.",
+    classic:
+      "Classic (por defecto): rápido y confiable — una aproximación de Kubelka-Munk de una sola constante por canal de color. Es el punto de partida recomendado.",
+    spectral:
+      "Spectral (experimental): reconstruye una curva de reflectancia completa para cada pigmento y la mezcla a lo largo del espectro de luz, así que es más detallado físicamente. Puede igualar mejor algunas mezclas, pero en colores difíciles con paleta limitada a veces da un poco peor, y es algo más lento. Cambiá a él para comparar.",
+    modeTitle: "Detalle — Simple / Preciso",
+    modeIntro: "Cuántos pigmentos puede usar la receta.",
+    simple:
+      "Simple (por defecto): prefiere menos pigmentos — una mezcla práctica que realmente podés preparar. Descarta cualquier pigmento que, al quitarlo, casi no cambie el color.",
+    precise:
+      "Preciso: exprime el menor error de color posible, aunque eso sume algún toque extra.",
+    unitTitle: "Unidades — Partes / %",
+    unitIntro: "Cómo se muestran las cantidades.",
+    parts:
+      "Partes: proporciones de pintor (1 parte de blanco, 2 partes de ocre…), con las cantidades más chicas escritas como toques.",
+    percent:
+      "%: cada pigmento como porcentaje de toda la mezcla — suman 100, y todo lo menor a 1% se muestra como <1%.",
   },
   analysis: {
     title: "Análisis de pintor",

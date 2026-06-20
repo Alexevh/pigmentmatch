@@ -130,9 +130,10 @@ src/
 - **Match / Image / Extract** tabs produce recipes; **Image** has a click-to-
   sample canvas with an optional magnifier loupe (off by default).
 - **Recipe display:** Classic/Spectral (mixing model), Simple/Precise, and
-  Parts/% toggles (in `RecipeView`). A **"What do these options do?"** link opens
-  `OptionsHelpModal` explaining all three toggles in plain language (content
-  under i18n `recipeHelp.*`); shown only in the full (`!compact`) recipe view.
+  Parts/% toggles (in `RecipeView`). A **"What do these options do?"** link
+  (on its own line above the toggles) opens `OptionsHelpModal` explaining all
+  three toggles in plain language (content under i18n `recipeHelp.*`); shown
+  only in the full (`!compact`) recipe view.
 - **Mixing engines (pluggable):** `generateRecipe(target, pigments, mode,
   engine)`. `classic` = our single-constant K-M per RGB channel (default).
   `spectral` = **spectral.js** (MIT, npm) — reconstructs a full reflectance

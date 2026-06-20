@@ -176,18 +176,18 @@ export function RecipeView({
     <div className="space-y-4">
       {showHelp && <OptionsHelpModal onClose={() => setShowHelp(false)} />}
       {!compact && (
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-col items-end gap-1.5">
           <button
             onClick={() => setShowHelp(true)}
-            title={t("recipeHelp.button")}
-            aria-label={t("recipeHelp.button")}
-            className="mr-auto inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+            className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
           >
             <HelpCircle className="h-3.5 w-3.5" /> {t("recipeHelp.button")}
           </button>
-          <EngineToggle />
-          <ModeToggle />
-          <UnitToggle />
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <EngineToggle />
+            <ModeToggle />
+            <UnitToggle />
+          </div>
         </div>
       )}
 

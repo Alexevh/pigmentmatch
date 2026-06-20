@@ -14,8 +14,8 @@ your own device.
 ## Getting started
 
 1. Open the app (`npm run dev`, then visit the local URL it prints).
-2. The interface has eight tabs across the top: **Match · Image · Extract ·
-   Coach · Compare · Mix · Calibrate · Palette**.
+2. The interface has nine tabs across the top: **Match · Image · Extract ·
+   Coach · Compare · Mix · Logbook · Calibrate · Palette**.
 3. Start in **Match** — it opens with the example color `#927073`.
 
 The header (top-right) shows your active palette and pigment count, and a
@@ -167,6 +167,49 @@ sampled**. While hovering the reference, two small swatches follow the cursor �
 the **color under the pointer** (left) and **your mix** (right) — so you can see
 in real time where your color/value matches. (Clicking still re-picks the
 target.) Both a color reference and a grayscale-value version are available.
+
+---
+
+## The Logbook tab — save your mixes for next time
+
+Your personal notebook of color mixes. Log a generic skin tone, a sky, the grey
+you mixed for the shadows — anything you'll want to find again — and come back
+another day to pick it up.
+
+### Projects
+
+Everything is organized into **projects** (a portrait commission, a study, a
+series). Pick a project from the dropdown, or type a name and press **New
+project**. Use **Rename** and **Delete** on the project header. (Deleting a
+project removes its colors too.)
+
+### Logging a color
+
+1. Press **Add color**.
+2. Fill in what's useful — all optional except your own habits:
+   - **Color name** — e.g. *Generic caucasian skin*.
+   - **Swatch color** — an optional color chip (a quick visual marker).
+   - **Mix / recipe** — free text, written however you think:
+     *"5 Titanium White · 1 Yellow Ochre · touch Cadmium Red · tiny Burnt Umber."*
+   - **Notes** — lighting, where it's used, what to tweak next time.
+   - **Swatch photo** and **Reference photo** — optional. Pick from your
+     device; they're shrunk automatically so storage stays small.
+3. Press **Save color**. Edit (pencil) or delete (trash) any entry later.
+
+### Backup — export & import
+
+- **Export** downloads your whole logbook — projects, colors, and the embedded
+  photos — as a single `.json` file.
+- **Import** loads such a file back, **adding** its projects (it never
+  overwrites what you already have). Use it to back up or move your logbook to
+  another device or browser.
+
+> **Where it's stored:** the Logbook lives in your browser's **IndexedDB** (a
+> larger local store than the rest of the app uses, so photos fit comfortably).
+> It's still 100% local — nothing is uploaded. Since it's per-browser, use
+> **Export** for a real backup. The **"How is my data stored?"** link (under the
+> intro text) opens an explainer covering exactly where your data lives, the
+> caveats, and how to back it up and recover it.
 
 ---
 

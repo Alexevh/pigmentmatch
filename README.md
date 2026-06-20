@@ -10,7 +10,7 @@ painter does, not in math.
 **🎨 Live app: [alexevh.github.io/pigmentmatch](https://alexevh.github.io/pigmentmatch/)**
 
 Everything runs **entirely in your browser**. There is no backend; palettes are
-saved to `localStorage`.
+saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`.
 
 > 📖 User manuals: [English](MANUAL_EN.md) · [Español](MANUAL_ES.md)
 >
@@ -42,6 +42,13 @@ saved to `localStorage`.
   grayscale of both, with a value/color **probe** that follows the cursor on
   the reference (under-cursor color on the left, your mix on the right) for
   real-time matching.
+- **Logbook** — a notebook of color mixes grouped into projects: a generic skin
+  tone, a sky, any recipe you want to find again. Each color entry has a name, a
+  free-text recipe, notes, an optional color chip, and optional swatch +
+  reference photos. Stored locally in **IndexedDB** (photos kept as downscaled
+  Blobs, no backend), with one-file JSON **export/import** for backup and an
+  in-app **"How is my data stored?"** explainer (where data lives, the caveats,
+  and how to back it up). Come back another day and pick your mixes back up.
 - **Calibrate** *(optional)* — teach the model your real paints: record a few
   "I mixed these parts and got this color" observations and fit each pigment's
   tinting strength. Off by default; flip one toggle and every recipe in the app
@@ -91,12 +98,13 @@ npm run preview # preview the production build
 ```
 src/
   lib/        color math (deltaE2000), pigment model, mixer (classic + spectral),
-              coach, calibration, extraction, compare, describe, storage, i18n
+              coach, calibration, extraction, compare, describe, storage,
+              logbook (IndexedDB), i18n
   hooks/      usePalettes, useRecipeUnit, useRecipeMode, useMixEngine,
               useCalibration, useCalibratedEngine
   components/ feature components + ui/ (shadcn-style primitives)
   App.tsx     tabbed layout (Match · Image · Extract · Coach · Compare · Mix ·
-              Calibrate · Palette)
+              Logbook · Calibrate · Palette)
 ```
 
 ## Deployment

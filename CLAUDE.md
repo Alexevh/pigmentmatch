@@ -81,6 +81,8 @@ src/
     calibration.ts  fit pigment tinting strengths to the painter's real mixes
     extract.ts      k-means dominant-color extraction (Lab) + relationship hints
     storage.ts      localStorage (palettes, active id, observations, calibration)
+    logbook.ts      IndexedDB store for the Bitácora: projects + color entries
+                    (photos stored as Blobs), image downscale, JSON export/import
   hooks/
     usePalettes          palettes CRUD + active selection + presets/library
     useRecipeUnit        "parts" | "percent" display (persisted)
@@ -91,8 +93,8 @@ src/
     ColorInput, Swatch, RecipeView, AnalysisView, VariationsView,
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
     ImageSampler (magnifier loupe, default off), PaletteExtractor,
-    CoachView, CalibrateView, CompareView, MixCheckView, ResultPanel, ui/
-  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Calibrate · Palette
+    CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
+  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · Calibrate · Palette
 ```
 
 ## How the recipe engine works (`mixer.ts`)
@@ -162,6 +164,18 @@ src/
 - **Calibrate (optional):** record "I mixed these parts → got this color"
   observations, fit each pigment's tinting strength (coordinate descent), and
   toggle the calibrated model on globally. Off by default; per-palette.
+- **Logbook (Bitácora):** a painter's notebook of color mixes grouped into
+  **projects**. Each color **entry** holds a name, a free-text recipe, notes, an
+  optional swatch color chip, and optional **swatch + reference photos**. Full
+  CRUD; per-project. **Storage is IndexedDB, not localStorage** (`logbook.ts`):
+  photos are stored as **Blobs** (no base64 bloat, large quota) and downscaled
+  to ≤1000px JPEG on upload. **Export/Import** is a single self-contained JSON
+  file with images inlined as base64 data URLs (portable backup; base64 only in
+  the export, not the live store). Import merges with fresh ids (never clobbers).
+  Independent of palettes/effectivePigments — it's a reference log, not a recipe
+  generator. A **"How is my data stored?"** link opens `StorageInfoModal` (in
+  `LogbookView`) explaining localStorage vs IndexedDB, per-browser caveats, and
+  backup/restore — content under i18n `logbook.storage.*`.
 
 `App.tsx` filters to `enabledPigments` then applies calibration → these
 `effectivePigments` feed Match/Image/Extract/Coach. Palette & Calibrate see the

@@ -8,6 +8,7 @@ import {
   FlaskConical,
   GitCompare,
   Beaker,
+  NotebookPen,
 } from "lucide-react";
 import type { RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
@@ -27,6 +28,7 @@ import { CoachView } from "@/components/CoachView";
 import { CalibrateView } from "@/components/CalibrateView";
 import { CompareView } from "@/components/CompareView";
 import { MixCheckView } from "@/components/MixCheckView";
+import { LogbookView } from "@/components/LogbookView";
 
 export default function App() {
   const { lang, t } = useT();
@@ -124,6 +126,9 @@ export default function App() {
             <TabsTrigger value="mix">
               <Beaker className="h-4 w-4" /> {t("tabs.mix")}
             </TabsTrigger>
+            <TabsTrigger value="logbook">
+              <NotebookPen className="h-4 w-4" /> {t("tabs.logbook")}
+            </TabsTrigger>
             <TabsTrigger value="calibrate">
               <FlaskConical className="h-4 w-4" /> {t("tabs.calibrate")}
             </TabsTrigger>
@@ -213,6 +218,18 @@ export default function App() {
           {/* Mix: reference color vs a photo of the palette mix */}
           <TabsContent value="mix">
             <MixCheckView pigments={effectivePigments} />
+          </TabsContent>
+
+          {/* Logbook: save color mixes per project (IndexedDB, with photos) */}
+          <TabsContent value="logbook">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("logbook.title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <LogbookView />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Calibrate: optional — fit the model to the painter's real paints */}

@@ -14,8 +14,8 @@ dispositivo.
 ## Primeros pasos
 
 1. Abrí la app (`npm run dev` y entrá a la URL local que muestra).
-2. La interfaz tiene ocho pestañas arriba: **Match · Imagen · Extraer · Coach ·
-   Comparar · Mezcla · Calibrar · Paleta**.
+2. La interfaz tiene nueve pestañas arriba: **Match · Imagen · Extraer · Coach ·
+   Comparar · Mezcla · Bitácora · Calibrar · Paleta**.
 3. Empezá en **Match** — abre con el color de ejemplo `#927073`.
 
 El encabezado (arriba a la derecha) muestra tu paleta activa, la cantidad de
@@ -170,6 +170,53 @@ puntos que muestreaste**. Al pasar el mouse por la referencia, dos cuadraditos
 siguen el cursor — el **color bajo el puntero** (izquierda) y **tu mezcla**
 (derecha) — para ver en vivo dónde coincide tu color/valor. (El clic sigue
 cambiando el objetivo.) Hay versión a color y en escala de grises.
+
+---
+
+## Pestaña Bitácora — guardá tus mezclas para la próxima
+
+Tu cuaderno personal de mezclas de color. Registrá un tono de piel genérico, un
+cielo, el gris que mezclaste para las sombras — cualquier cosa que quieras volver
+a encontrar — y volvé otro día a retomarla.
+
+### Proyectos
+
+Todo se organiza en **proyectos** (un retrato por encargo, un estudio, una
+serie). Elegí un proyecto del desplegable, o escribí un nombre y apretá **Nuevo
+proyecto**. Usá **Renombrar** y **Eliminar** en el encabezado del proyecto.
+(Eliminar un proyecto borra también sus colores.)
+
+### Registrar un color
+
+1. Apretá **Agregar color**.
+2. Completá lo que te sirva — todo opcional salvo tus propias costumbres:
+   - **Nombre del color** — ej. *Piel caucásica genérica*.
+   - **Color del swatch** — un chip de color opcional (un marcador visual
+     rápido).
+   - **Mezcla / receta** — texto libre, escrito como vos pensás:
+     *"5 Blanco de Titanio · 1 Ocre Amarillo · toque Rojo Cadmio · mínimo Tierra
+     Sombra Tostada."*
+   - **Notas** — luz, dónde se usa, qué ajustar la próxima vez.
+   - **Foto del swatch** y **Foto de referencia** — opcionales. Elegilas de tu
+     dispositivo; se achican automáticamente para que el almacenamiento quede
+     chico.
+3. Apretá **Guardar color**. Después podés editar (lápiz) o eliminar (tacho)
+   cualquier entrada.
+
+### Respaldo — exportar e importar
+
+- **Exportar** descarga toda tu bitácora — proyectos, colores y las fotos
+  incluidas — en un único archivo `.json`.
+- **Importar** vuelve a cargar ese archivo, **agregando** sus proyectos (nunca
+  pisa lo que ya tenés). Usalo para respaldar o mover tu bitácora a otro
+  dispositivo o navegador.
+
+> **Dónde se guarda:** la Bitácora vive en el **IndexedDB** de tu navegador (un
+> almacén local más grande que el resto de la app, así las fotos entran cómodas).
+> Sigue siendo 100% local — no se sube nada. Como es por navegador, usá
+> **Exportar** para un respaldo real. El link **"¿Dónde se guardan mis datos?"**
+> (debajo del texto introductorio) abre una explicación de exactamente dónde
+> viven tus datos, los cuidados, y cómo respaldarlos y recuperarlos.
 
 ---
 

@@ -18,6 +18,7 @@ export function ResultPanel({
   pigments,
   onPick,
   stack = false,
+  hideAnalysis = false,
 }: {
   rgb: RGB;
   pigments: Pigment[];
@@ -25,6 +26,9 @@ export function ResultPanel({
   // `stack` renders everything in a single column (for the Image tab, where the
   // panel lives in a half-width column beside the photo).
   stack?: boolean;
+  // `hideAnalysis` omits the painter-analysis card (the Image tab shows it
+  // under the photo instead).
+  hideAnalysis?: boolean;
 }) {
   const { t } = useT();
   const mode = useRecipeMode();
@@ -79,7 +83,7 @@ export function ResultPanel({
         {swatch}
         {recipeCard}
         {variations}
-        {analysis}
+        {!hideAnalysis && analysis}
       </div>
     );
   }

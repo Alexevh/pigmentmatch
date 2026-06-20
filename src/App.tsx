@@ -20,6 +20,7 @@ import { useT, setLang, type Lang } from "@/lib/i18n";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ColorInput } from "@/components/ColorInput";
+import { AnalysisView } from "@/components/AnalysisView";
 import { ResultPanel } from "@/components/ResultPanel";
 import { ImageSampler } from "@/components/ImageSampler";
 import { PaletteExtractor } from "@/components/PaletteExtractor";
@@ -159,14 +160,24 @@ export default function App() {
           {/* Image: sample colors by clicking */}
           <TabsContent value="image">
             <div className="grid items-start gap-4 lg:grid-cols-2">
-              <Card className="h-fit">
-                <CardHeader>
-                  <CardTitle>{t("match.sampleFromImage")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ImageSampler onSample={setTarget} />
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <Card className="h-fit">
+                  <CardHeader>
+                    <CardTitle>{t("match.sampleFromImage")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ImageSampler onSample={setTarget} />
+                  </CardContent>
+                </Card>
+                <Card className="h-fit">
+                  <CardHeader>
+                    <CardTitle>{t("analysis.title")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <AnalysisView rgb={target} />
+                  </CardContent>
+                </Card>
+              </div>
               <div className="space-y-4">
                 <Card className="h-fit">
                   <CardHeader>
@@ -181,6 +192,7 @@ export default function App() {
                   pigments={effectivePigments}
                   onPick={setTarget}
                   stack
+                  hideAnalysis
                 />
               </div>
             </div>

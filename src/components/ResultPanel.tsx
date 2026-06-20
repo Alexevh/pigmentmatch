@@ -17,10 +17,14 @@ export function ResultPanel({
   rgb,
   pigments,
   onPick,
+  stack = false,
 }: {
   rgb: RGB;
   pigments: Pigment[];
   onPick: (rgb: RGB) => void;
+  // `stack` renders everything in a single column (for the Image tab, where the
+  // panel lives in a half-width column beside the photo).
+  stack?: boolean;
 }) {
   const { t } = useT();
   const mode = useRecipeMode();
@@ -30,42 +34,65 @@ export function ResultPanel({
     [rgb, pigments, mode, engine]
   );
 
+  const swatch = (
+    <Swatch
+      rgb={rgb}
+      label={t("match.targetColor")}
+      sub={`${rgbToHex(rgb)} · rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}
+      className="h-44"
+    />
+  );
+  const analysis = (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("analysis.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <AnalysisView rgb={rgb} />
+      </CardContent>
+    </Card>
+  );
+  const recipeCard = (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("recipe.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <RecipeView recipe={recipe} />
+      </CardContent>
+    </Card>
+  );
+  const variations = (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("variations.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <VariationsView rgb={rgb} onPick={onPick} />
+      </CardContent>
+    </Card>
+  );
+
+  if (stack) {
+    return (
+      <div className="space-y-4">
+        {swatch}
+        {recipeCard}
+        {variations}
+        {analysis}
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <div className="space-y-4">
-        <Swatch
-          rgb={rgb}
-          label={t("match.targetColor")}
-          sub={`${rgbToHex(rgb)} · rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`}
-          className="h-44"
-        />
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("analysis.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AnalysisView rgb={rgb} />
-          </CardContent>
-        </Card>
+        {swatch}
+        {analysis}
       </div>
-
       <div className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("recipe.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecipeView recipe={recipe} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("variations.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <VariationsView rgb={rgb} onPick={onPick} />
-          </CardContent>
-        </Card>
+        {recipeCard}
+        {variations}
       </div>
     </div>
   );

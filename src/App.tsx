@@ -157,8 +157,8 @@ export default function App() {
           </TabsContent>
 
           {/* Image: sample colors by clicking */}
-          <TabsContent value="image" className="space-y-4">
-            <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+          <TabsContent value="image">
+            <div className="grid items-start gap-4 lg:grid-cols-2">
               <Card className="h-fit">
                 <CardHeader>
                   <CardTitle>{t("match.sampleFromImage")}</CardTitle>
@@ -167,20 +167,23 @@ export default function App() {
                   <ImageSampler onSample={setTarget} />
                 </CardContent>
               </Card>
-              <Card className="h-fit">
-                <CardHeader>
-                  <CardTitle>{t("match.sampledColor")}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ColorInput rgb={target} onChange={setTarget} />
-                </CardContent>
-              </Card>
+              <div className="space-y-4">
+                <Card className="h-fit">
+                  <CardHeader>
+                    <CardTitle>{t("match.sampledColor")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ColorInput rgb={target} onChange={setTarget} />
+                  </CardContent>
+                </Card>
+                <ResultPanel
+                  rgb={target}
+                  pigments={effectivePigments}
+                  onPick={setTarget}
+                  stack
+                />
+              </div>
             </div>
-            <ResultPanel
-              rgb={target}
-              pigments={effectivePigments}
-              onPick={setTarget}
-            />
           </TabsContent>
 
           {/* Extract: dominant colors from a painting */}

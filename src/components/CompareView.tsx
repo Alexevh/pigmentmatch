@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Upload, Layers, BarChart3, Grid2x2, Pipette, Award } from "lucide-react";
+import { Upload, Layers, BarChart3, Grid2x2, Pipette, Award, Camera } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
+import { CameraCapture } from "@/components/CameraCapture";
 import type { Pigment } from "@/lib/pigments";
 import { extractPalette } from "@/lib/extract";
 import { coach } from "@/lib/coach";
@@ -136,11 +137,19 @@ function Dropzone({
   onFile,
 }: {
   label: string;
-  onFile: (f: File) => void;
+  onFile: (f: Blob) => void;
 }) {
+  const { t } = useT();
   const ref = useRef<HTMLInputElement>(null);
+  const [showCam, setShowCam] = useState(false);
   return (
-    <div>
+    <div className="space-y-2">
+      {showCam && (
+        <CameraCapture
+          onCapture={(b) => onFile(b)}
+          onClose={() => setShowCam(false)}
+        />
+      )}
       <input
         ref={ref}
         type="file"
@@ -158,11 +167,19 @@ function Dropzone({
         <Upload className="h-7 w-7" />
         <span className="text-sm font-medium">{label}</span>
       </button>
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full"
+        onClick={() => setShowCam(true)}
+      >
+        <Camera className="h-4 w-4" /> {t("camera.use")}
+      </Button>
     </div>
   );
 }
 
-function loadImage(file: File): Promise<HTMLImageElement> {
+function loadImage(file: Blob): Promise<HTMLImageElement> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();

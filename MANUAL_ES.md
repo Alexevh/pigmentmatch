@@ -85,6 +85,13 @@ Tu elección se recuerda y aplica en todos lados (incluida la pestaña Extract).
 
 Usá **Replace image** para cargar otra.
 
+> **Usá tu cámara:** en todos lados donde podés subir una foto (Imagen, Mezcla,
+> Coach, Comparar y la Bitácora) hay un botón **Usar cámara**. Abre la webcam de
+> tu PC o la cámara del teléfono dentro de la misma página (con cambio de cámara
+> frontal/trasera), y la foto que sacás se usa como imagen. El video queda en tu
+> dispositivo — no se sube nada. La primera vez el navegador te pedirá permiso
+> de cámara.
+
 ---
 
 ## Pestaña Extract — una paleta desde una pintura

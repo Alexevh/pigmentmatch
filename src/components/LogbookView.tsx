@@ -13,10 +13,12 @@ import {
   AlertTriangle,
   Save,
   Pipette,
+  Camera,
   Image as ImageIcon,
 } from "lucide-react";
 import { rgbToHex } from "@/lib/color";
 import { useT } from "@/lib/i18n";
+import { CameraCapture } from "@/components/CameraCapture";
 import {
   getProjects,
   getEntries,
@@ -72,8 +74,15 @@ function PhotoField({
 }) {
   const { t } = useT();
   const ref = useRef<HTMLInputElement>(null);
+  const [showCam, setShowCam] = useState(false);
   return (
     <div className="space-y-1.5">
+      {showCam && (
+        <CameraCapture
+          onCapture={async (b) => onChange(await downscaleImage(b))}
+          onClose={() => setShowCam(false)}
+        />
+      )}
       <label className="text-xs font-medium text-muted-foreground">
         {label}
       </label>
@@ -103,19 +112,32 @@ function PhotoField({
             >
               {t("logbook.replacePhoto")}
             </Button>
+            <Button variant="outline" size="sm" onClick={() => setShowCam(true)}>
+              <Camera className="h-3.5 w-3.5" /> {t("camera.use")}
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => onChange(undefined)}>
               <X className="h-3.5 w-3.5" /> {t("logbook.removePhoto")}
             </Button>
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => ref.current?.click()}
-          className="flex h-20 w-full flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
-        >
-          <ImageIcon className="h-5 w-5" />
-          <span className="text-xs">{t("logbook.addPhoto")}</span>
-        </button>
+        <div className="space-y-1.5">
+          <button
+            onClick={() => ref.current?.click()}
+            className="flex h-20 w-full flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
+          >
+            <ImageIcon className="h-5 w-5" />
+            <span className="text-xs">{t("logbook.addPhoto")}</span>
+          </button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => setShowCam(true)}
+          >
+            <Camera className="h-3.5 w-3.5" /> {t("camera.use")}
+          </Button>
+        </div>
       )}
     </div>
   );

@@ -1,8 +1,9 @@
 import { useRef, useState, useCallback } from "react";
-import { Upload, Search } from "lucide-react";
+import { Upload, Search, Camera } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { CameraCapture } from "@/components/CameraCapture";
 import { cn } from "@/lib/utils";
 
 const LOUPE = 132; // px diameter of the magnifier
@@ -30,12 +31,13 @@ export function ImageSampler({
 
   const [hasImage, setHasImage] = useState(false);
   const [hover, setHover] = useState<RGB | null>(null);
+  const [showCam, setShowCam] = useState(false);
   const [loupeOn, setLoupeOn] = useState(false);
   const [loupePos, setLoupePos] = useState<{ x: number; y: number } | null>(
     null
   );
 
-  const drawFile = useCallback((file: File) => {
+  const drawFile = useCallback((file: Blob) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
@@ -139,6 +141,12 @@ export function ImageSampler({
 
   return (
     <div className="space-y-3">
+      {showCam && (
+        <CameraCapture
+          onCapture={(b) => drawFile(b)}
+          onClose={() => setShowCam(false)}
+        />
+      )}
       <input
         ref={fileRef}
         type="file"
@@ -151,14 +159,24 @@ export function ImageSampler({
       />
 
       {!hasImage && (
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="flex h-64 w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
-        >
-          <Upload className="h-8 w-8" />
-          <span className="text-sm font-medium">{t("image.uploadTitle")}</span>
-          <span className="text-xs">{t("image.uploadHint")}</span>
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="flex h-64 w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
+          >
+            <Upload className="h-8 w-8" />
+            <span className="text-sm font-medium">{t("image.uploadTitle")}</span>
+            <span className="text-xs">{t("image.uploadHint")}</span>
+          </button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => setShowCam(true)}
+          >
+            <Camera className="h-4 w-4" /> {t("camera.use")}
+          </Button>
+        </div>
       )}
 
       <div className={hasImage ? "block" : "hidden"}>
@@ -188,6 +206,9 @@ export function ImageSampler({
             onClick={() => fileRef.current?.click()}
           >
             <Upload className="h-4 w-4" /> {t("image.replace")}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowCam(true)}>
+            <Camera className="h-4 w-4" /> {t("camera.use")}
           </Button>
           <Button
             variant={loupeOn ? "accent" : "outline"}

@@ -83,6 +83,12 @@ Your choice is remembered and applies everywhere (including the Extract tab).
 
 Use **Replace image** to load a different one.
 
+> **Use your camera:** anywhere you can upload a photo (Image, Mix, Coach,
+> Compare, and the Logbook), there's a **Use camera** button. It opens your PC
+> webcam or phone camera right in the page (with a front/back flip), and the
+> snapshot becomes the image. The camera feed stays on your device — nothing is
+> uploaded. Your browser will ask for camera permission the first time.
+
 ---
 
 ## The Extract tab — a palette from a painting

@@ -131,6 +131,17 @@ const en: Dict = {
     untitled: "Untitled",
     unnamed: "Unnamed color",
   },
+  camera: {
+    use: "Use camera",
+    title: "Take a photo",
+    capture: "Capture",
+    flip: "Flip camera",
+    cancel: "Cancel",
+    starting: "Starting camera…",
+    denied:
+      "Camera access was blocked. Allow camera permission for this site in your browser, then try again.",
+    error: "Couldn't access a camera on this device.",
+  },
   mix: {
     referenceTitle: "Reference — click the color you're matching",
     mixTitle: "Your palette mix — click the paint",
@@ -530,6 +541,17 @@ const es: Dict = {
     count: "{n} color(es)",
     untitled: "Sin título",
     unnamed: "Color sin nombre",
+  },
+  camera: {
+    use: "Usar cámara",
+    title: "Sacar una foto",
+    capture: "Capturar",
+    flip: "Cambiar cámara",
+    cancel: "Cancelar",
+    starting: "Iniciando cámara…",
+    denied:
+      "Se bloqueó el acceso a la cámara. Permití el permiso de cámara para este sitio en tu navegador y volvé a intentar.",
+    error: "No se pudo acceder a una cámara en este dispositivo.",
   },
   mix: {
     referenceTitle: "Referencia — hacé clic en el color a igualar",

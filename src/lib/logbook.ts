@@ -158,7 +158,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
 // Re-encode an uploaded photo to a compact JPEG, downscaled so the longest side
 // is at most `max`. Keeps the store (and exports) small without a backend.
 export async function downscaleImage(
-  file: File,
+  file: Blob,
   max = 1000,
   quality = 0.82
 ): Promise<Blob> {

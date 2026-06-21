@@ -129,6 +129,13 @@ src/
 
 - **Match / Image / Extract** tabs produce recipes; **Image** has a click-to-
   sample canvas with an optional magnifier loupe (off by default).
+- **Camera capture (local):** `CameraCapture` (reusable modal) opens the device
+  camera via `getUserMedia` (PC webcam or phone camera; rear/front flip), draws
+  a frame to a canvas, and returns a JPEG `Blob`. Stream stays in the browser —
+  no backend; needs a secure context (HTTPS/localhost), which Pages provides.
+  Wired into every photo input: `ImageSampler` (Image/Mix/Coach/Calibrate), the
+  Logbook `PhotoField` (swatch/reference), and Compare's `Dropzone`
+  (reference/WIP). Strings under i18n `camera.*`.
 - **Recipe display:** Classic/Spectral (mixing model), Simple/Precise, and
   Parts/% toggles (in `RecipeView`). A **"What do these options do?"** link
   (on its own line above the toggles) opens `OptionsHelpModal` explaining all

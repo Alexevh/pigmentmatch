@@ -16,6 +16,11 @@ export function CameraCapture({
   onClose: () => void;
 }) {
   const { t } = useT();
+  // `t` is a fresh function each render; keep it in a ref so the camera effect
+  // can use it without listing it as a dependency (which would restart the
+  // stream on every render and make the camera flicker on/off).
+  const tRef = useRef(t);
+  tRef.current = t;
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [facing, setFacing] = useState<"environment" | "user">("environment");
@@ -36,7 +41,7 @@ export function CameraCapture({
       setError(null);
       try {
         if (!navigator.mediaDevices?.getUserMedia) {
-          setError(t("camera.error"));
+          setError(tRef.current("camera.error"));
           return;
         }
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -59,8 +64,8 @@ export function CameraCapture({
         const name = (e as { name?: string })?.name;
         setError(
           name === "NotAllowedError" || name === "SecurityError"
-            ? t("camera.denied")
-            : t("camera.error")
+            ? tRef.current("camera.denied")
+            : tRef.current("camera.error")
         );
       }
     };
@@ -70,7 +75,7 @@ export function CameraCapture({
       cancelled = true;
       stop();
     };
-  }, [facing, t]);
+  }, [facing]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();

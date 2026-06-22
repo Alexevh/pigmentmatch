@@ -153,6 +153,7 @@ export default function App() {
                 rgb={target}
                 pigments={effectivePigments}
                 onPick={setTarget}
+                paletteName={api.active?.name}
               />
             </div>
           </TabsContent>
@@ -193,6 +194,7 @@ export default function App() {
                   onPick={setTarget}
                   stack
                   hideAnalysis
+                  paletteName={api.active?.name}
                 />
               </div>
             </div>

@@ -19,6 +19,7 @@ export function ResultPanel({
   onPick,
   stack = false,
   hideAnalysis = false,
+  paletteName,
 }: {
   rgb: RGB;
   pigments: Pigment[];
@@ -29,6 +30,9 @@ export function ResultPanel({
   // `hideAnalysis` omits the painter-analysis card (the Image tab shows it
   // under the photo instead).
   hideAnalysis?: boolean;
+  // name of the active palette, shown on the recipe so it's clear which
+  // pigments the mix is drawn from.
+  paletteName?: string;
 }) {
   const { t } = useT();
   const mode = useRecipeMode();
@@ -62,7 +66,7 @@ export function ResultPanel({
         <CardTitle>{t("recipe.title")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <RecipeView recipe={recipe} />
+        <RecipeView recipe={recipe} paletteName={paletteName} />
       </CardContent>
     </Card>
   );
@@ -72,7 +76,12 @@ export function ResultPanel({
         <CardTitle>{t("variations.title")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <VariationsView rgb={rgb} pigments={pigments} onPick={onPick} />
+        <VariationsView
+          rgb={rgb}
+          pigments={pigments}
+          onPick={onPick}
+          paletteName={paletteName}
+        />
       </CardContent>
     </Card>
   );

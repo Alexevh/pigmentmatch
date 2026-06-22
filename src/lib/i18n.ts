@@ -167,6 +167,7 @@ const en: Dict = {
   },
   recipe: {
     title: "Mixing recipe",
+    usingPalette: "Palette: {name}",
     none: "No pigments in this palette. Add some to generate a recipe.",
     adjustments: "Adjustments",
     of: "of",
@@ -587,6 +588,7 @@ const es: Dict = {
   },
   recipe: {
     title: "Receta de mezcla",
+    usingPalette: "Paleta: {name}",
     none: "No hay pigmentos en esta paleta. Agregá algunos para generar una receta.",
     adjustments: "Ajustes",
     of: "de",

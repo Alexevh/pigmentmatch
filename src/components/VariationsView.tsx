@@ -20,12 +20,14 @@ function VariationRecipeModal({
   variation,
   label,
   pigments,
+  paletteName,
   onClose,
 }: {
   base: RGB;
   variation: Variation;
   label: string;
   pigments: Pigment[];
+  paletteName?: string;
   onClose: () => void;
 }) {
   const { lang, t } = useT();
@@ -84,7 +86,7 @@ function VariationRecipeModal({
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t("variationRecipe.baseTitle")}
             </p>
-            <RecipeView recipe={baseRecipe} />
+            <RecipeView recipe={baseRecipe} paletteName={paletteName} />
           </div>
 
           <div className="border-t border-border/60 pt-3">
@@ -132,10 +134,12 @@ export function VariationsView({
   rgb,
   pigments,
   onPick,
+  paletteName,
 }: {
   rgb: RGB;
   pigments: Pigment[];
   onPick: (rgb: RGB) => void;
+  paletteName?: string;
 }) {
   const { t } = useT();
   const variations = buildVariations(rgb);
@@ -149,6 +153,7 @@ export function VariationsView({
           variation={open}
           label={t(`variations.${open.kind}`)}
           pigments={pigments}
+          paletteName={paletteName}
           onClose={() => setOpen(null)}
         />
       )}

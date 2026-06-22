@@ -46,7 +46,8 @@ Tres formas, todas intercambiables:
   **Saturation** y **Hue tendency** (tendencia de matiz).
 - **Mixing recipe** — los pigmentos y cantidades que más se acercan al objetivo,
   con un **match score** (y ΔE, el error perceptual). Un swatch muestra el color
-  que el modelo predice que dará la mezcla.
+  que el modelo predice que dará la mezcla. Un chip indica la **paleta activa**
+  de la que sale la mezcla.
 - **Variations** — seis alternativas a un clic: más Clara, más Oscura, más
   Cálida, más Fría, más Saturada, menos Saturada. **Clic en cualquier variación**
   para convertirla en tu nuevo objetivo. Cada una tiene además un link **"Cómo

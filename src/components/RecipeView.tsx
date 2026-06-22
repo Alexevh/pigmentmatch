@@ -160,9 +160,11 @@ function PigmentDot({ hex }: { hex: string }) {
 export function RecipeView({
   recipe,
   compact = false,
+  paletteName,
 }: {
   recipe: Recipe;
   compact?: boolean;
+  paletteName?: string;
 }) {
   const { t } = useT();
   const unit = useRecipeUnit();
@@ -176,17 +178,26 @@ export function RecipeView({
     <div className="space-y-4">
       {showHelp && <OptionsHelpModal onClose={() => setShowHelp(false)} />}
       {!compact && (
-        <div className="flex flex-col items-end gap-1.5">
-          <button
-            onClick={() => setShowHelp(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
-          >
-            <HelpCircle className="h-3.5 w-3.5" /> {t("recipeHelp.button")}
-          </button>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <EngineToggle />
-            <ModeToggle />
-            <UnitToggle />
+        <div className="flex items-start justify-between gap-3">
+          {paletteName ? (
+            <span className="rounded-md bg-secondary/60 px-2 py-1 text-xs text-muted-foreground">
+              {t("recipe.usingPalette", { name: paletteName })}
+            </span>
+          ) : (
+            <span />
+          )}
+          <div className="flex flex-col items-end gap-1.5">
+            <button
+              onClick={() => setShowHelp(true)}
+              className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+            >
+              <HelpCircle className="h-3.5 w-3.5" /> {t("recipeHelp.button")}
+            </button>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <EngineToggle />
+              <ModeToggle />
+              <UnitToggle />
+            </div>
           </div>
         </div>
       )}

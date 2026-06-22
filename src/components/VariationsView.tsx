@@ -152,7 +152,7 @@ export function VariationsView({
           onClose={() => setOpen(null)}
         />
       )}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-2 items-start gap-2 sm:grid-cols-3">
         {variations.map((v) => (
           <div key={v.kind} className="space-y-1">
             <Swatch

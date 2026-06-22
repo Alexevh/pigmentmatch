@@ -22,7 +22,7 @@ export function Swatch({
       onClick={onClick}
       style={{ backgroundColor: hex }}
       className={cn(
-        "relative flex flex-col justify-end overflow-hidden rounded-lg border border-border/40 text-left transition-transform",
+        "relative flex w-full flex-col justify-end overflow-hidden rounded-lg border border-border/40 text-left transition-transform",
         onClick && "hover:scale-[1.015] active:scale-[0.99] cursor-pointer",
         className
       )}

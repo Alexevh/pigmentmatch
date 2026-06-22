@@ -47,7 +47,7 @@ Tres formas, todas intercambiables:
 - **Mixing recipe** — los pigmentos y cantidades que más se acercan al objetivo,
   con un **match score** (y ΔE, el error perceptual). Un swatch muestra el color
   que el modelo predice que dará la mezcla. Un chip indica la **paleta activa**
-  de la que sale la mezcla.
+  de la que sale la mezcla — hacé clic para **cambiar de paleta** desde la receta.
 - **Variations** — seis alternativas a un clic: más Clara, más Oscura, más
   Cálida, más Fría, más Saturada, menos Saturada. **Clic en cualquier variación**
   para convertirla en tu nuevo objetivo. Cada una tiene además un link **"Cómo

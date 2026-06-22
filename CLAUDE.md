@@ -137,9 +137,12 @@ src/
   Logbook `PhotoField` (swatch/reference), and Compare's `Dropzone`
   (reference/WIP). Strings under i18n `camera.*`.
 - **Recipe display:** Classic/Spectral (mixing model), Simple/Precise, and
-  Parts/% toggles (in `RecipeView`); shows the **active palette name** chip
-  (`paletteName` prop, threaded App → ResultPanel → RecipeView / variation
-  modal). A **"What do these options do?"** link
+  Parts/% toggles (in `RecipeView`); the recipe card header shows a minimal
+  **active-palette chip that doubles as a palette switcher**
+  (`PaletteChipSelect`: pill + dropdown, not the Palette-tab `<select>`; App
+  passes `palettes`/`activeId`/`onSelectPalette` → `ResultPanel`). The variation
+  modal shows the same name as a static chip. A **"What do these options do?"**
+  link
   (on its own line above the toggles) opens `OptionsHelpModal` explaining all
   three toggles in plain language (content under i18n `recipeHelp.*`); shown
   only in the full (`!compact`) recipe view.

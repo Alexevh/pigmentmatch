@@ -10,6 +10,7 @@ import { Swatch } from "./Swatch";
 import { RecipeView } from "./RecipeView";
 import { AnalysisView } from "./AnalysisView";
 import { VariationsView } from "./VariationsView";
+import { PaletteChipSelect } from "./PaletteChipSelect";
 
 // Shared results for a target color: big swatch, mix recipe, painter analysis
 // and color variations. Reused by the Match and Image tabs.
@@ -19,7 +20,9 @@ export function ResultPanel({
   onPick,
   stack = false,
   hideAnalysis = false,
-  paletteName,
+  palettes,
+  activeId,
+  onSelectPalette,
 }: {
   rgb: RGB;
   pigments: Pigment[];
@@ -30,9 +33,11 @@ export function ResultPanel({
   // `hideAnalysis` omits the painter-analysis card (the Image tab shows it
   // under the photo instead).
   hideAnalysis?: boolean;
-  // name of the active palette, shown on the recipe so it's clear which
-  // pigments the mix is drawn from.
-  paletteName?: string;
+  // Active palette + switcher, shown as a chip on the recipe so it's clear which
+  // pigments the mix is drawn from (and lets the user switch palettes inline).
+  palettes?: { id: string; name: string }[];
+  activeId?: string;
+  onSelectPalette?: (id: string) => void;
 }) {
   const { t } = useT();
   const mode = useRecipeMode();
@@ -60,15 +65,18 @@ export function ResultPanel({
       </CardContent>
     </Card>
   );
+  const activeName = palettes?.find((p) => p.id === activeId)?.name;
   const recipeCard = (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle>{t("recipe.title")}</CardTitle>
-          {paletteName && (
-            <span className="shrink-0 rounded-md bg-secondary/60 px-2 py-1 text-xs font-normal normal-case text-muted-foreground">
-              {t("recipe.usingPalette", { name: paletteName })}
-            </span>
+          {palettes && activeId && onSelectPalette && (
+            <PaletteChipSelect
+              palettes={palettes}
+              activeId={activeId}
+              onSelect={onSelectPalette}
+            />
           )}
         </div>
       </CardHeader>
@@ -87,7 +95,7 @@ export function ResultPanel({
           rgb={rgb}
           pigments={pigments}
           onPick={onPick}
-          paletteName={paletteName}
+          paletteName={activeName}
         />
       </CardContent>
     </Card>

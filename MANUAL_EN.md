@@ -47,7 +47,7 @@ Three ways, all interchangeable:
 - **Mixing recipe** — the pigments and amounts that get closest to the target,
   with a **match score** (and ΔE, the perceptual error). A swatch shows the
   color the mix is predicted to produce. A chip shows the **active palette** the
-  mix is drawn from.
+  mix is drawn from — click it to **switch palettes** right from the recipe.
 - **Variations** — six one-click alternatives: Lighter, Darker, Warmer, Cooler,
   More saturated, Less saturated. **Click any variation** to make it your new
   target. Each one also has a **"How to mix it"** link: it opens the recipe for

@@ -159,7 +159,7 @@ export function VariationsView({
               rgb={v.rgb}
               label={t(`variations.${v.kind}`)}
               sub={v.hex}
-              className="h-20"
+              className="h-24"
               onClick={() => onPick(v.rgb)}
             />
             <button

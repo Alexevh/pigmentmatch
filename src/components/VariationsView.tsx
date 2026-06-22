@@ -84,7 +84,7 @@ function VariationRecipeModal({
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t("variationRecipe.baseTitle")}
             </p>
-            <RecipeView recipe={baseRecipe} compact />
+            <RecipeView recipe={baseRecipe} />
           </div>
 
           <div className="border-t border-border/60 pt-3">

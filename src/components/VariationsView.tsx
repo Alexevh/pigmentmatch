@@ -83,10 +83,17 @@ function VariationRecipeModal({
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t("variationRecipe.baseTitle")}
-            </p>
-            <RecipeView recipe={baseRecipe} paletteName={paletteName} />
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t("variationRecipe.baseTitle")}
+              </p>
+              {paletteName && (
+                <span className="shrink-0 rounded-md bg-secondary/60 px-2 py-1 text-xs text-muted-foreground">
+                  {t("recipe.usingPalette", { name: paletteName })}
+                </span>
+              )}
+            </div>
+            <RecipeView recipe={baseRecipe} />
           </div>
 
           <div className="border-t border-border/60 pt-3">

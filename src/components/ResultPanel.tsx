@@ -63,10 +63,17 @@ export function ResultPanel({
   const recipeCard = (
     <Card>
       <CardHeader>
-        <CardTitle>{t("recipe.title")}</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>{t("recipe.title")}</CardTitle>
+          {paletteName && (
+            <span className="shrink-0 rounded-md bg-secondary/60 px-2 py-1 text-xs font-normal normal-case text-muted-foreground">
+              {t("recipe.usingPalette", { name: paletteName })}
+            </span>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
-        <RecipeView recipe={recipe} paletteName={paletteName} />
+        <RecipeView recipe={recipe} />
       </CardContent>
     </Card>
   );

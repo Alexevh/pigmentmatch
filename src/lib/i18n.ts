@@ -253,6 +253,15 @@ const en: Dict = {
     "More saturated": "More saturated",
     "Less saturated": "Less saturated",
   },
+  variationRecipe: {
+    link: "How to mix it",
+    heading: "Reaching this variation",
+    baseTitle: "Start from your base mix",
+    adjustTitle: "Then adjust toward {label}",
+    fromBase: "Mix your base color, then nudge it:",
+    nothing: "It's already there — no real change needed.",
+    close: "Close",
+  },
   image: {
     uploadTitle: "Upload an image to sample colors",
     uploadHint: "Click anywhere on it to pick a color",
@@ -661,6 +670,15 @@ const es: Dict = {
     Cooler: "Más frío",
     "More saturated": "Más saturado",
     "Less saturated": "Menos saturado",
+  },
+  variationRecipe: {
+    link: "Cómo mezclarlo",
+    heading: "Cómo llegar a esta variación",
+    baseTitle: "Partí de tu mezcla base",
+    adjustTitle: "Después ajustá hacia {label}",
+    fromBase: "Preparás tu color base y después lo empujás:",
+    nothing: "Ya está ahí — no hace falta cambiar nada.",
+    close: "Cerrar",
   },
   image: {
     uploadTitle: "Subí una imagen para muestrear colores",

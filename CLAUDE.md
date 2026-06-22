@@ -152,6 +152,13 @@ src/
   exact original numbers (byte-identical output). Tricky colors (e.g. muted
   greens in a limited palette) can still match a bit worse under spectral.
 - **Coach:** given target + current mix, gives value/saturation/hue advice.
+- **Variation recipes:** each of the 6 variation swatches (lighter/darker/
+  warmer/cooler/more-less saturated) has a **"How to mix it"** link opening
+  `VariationRecipeModal` (in `VariationsView`): shows the base color's recipe
+  (`generateRecipe`, compact, honoring the active mode/engine) plus the
+  adjustment to reach the variation (`coach(variation, base)`) — i.e. base mix +
+  what to add. Strings under i18n `variationRecipe.*`. Needs `pigments` (passed
+  from `ResultPanel`).
 - **Palette:** create/rename/delete/reset palettes; per-pigment editor
   (color/opacity/temperature/strength); **availability checkbox** (`enabled`)
   to exclude a tube without deleting it; **preset dropdown** (add a whole

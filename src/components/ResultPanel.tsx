@@ -72,7 +72,7 @@ export function ResultPanel({
         <CardTitle>{t("variations.title")}</CardTitle>
       </CardHeader>
       <CardContent>
-        <VariationsView rgb={rgb} onPick={onPick} />
+        <VariationsView rgb={rgb} pigments={pigments} onPick={onPick} />
       </CardContent>
     </Card>
   );

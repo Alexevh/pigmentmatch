@@ -49,7 +49,9 @@ Three ways, all interchangeable:
   color the mix is predicted to produce.
 - **Variations** — six one-click alternatives: Lighter, Darker, Warmer, Cooler,
   More saturated, Less saturated. **Click any variation** to make it your new
-  target.
+  target. Each one also has a **"How to mix it"** link: it opens the recipe for
+  your base color plus the small adjustment (which pigment to add) that takes
+  that mix to the variation — so you don't start the mix from scratch.
 
 ### 3. Parts vs. percentages
 

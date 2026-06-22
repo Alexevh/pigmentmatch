@@ -49,7 +49,10 @@ Tres formas, todas intercambiables:
   que el modelo predice que dará la mezcla.
 - **Variations** — seis alternativas a un clic: más Clara, más Oscura, más
   Cálida, más Fría, más Saturada, menos Saturada. **Clic en cualquier variación**
-  para convertirla en tu nuevo objetivo.
+  para convertirla en tu nuevo objetivo. Cada una tiene además un link **"Cómo
+  mezclarlo"**: abre la receta de tu color base más el pequeño ajuste (qué
+  pigmento agregar) que lleva esa mezcla a la variación — así no arrancás la
+  mezcla de cero.
 
 ### 3. Partes vs. porcentajes
 

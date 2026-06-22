@@ -21,7 +21,8 @@ saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`.
 - **Match** — enter a HEX/RGB value or use the color picker; get a mixing
   recipe (shown as **parts** or **percentages**, your choice), a match score, a
   painter's analysis, and six intuitive variations (warmer/cooler,
-  lighter/darker, more/less saturated).
+  lighter/darker, more/less saturated) — each with a **"How to mix it"** link
+  showing the base mix plus the tweak needed to reach that variation.
 - **Image** — upload a photo or master painting and click to sample any color.
   Every photo input (Image, Mix, Coach, Compare, Logbook) can also **capture
   straight from your camera** (PC webcam or phone camera) — the stream stays in

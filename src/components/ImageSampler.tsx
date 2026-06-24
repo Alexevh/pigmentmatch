@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback } from "react";
-import { Upload, Search, Camera } from "lucide-react";
+import { Upload, Search, Camera, Plus, Minus } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,23 @@ import { cn } from "@/lib/utils";
 
 const LOUPE = 132; // px diameter of the magnifier
 const ZOOM = 6; // magnification factor
+
+// Eyedropper cursor for the sampling canvas — an inline SVG pipette with a white
+// halo + black stroke so it reads on any image, hotspot at the tip (2,22).
+// Falls back to crosshair where custom cursors aren't supported.
+const PIPETTE_PATHS =
+  "<path d='m2 22 1-1h3l9-9'/><path d='M3 21v-3l9-9'/><path d='m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z'/>";
+const PICK_CURSOR =
+  'url("data:image/svg+xml,' +
+  encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'>" +
+      "<g stroke='white' stroke-width='3.5'>" +
+      PIPETTE_PATHS +
+      "</g><g stroke='black' stroke-width='1.5'>" +
+      PIPETTE_PATHS +
+      "</g></svg>"
+  ) +
+  '") 2 16, crosshair';
 
 export function ImageSampler({
   onSample,
@@ -33,6 +50,21 @@ export function ImageSampler({
   const [hover, setHover] = useState<RGB | null>(null);
   const [showCam, setShowCam] = useState(false);
   const [loupeOn, setLoupeOn] = useState(false);
+
+  // In-box zoom + pan: the canvas is scaled/translated with a CSS transform so
+  // the container stays the same size; you can drag the image around for a finer
+  // pick. Color sampling still works because coordsAt uses the canvas's
+  // bounding rect, which already reflects the transform.
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const dragRef = useRef({
+    down: false,
+    moved: false,
+    startX: 0,
+    startY: 0,
+    panX: 0,
+    panY: 0,
+  });
   const [loupePos, setLoupePos] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -51,6 +83,8 @@ export function ImageSampler({
       ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
       imgRef.current = img; // keep the full-res image for a crisp loupe
       setHasImage(true);
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
       onImage?.(img);
       URL.revokeObjectURL(url);
     };
@@ -125,6 +159,27 @@ export function ImageSampler({
   }, []);
 
   const handleMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    // Dragging to pan (only meaningful when zoomed in).
+    const d = dragRef.current;
+    if (d.down) {
+      const dx = e.clientX - d.startX;
+      const dy = e.clientY - d.startY;
+      if (Math.abs(dx) + Math.abs(dy) > 3) d.moved = true;
+      if (d.moved) {
+        const cv = canvasRef.current;
+        const maxX = cv ? (cv.clientWidth * (zoom - 1)) / 2 : 0;
+        const maxY = cv ? (cv.clientHeight * (zoom - 1)) / 2 : 0;
+        setPan({
+          x: Math.max(-maxX, Math.min(maxX, d.panX + dx)),
+          y: Math.max(-maxY, Math.min(maxY, d.panY + dy)),
+        });
+        setHover(null);
+        setLoupePos(null);
+        setProbePos(null);
+        return;
+      }
+    }
+
     const c = coordsAt(e);
     if (!c) return;
     setHover(pixelAt(c.x, c.y));
@@ -138,6 +193,14 @@ export function ImageSampler({
       setLoupePos({ x, y });
     }
   };
+
+  const zoomIn = () => setZoom((z) => Math.min(6, +(z + 0.5).toFixed(2)));
+  const zoomOut = () =>
+    setZoom((z) => {
+      const nz = Math.max(1, +(z - 0.5).toFixed(2));
+      if (nz === 1) setPan({ x: 0, y: 0 });
+      return nz;
+    });
 
   return (
     <div className="space-y-3">
@@ -180,24 +243,49 @@ export function ImageSampler({
       )}
 
       <div className={hasImage ? "block" : "hidden"}>
-        <canvas
-          ref={canvasRef}
-          onClick={(e) => {
-            const c = coordsAt(e);
-            if (!c) return;
-            const rgb = pixelAt(c.x, c.y);
-            if (rgb) onSample(rgb);
-            const cv = canvasRef.current;
-            if (cv) onSamplePos?.(c.x / cv.width, c.y / cv.height);
-          }}
-          onMouseMove={handleMove}
-          onMouseLeave={() => {
-            setHover(null);
-            setLoupePos(null);
-            setProbePos(null);
-          }}
-          className="w-full cursor-crosshair rounded-lg border border-border"
-        />
+        <div className="relative overflow-hidden rounded-lg border border-border">
+          <canvas
+            ref={canvasRef}
+            onClick={(e) => {
+              if (dragRef.current.moved) {
+                dragRef.current.moved = false;
+                return; // it was a pan, not a pick
+              }
+              const c = coordsAt(e);
+              if (!c) return;
+              const rgb = pixelAt(c.x, c.y);
+              if (rgb) onSample(rgb);
+              const cv = canvasRef.current;
+              if (cv) onSamplePos?.(c.x / cv.width, c.y / cv.height);
+            }}
+            onMouseDown={(e) => {
+              dragRef.current = {
+                down: true,
+                moved: false,
+                startX: e.clientX,
+                startY: e.clientY,
+                panX: pan.x,
+                panY: pan.y,
+              };
+            }}
+            onMouseUp={() => {
+              dragRef.current.down = false;
+            }}
+            onMouseMove={handleMove}
+            onMouseLeave={() => {
+              dragRef.current.down = false;
+              setHover(null);
+              setLoupePos(null);
+              setProbePos(null);
+            }}
+            style={{
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              transformOrigin: "center center",
+              cursor: PICK_CURSOR,
+            }}
+            className="block w-full"
+          />
+        </div>
 
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <Button
@@ -218,6 +306,29 @@ export function ImageSampler({
           >
             <Search className="h-4 w-4" /> {loupeOn ? t("image.zoomOn") : t("image.zoomOff")}
           </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={zoomOut}
+              disabled={zoom <= 1}
+              title="Zoom out"
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <span className="w-8 text-center text-xs tabular-nums text-muted-foreground">
+              {zoom.toFixed(1)}x
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={zoomIn}
+              disabled={zoom >= 6}
+              title="Zoom in"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
           {hover && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span

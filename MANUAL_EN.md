@@ -84,7 +84,10 @@ Your choice is remembered and applies everywhere (including the Extract tab).
 4. The sampled color flows into the same recipe + analysis + variations as the
    Match tab.
 
-Use **Replace image** to load a different one.
+Use the **+ / −** buttons below the image to **zoom in or out** without resizing
+the box; when zoomed in, **drag the image** to pan around for a finer pick. The
+cursor is an eyedropper — clicking still samples the color (a drag won't). Use
+**Replace image** to load a different one.
 
 > **Use your camera:** anywhere you can upload a photo (Image, Mix, Coach,
 > Compare, and the Logbook), there's a **Use camera** button. It opens your PC

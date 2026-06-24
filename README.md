@@ -26,7 +26,8 @@ saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`.
 - **Image** — upload a photo or master painting and click to sample any color.
   Every photo input (Image, Mix, Coach, Compare, Logbook) can also **capture
   straight from your camera** (PC webcam or phone camera) — the stream stays in
-  the browser, nothing is uploaded.
+  the browser, nothing is uploaded. The image sampler has **+/- zoom with
+  drag-to-pan** inside a fixed box for a finer pick.
 - **Extract** — pull the 8 / 12 / 20 dominant colors from a painting (k-means
   in Lab space), arranged light → dark, each with its own recipe, description,
   and a relationship hint ("close to #3 — add a touch of Ultramarine").

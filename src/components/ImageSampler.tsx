@@ -158,6 +158,8 @@ export function ImageSampler({
   const baseRef = useRef<ImageData | null>(null);
   const [adjust, setAdjust] = useState<Adjust>(DEFAULT_ADJUST);
   const [showAdjust, setShowAdjust] = useState(false);
+  // true when the source is already high-res, so AI upscaling won't add much
+  const [srcLarge, setSrcLarge] = useState(false);
   const [loupePos, setLoupePos] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -179,6 +181,7 @@ export function ImageSampler({
       setZoom(1);
       setPan({ x: 0, y: 0 });
       setAdjust(DEFAULT_ADJUST);
+      setSrcLarge(Math.max(img.width, img.height) >= 1200);
       onImage?.(img);
     },
     [onImage]
@@ -611,6 +614,9 @@ export function ImageSampler({
         </div>
 
         {aiError && <p className="mt-2 text-xs text-rose-400">{aiError}</p>}
+        {!aiError && srcLarge && (
+          <p className="mt-2 text-xs text-amber-400/80">{t("image.aiBigNote")}</p>
+        )}
 
         {showAdjust && (
           <div className="mt-2 space-y-2 rounded-md border border-border bg-secondary/30 p-3">

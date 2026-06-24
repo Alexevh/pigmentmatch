@@ -286,6 +286,8 @@ const en: Dict = {
     aiTitle:
       "Experimental: upscales the image with AI (downloaded on first use). May shift colors — sample with care.",
     aiModel: "AI upscale factor (higher = more detail, slower)",
+    aiBigNote:
+      "This image is already high-resolution — AI enhance won't add much (it helps low-res / blurry photos).",
     download: "Download",
   },
   extract: {
@@ -723,6 +725,8 @@ const es: Dict = {
     aiTitle:
       "Experimental: agranda la imagen con IA (se descarga la primera vez). Puede alterar colores — muestreá con cuidado.",
     aiModel: "Factor de mejora IA (mayor = más detalle, más lento)",
+    aiBigNote:
+      "Esta imagen ya es de alta resolución — la mejora con IA no aportará mucho (sirve para fotos de baja resolución / borrosas).",
     download: "Descargar",
   },
   extract: {

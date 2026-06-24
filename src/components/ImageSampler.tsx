@@ -303,6 +303,11 @@ export function ImageSampler({
             size="sm"
             onClick={() => setLoupeOn((z) => !z)}
             title={loupeOn ? t("image.zoomOn") : t("image.zoomOff")}
+            className={
+              loupeOn
+                ? undefined
+                : "border-rose-500/40 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25"
+            }
           >
             {loupeOn ? (
               <Search className="h-4 w-4" />

@@ -78,11 +78,12 @@ function sharpenImage(
   return out;
 }
 
-// Cap the AI input size so the upscaled output fits in GPU texture limits
-// (a huge input × the scale factor overflows WebGL and yields a black image).
-const MAX_AI_INPUT = 640;
-function cappedSource(img: HTMLImageElement): HTMLCanvasElement {
-  const scale = Math.min(1, MAX_AI_INPUT / Math.max(img.width, img.height));
+// Keep the upscaled OUTPUT within GPU texture limits (input × factor). Bounding
+// the output rather than the input preserves as much real detail as possible
+// while avoiding the WebGL overflow that returns a black frame.
+const MAX_AI_OUTPUT = 2048;
+function cappedSource(img: HTMLImageElement, max: number): HTMLCanvasElement {
+  const scale = Math.min(1, max / Math.max(img.width, img.height));
   const w = Math.max(1, Math.round(img.width * scale));
   const h = Math.max(1, Math.round(img.height * scale));
   const c = document.createElement("canvas");
@@ -222,16 +223,16 @@ export function ImageSampler({
         loadModel(aiScale),
       ]);
       upscaler = new Upscaler({ model });
-      // Tile the work (patchSize) and cap the input so the GPU doesn't overflow
-      // on large images (which otherwise returns a black frame).
-      const src: string = await upscaler!.upscale(cappedSource(img), {
-        output: "base64",
-        patchSize: 32,
-        padding: 5,
-      });
+      // Cap the input so input × factor stays within GPU limits, and tile the
+      // work (patchSize) so peak memory stays low on modest devices.
+      const factor = parseInt(aiScale, 10) || 2;
+      const src: string = await upscaler!.upscale(
+        cappedSource(img, Math.floor(MAX_AI_OUTPUT / factor)),
+        { output: "base64", patchSize: 32, padding: 5 }
+      );
       const up = new Image();
       up.onload = () => {
-        drawImageElement(up, 1800);
+        drawImageElement(up, MAX_AI_OUTPUT); // keep the detail for zooming
         setAiBusy(false);
       };
       up.onerror = () => {

@@ -194,7 +194,7 @@ export function ImageSampler({
     }
   };
 
-  const zoomIn = () => setZoom((z) => Math.min(6, +(z + 0.5).toFixed(2)));
+  const zoomIn = () => setZoom((z) => Math.min(10, +(z + 0.5).toFixed(2)));
   const zoomOut = () =>
     setZoom((z) => {
       const nz = Math.max(1, +(z - 0.5).toFixed(2));
@@ -333,7 +333,7 @@ export function ImageSampler({
               variant="outline"
               size="sm"
               onClick={zoomIn}
-              disabled={zoom >= 6}
+              disabled={zoom >= 10}
               title="Zoom in"
             >
               <Plus className="h-4 w-4" />

@@ -92,7 +92,7 @@ src/
   components/
     ColorInput, Swatch, RecipeView, AnalysisView, VariationsView,
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
-    ImageSampler (magnifier loupe default off; in-box +/- zoom 1-6x with
+    ImageSampler (magnifier loupe default off; in-box +/- zoom 1-10x with
       drag-to-pan via CSS transform + eyedropper cursor, picking still works;
       zoom buttons in the toolbar below the image), PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/

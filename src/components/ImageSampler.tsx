@@ -80,7 +80,7 @@ function sharpenImage(
 
 // Cap the AI input size so the upscaled output fits in GPU texture limits
 // (a huge input × the scale factor overflows WebGL and yields a black image).
-const MAX_AI_INPUT = 800;
+const MAX_AI_INPUT = 640;
 function cappedSource(img: HTMLImageElement): HTMLCanvasElement {
   const scale = Math.min(1, MAX_AI_INPUT / Math.max(img.width, img.height));
   const w = Math.max(1, Math.round(img.width * scale));
@@ -226,8 +226,8 @@ export function ImageSampler({
       // on large images (which otherwise returns a black frame).
       const src: string = await upscaler!.upscale(cappedSource(img), {
         output: "base64",
-        patchSize: 64,
-        padding: 6,
+        patchSize: 32,
+        padding: 5,
       });
       const up = new Image();
       up.onload = () => {

@@ -282,7 +282,7 @@ const en: Dict = {
     ai: "Enhance (AI)",
     aiBusy: "Enhancing…",
     aiError:
-      "AI enhance failed — the image is likely too large for your device's GPU. Try a smaller image or a lower factor (2x).",
+      "AI enhance failed — your device's GPU likely ran out of memory (WebGL context lost). Reload the page, then try again with a smaller image or the 2x factor. Some devices can't run this.",
     aiTitle:
       "Experimental: upscales the image with AI (downloaded on first use). May shift colors — sample with care.",
     aiModel: "AI upscale factor (higher = more detail, slower)",
@@ -719,7 +719,7 @@ const es: Dict = {
     ai: "Mejorar (IA)",
     aiBusy: "Mejorando…",
     aiError:
-      "Falló la mejora con IA — la imagen es probablemente muy grande para la GPU de tu dispositivo. Probá una imagen más chica o un factor menor (2x).",
+      "Falló la mejora con IA — probablemente la GPU se quedó sin memoria (se perdió el contexto WebGL). Recargá la página y probá de nuevo con una imagen más chica o el factor 2x. Algunos equipos no pueden ejecutarlo.",
     aiTitle:
       "Experimental: agranda la imagen con IA (se descarga la primera vez). Puede alterar colores — muestreá con cuidado.",
     aiModel: "Factor de mejora IA (mayor = más detalle, más lento)",

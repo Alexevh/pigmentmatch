@@ -115,8 +115,9 @@ export function ImgLabView() {
         setAiBusy(false);
       };
       up.src = src;
-    } catch {
-      setAiError(t("image.aiError"));
+    } catch (e) {
+      console.error("AI enhance failed:", e);
+      setAiError(`${t("image.aiError")} [${(e as Error)?.message ?? e}]`);
       setAiBusy(false);
     }
   };
@@ -138,8 +139,9 @@ export function ImgLabView() {
         setAiBusy(false);
       };
       im.src = src;
-    } catch {
-      setAiError(t("image.aiError"));
+    } catch (e) {
+      console.error("AI restore failed:", e);
+      setAiError(`${t("image.aiError")} [${(e as Error)?.message ?? e}]`);
       setAiBusy(false);
     }
   };

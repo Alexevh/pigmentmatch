@@ -102,7 +102,10 @@ src/
       base bundle is unaffected; input capped so output ≤2048px and tiled
       (patchSize) to avoid GPU overflow; weights fetched from a CDN on first
       use, may shift colors; a note warns when the source is already ≥1200px.
-      Download exports the current canvas as PNG), PaletteExtractor,
+      Separate experimental AI restoration via MAXIM (deblur/denoise/low-light,
+      scale-1 graph models, divisibilityFactor 64, tiled patchSize 256) with its
+      own button + dropdown, also lazy-loaded. Download exports the current
+      canvas as PNG), PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
   App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · Calibrate · Palette
 ```

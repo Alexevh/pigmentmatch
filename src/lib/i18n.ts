@@ -291,6 +291,14 @@ const en: Dict = {
     aiBest: "Best",
     aiBigNote:
       "This image is already high-resolution — AI enhance won't add much (it helps low-res / blurry photos).",
+    restore: "Restore (AI)",
+    restoreTitle:
+      "Experimental AI restoration: deblur / denoise / low-light. Heavy download on first use, slow, results vary — may shift colors.",
+    restoreModel: "Restoration type",
+    rDeblur: "Deblur",
+    rDenoise: "Denoise",
+    rLowlight: "Low-light",
+    processing: "Processing…",
     download: "Download",
   },
   extract: {
@@ -733,6 +741,14 @@ const es: Dict = {
     aiBest: "Máx",
     aiBigNote:
       "Esta imagen ya es de alta resolución — la mejora con IA no aportará mucho (sirve para fotos de baja resolución / borrosas).",
+    restore: "Restaurar (IA)",
+    restoreTitle:
+      "Restauración con IA experimental: desenfoque / ruido / luz. Descarga pesada la primera vez, lenta, resultados variables — puede alterar colores.",
+    restoreModel: "Tipo de restauración",
+    rDeblur: "Desenfoque",
+    rDenoise: "Ruido",
+    rLowlight: "Luz",
+    processing: "Procesando…",
     download: "Descargar",
   },
   extract: {

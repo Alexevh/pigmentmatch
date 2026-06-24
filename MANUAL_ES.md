@@ -104,7 +104,15 @@ descarga más grande y más lento). Sirve sobre todo en fotos de **baja resoluci
 / borrosas**; la mejora se nota al **hacer zoom** (a 1× la caja mantiene el mismo
 tamaño). El modelo se descarga la primera vez (necesita internet una vez, después
 queda cacheado) y puede tardar un momento; puede alterar colores, así que
-muestreá con cuidado. **Descargar** guarda la
+muestreá con cuidado.
+
+**Restaurar (IA)** *(experimental, aparte)* limpia la foto en lugar de
+agrandarla — elegí **Desenfoque**, **Ruido** o **Luz** en su desplegable. Estos
+modelos son más pesados (descarga más grande la primera vez) y más lentos, y los
+resultados varían; usalos cuando el problema real sea el desenfoque, el ruido o
+una exposición oscura, no la baja resolución.
+
+**Descargar** guarda la
 imagen actual (con tus ajustes y/o la IA aplicados) como PNG en tu computadora,
 para conservarla o volver a cargarla luego. Usá **Replace image** para cargar otra.
 

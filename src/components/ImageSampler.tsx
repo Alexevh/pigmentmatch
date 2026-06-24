@@ -43,6 +43,8 @@ const adjustActive = (a: Adjust) =>
 
 // AI upscaling model choices (model strength + scale factor).
 type AiModel = "slim-2x" | "slim-4x" | "medium-4x" | "thick-4x";
+// AI restoration (MAXIM) choices — same-size cleanup, not upscaling.
+type Restore = "deblur" | "denoise" | "lowlight";
 
 const clampByte = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
 
@@ -225,6 +227,60 @@ export function ImageSampler({
     }
   };
   const aiFactor = (key: AiModel) => (key.endsWith("2x") ? 2 : 4);
+
+  // MAXIM restoration (deblur / denoise / low-light) — separate from upscaling.
+  const [restoreKey, setRestoreKey] = useState<Restore>("deblur");
+  const loadRestoreModel = async (key: Restore) => {
+    switch (key) {
+      case "denoise":
+        return (await import("@upscalerjs/maxim-denoising")).default;
+      case "lowlight":
+        return (await import("@upscalerjs/maxim-enhancement")).default;
+      default:
+        return (await import("@upscalerjs/maxim-deblurring")).default;
+    }
+  };
+
+  const restoreAI = async () => {
+    const img = imgRef.current;
+    if (!img || aiBusy) return;
+    setAiBusy(true);
+    setAiError(null);
+    let upscaler: { upscale: Function; dispose?: () => unknown } | null = null;
+    try {
+      const [{ default: Upscaler }, model] = await Promise.all([
+        import("upscaler"),
+        loadRestoreModel(restoreKey),
+      ]);
+      upscaler = new Upscaler({ model });
+      // Restoration keeps the size; tile (patchSize divisible by MAXIM's 64
+      // factor) so peak GPU memory stays bounded on large images.
+      const src: string = await upscaler!.upscale(cappedSource(img, 1024), {
+        output: "base64",
+        patchSize: 256,
+        padding: 32,
+      });
+      const im = new Image();
+      im.onload = () => {
+        drawImageElement(im, MAX_AI_OUTPUT);
+        setAiBusy(false);
+      };
+      im.onerror = () => {
+        setAiError(t("image.aiError"));
+        setAiBusy(false);
+      };
+      im.src = src;
+    } catch {
+      setAiError(t("image.aiError"));
+      setAiBusy(false);
+    } finally {
+      try {
+        upscaler?.dispose?.();
+      } catch {
+        /* ignore */
+      }
+    }
+  };
 
   const enhanceAI = async () => {
     const img = imgRef.current;
@@ -603,6 +659,29 @@ export function ImageSampler({
               <option value="slim-4x">{t("image.aiFast")} · 4x</option>
               <option value="medium-4x">{t("image.aiBetter")} · 4x</option>
               <option value="thick-4x">{t("image.aiBest")} · 4x</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={restoreAI}
+              disabled={aiBusy}
+              title={t("image.restoreTitle")}
+            >
+              <Wand2 className="h-4 w-4" />{" "}
+              {aiBusy ? t("image.processing") : t("image.restore")}
+            </Button>
+            <select
+              value={restoreKey}
+              onChange={(e) => setRestoreKey(e.target.value as Restore)}
+              disabled={aiBusy}
+              title={t("image.restoreModel")}
+              className="h-8 rounded-md border border-border bg-background px-1.5 text-xs disabled:opacity-50"
+            >
+              <option value="deblur">{t("image.rDeblur")}</option>
+              <option value="denoise">{t("image.rDenoise")}</option>
+              <option value="lowlight">{t("image.rLowlight")}</option>
             </select>
           </div>
           <Button

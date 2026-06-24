@@ -99,7 +99,15 @@ the button — **Fast** (light, quick), **Better**, or **Best** (most detail, bu
 a bigger download and slower). It helps most on **low-resolution / blurry**
 photos; the gain shows when you **zoom in** (at 1× the box stays the same size).
 The model downloads on first use (needs internet once, then it's cached) and can
-take a moment; it may shift colors, so sample with care. **Download** saves the current image (with your adjustments
+take a moment; it may shift colors, so sample with care.
+
+**Restore (AI)** *(experimental, separate)* cleans up a photo instead of
+enlarging it — pick **Deblur**, **Denoise**, or **Low-light** in its dropdown.
+These models are heavier (a larger download on first use) and slower, and results
+vary; use them when the real problem is blur, noise, or a dark exposure rather
+than low resolution.
+
+**Download** saves the current image (with your adjustments
 and/or AI applied) as a PNG to your computer, so you can keep it or reload it
 later. Use **Replace image** to load a different one.
 

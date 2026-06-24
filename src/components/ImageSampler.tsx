@@ -41,6 +41,9 @@ const adjustActive = (a: Adjust) =>
   a.saturation !== 0 ||
   a.temperature !== 0;
 
+// AI upscaling model choices (model strength + scale factor).
+type AiModel = "slim-2x" | "slim-4x" | "medium-4x" | "thick-4x";
+
 const clampByte = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
 
 // 3x3 sharpen kernel, blended into the original by `amount` (0..1).
@@ -204,15 +207,24 @@ export function ImageSampler({
   // only on click, so the base bundle stays small. May shift colors.
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [aiScale, setAiScale] = useState<"2x" | "3x" | "4x">("2x");
+  const [aiModelKey, setAiModelKey] = useState<AiModel>("slim-2x");
 
-  // Static import() specifiers per scale so the bundler can split each model
-  // into its own chunk (a template-literal path wouldn't be analyzable).
-  const loadModel = async (scale: "2x" | "3x" | "4x") => {
-    if (scale === "3x") return (await import("@upscalerjs/esrgan-slim/3x")).default;
-    if (scale === "4x") return (await import("@upscalerjs/esrgan-slim/4x")).default;
-    return (await import("@upscalerjs/esrgan-slim/2x")).default;
+  // Static import() specifiers per choice so the bundler splits each model into
+  // its own chunk and only the selected one downloads. Stronger model = more
+  // visible detail, but a bigger download and more GPU memory.
+  const loadModel = async (key: AiModel) => {
+    switch (key) {
+      case "slim-4x":
+        return (await import("@upscalerjs/esrgan-slim/4x")).default;
+      case "medium-4x":
+        return (await import("@upscalerjs/esrgan-medium/4x")).default;
+      case "thick-4x":
+        return (await import("@upscalerjs/esrgan-thick/4x")).default;
+      default:
+        return (await import("@upscalerjs/esrgan-slim/2x")).default;
+    }
   };
+  const aiFactor = (key: AiModel) => (key.endsWith("2x") ? 2 : 4);
 
   const enhanceAI = async () => {
     const img = imgRef.current;
@@ -223,12 +235,12 @@ export function ImageSampler({
     try {
       const [{ default: Upscaler }, model] = await Promise.all([
         import("upscaler"),
-        loadModel(aiScale),
+        loadModel(aiModelKey),
       ]);
       upscaler = new Upscaler({ model });
       // Cap the input so input × factor stays within GPU limits, and tile the
       // work (patchSize) so peak memory stays low on modest devices.
-      const factor = parseInt(aiScale, 10) || 2;
+      const factor = aiFactor(aiModelKey);
       const src: string = await upscaler!.upscale(
         cappedSource(img, Math.floor(MAX_AI_OUTPUT / factor)),
         { output: "base64", patchSize: 32, padding: 5 }
@@ -581,15 +593,16 @@ export function ImageSampler({
               {aiBusy ? t("image.aiBusy") : t("image.ai")}
             </Button>
             <select
-              value={aiScale}
-              onChange={(e) => setAiScale(e.target.value as "2x" | "3x" | "4x")}
+              value={aiModelKey}
+              onChange={(e) => setAiModelKey(e.target.value as AiModel)}
               disabled={aiBusy}
               title={t("image.aiModel")}
               className="h-8 rounded-md border border-border bg-background px-1.5 text-xs disabled:opacity-50"
             >
-              <option value="2x">2x</option>
-              <option value="3x">3x</option>
-              <option value="4x">4x</option>
+              <option value="slim-2x">{t("image.aiFast")} · 2x</option>
+              <option value="slim-4x">{t("image.aiFast")} · 4x</option>
+              <option value="medium-4x">{t("image.aiBetter")} · 4x</option>
+              <option value="thick-4x">{t("image.aiBest")} · 4x</option>
             </select>
           </div>
           <Button

@@ -285,7 +285,10 @@ const en: Dict = {
       "AI enhance failed — your device's GPU likely ran out of memory (WebGL context lost). Reload the page, then try again with a smaller image or the 2x factor. Some devices can't run this.",
     aiTitle:
       "Experimental: upscales the image with AI (downloaded on first use). May shift colors — sample with care.",
-    aiModel: "AI upscale factor (higher = more detail, slower)",
+    aiModel: "AI model — stronger = more visible detail, but heavier and slower",
+    aiFast: "Fast",
+    aiBetter: "Better",
+    aiBest: "Best",
     aiBigNote:
       "This image is already high-resolution — AI enhance won't add much (it helps low-res / blurry photos).",
     download: "Download",
@@ -724,7 +727,10 @@ const es: Dict = {
       "Falló la mejora con IA — probablemente la GPU se quedó sin memoria (se perdió el contexto WebGL). Recargá la página y probá de nuevo con una imagen más chica o el factor 2x. Algunos equipos no pueden ejecutarlo.",
     aiTitle:
       "Experimental: agranda la imagen con IA (se descarga la primera vez). Puede alterar colores — muestreá con cuidado.",
-    aiModel: "Factor de mejora IA (mayor = más detalle, más lento)",
+    aiModel: "Modelo de IA — más potente = más detalle visible, pero más pesado y lento",
+    aiFast: "Rápido",
+    aiBetter: "Mejor",
+    aiBest: "Máx",
     aiBigNote:
       "Esta imagen ya es de alta resolución — la mejora con IA no aportará mucho (sirve para fotos de baja resolución / borrosas).",
     download: "Descargar",

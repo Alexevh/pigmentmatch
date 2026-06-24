@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@tensorflow/tfjs": "^4.11.0",
+    "@upscalerjs/esrgan-medium": "^1.0.0",
     "@upscalerjs/esrgan-slim": "^1.0.0",
+    "@upscalerjs/esrgan-thick": "^1.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.21.0",

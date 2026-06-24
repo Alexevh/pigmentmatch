@@ -96,7 +96,10 @@ src/
       drag-to-pan via CSS transform + eyedropper cursor, picking still works;
       zoom buttons in the toolbar below the image; non-destructive Adjust panel
       — sharpen/brightness/contrast/saturation/temperature on canvas, no deps,
-      sampling reads the adjusted view), PaletteExtractor,
+      sampling reads the adjusted view; experimental AI upscaling via UpscalerJS
+      + TF.js + ESRGAN-slim x2, lazy-loaded with a dynamic import() so the base
+      bundle is unaffected — model weights fetched from a CDN on first use, may
+      shift colors; Download exports the current canvas as PNG), PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
   App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · Calibrate · Palette
 ```

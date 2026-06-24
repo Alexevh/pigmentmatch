@@ -95,7 +95,14 @@ y afinar el pick. El cursor es un cuentagotas — el clic sigue tomando el color
 El botón **Ajustes** abre sliders para mejorar una foto de baja calidad —
 **Nitidez, Brillo, Contraste, Saturación, Temperatura** (balance de blancos) —
 con **Reset**. Corren localmente sobre la imagen y te ayudan a leerla; el color
-que tomás sale de la vista ajustada. Usá **Replace image** para cargar otra.
+que tomás sale de la vista ajustada.
+
+**Mejorar (IA)** *(experimental)* agranda una imagen de baja resolución con un
+modelo de IA que corre en tu navegador. El modelo se descarga la primera vez
+(necesita internet una vez, después queda cacheado) y puede tardar un momento;
+puede alterar colores, así que muestreá con cuidado. **Descargar** guarda la
+imagen actual (con tus ajustes y/o la IA aplicados) como PNG en tu computadora,
+para conservarla o volver a cargarla luego. Usá **Replace image** para cargar otra.
 
 > **Usá tu cámara:** en todos lados donde podés subir una foto (Imagen, Mezcla,
 > Coach, Comparar y la Bitácora) hay un botón **Usar cámara**. Abre la webcam de

@@ -8,6 +8,8 @@ import {
   Minus,
   SlidersHorizontal,
   RotateCcw,
+  Wand2,
+  Download,
 } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
@@ -145,13 +147,10 @@ export function ImageSampler({
     null
   );
 
-  const drawFile = useCallback((file: Blob) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
+  const drawImageElement = useCallback(
+    (img: HTMLImageElement, maxW = 900) => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      const maxW = 900;
       const scale = Math.min(1, maxW / img.width);
       canvas.width = Math.round(img.width * scale);
       canvas.height = Math.round(img.height * scale);
@@ -166,10 +165,69 @@ export function ImageSampler({
       setPan({ x: 0, y: 0 });
       setAdjust(DEFAULT_ADJUST);
       onImage?.(img);
+    },
+    [onImage]
+  );
+
+  const drawFile = useCallback(
+    (file: Blob) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        drawImageElement(img, 900);
+        URL.revokeObjectURL(url);
+      };
+      img.src = url;
+    },
+    [drawImageElement]
+  );
+
+  // Experimental AI upscaling — lazily imports UpscalerJS + TF.js + the model
+  // only on click, so the base bundle stays small. May shift colors.
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const enhanceAI = async () => {
+    const img = imgRef.current;
+    if (!img || aiBusy) return;
+    setAiBusy(true);
+    setAiError(null);
+    try {
+      const [{ default: Upscaler }, model] = await Promise.all([
+        import("upscaler"),
+        import("@upscalerjs/esrgan-slim/2x"),
+      ]);
+      const upscaler = new Upscaler({ model: model.default });
+      const src = await upscaler.upscale(img, { output: "base64" });
+      const up = new Image();
+      up.onload = () => {
+        drawImageElement(up, 1800);
+        setAiBusy(false);
+      };
+      up.onerror = () => {
+        setAiError(t("image.aiError"));
+        setAiBusy(false);
+      };
+      up.src = src;
+    } catch {
+      setAiError(t("image.aiError"));
+      setAiBusy(false);
+    }
+  };
+
+  const downloadImage = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    canvas.toBlob((b) => {
+      if (!b) return;
+      const url = URL.createObjectURL(b);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "pigment-image.png";
+      a.click();
       URL.revokeObjectURL(url);
-    };
-    img.src = url;
-  }, [onImage]);
+    }, "image/png");
+  };
 
   // cursor -> canvas pixel coordinates
   const coordsAt = useCallback(
@@ -471,6 +529,24 @@ export function ImageSampler({
           >
             <SlidersHorizontal className="h-4 w-4" /> {t("image.adjust")}
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={enhanceAI}
+            disabled={aiBusy}
+            title={t("image.aiTitle")}
+          >
+            <Wand2 className="h-4 w-4" />{" "}
+            {aiBusy ? t("image.aiBusy") : t("image.ai")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={downloadImage}
+            title={t("image.download")}
+          >
+            <Download className="h-4 w-4" /> {t("image.download")}
+          </Button>
           {hover && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span
@@ -483,6 +559,8 @@ export function ImageSampler({
             </div>
           )}
         </div>
+
+        {aiError && <p className="mt-2 text-xs text-rose-400">{aiError}</p>}
 
         {showAdjust && (
           <div className="mt-2 space-y-2 rounded-md border border-border bg-secondary/30 p-3">

@@ -279,6 +279,12 @@ const en: Dict = {
     reset: "Reset",
     adjustHint:
       "Adjustments help you read the image; the color you pick comes from the adjusted view.",
+    ai: "Enhance (AI)",
+    aiBusy: "Enhancing…",
+    aiError: "AI enhance failed — try a smaller image.",
+    aiTitle:
+      "Experimental: upscales the image with AI (downloaded on first use). May shift colors — sample with care.",
+    download: "Download",
   },
   extract: {
     title: "Palette extraction",
@@ -708,6 +714,12 @@ const es: Dict = {
     reset: "Reset",
     adjustHint:
       "Los ajustes te ayudan a leer la imagen; el color que tomás sale de la vista ajustada.",
+    ai: "Mejorar (IA)",
+    aiBusy: "Mejorando…",
+    aiError: "Falló la mejora con IA — probá una imagen más chica.",
+    aiTitle:
+      "Experimental: agranda la imagen con IA (se descarga la primera vez). Puede alterar colores — muestreá con cuidado.",
+    download: "Descargar",
   },
   extract: {
     title: "Extracción de paleta",

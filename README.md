@@ -27,9 +27,11 @@ saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`.
   Every photo input (Image, Mix, Coach, Compare, Logbook) can also **capture
   straight from your camera** (PC webcam or phone camera) — the stream stays in
   the browser, nothing is uploaded. The image sampler has **+/- zoom with
-  drag-to-pan** inside a fixed box for a finer pick, plus a non-destructive
+  drag-to-pan** inside a fixed box for a finer pick, a non-destructive
   **Adjust** panel (sharpen, brightness, contrast, saturation, temperature) to
-  clean up a poor photo before sampling.
+  clean up a poor photo before sampling, an experimental **Enhance (AI)**
+  upscaler (UpscalerJS + TF.js, lazy-loaded on demand), and **Download** to save
+  the modified image.
 - **Extract** — pull the 8 / 12 / 20 dominant colors from a painting (k-means
   in Lab space), arranged light → dark, each with its own recipe, description,
   and a relationship hint ("close to #3 — add a touch of Ultramarine").
@@ -91,7 +93,8 @@ Media Theory and Non-Negative Least Square Technique*
 ## Tech
 
 React + TypeScript + Vite, Tailwind CSS, shadcn-style components, Lucide icons,
-spectral.js (optional spectral mixing engine). English/Spanish i18n built in.
+spectral.js (optional spectral mixing engine), UpscalerJS + TensorFlow.js
+(optional, lazy-loaded AI image upscaling). English/Spanish i18n built in.
 
 ## Commands
 

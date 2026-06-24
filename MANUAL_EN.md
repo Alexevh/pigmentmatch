@@ -91,7 +91,14 @@ cursor is an eyedropper — clicking still samples the color (a drag won't).
 The **Adjust** button opens sliders to clean up a poor photo — **Sharpen,
 Brightness, Contrast, Saturation, Temperature** (white balance) — with a
 **Reset**. They run locally on the image and help you read it; the color you
-pick comes from the adjusted view. Use **Replace image** to load a different one.
+pick comes from the adjusted view.
+
+**Enhance (AI)** *(experimental)* upscales a low-resolution image with an AI
+model that runs in your browser. The model downloads on first use (needs
+internet once, then it's cached) and can take a moment; it may shift colors, so
+sample with care. **Download** saves the current image (with your adjustments
+and/or AI applied) as a PNG to your computer, so you can keep it or reload it
+later. Use **Replace image** to load a different one.
 
 > **Use your camera:** anywhere you can upload a photo (Image, Mix, Coach,
 > Compare, and the Logbook), there's a **Use camera** button. It opens your PC

@@ -94,9 +94,10 @@ Brightness, Contrast, Saturation, Temperature** (white balance) — with a
 pick comes from the adjusted view.
 
 **Enhance (AI)** *(experimental)* upscales a low-resolution image with an AI
-model that runs in your browser. The model downloads on first use (needs
-internet once, then it's cached) and can take a moment; it may shift colors, so
-sample with care. **Download** saves the current image (with your adjustments
+model that runs in your browser. Pick the **factor** (2x / 3x / 4x) in the little
+dropdown next to the button — higher means more detail but slower and heavier.
+The model downloads on first use (needs internet once, then it's cached) and can
+take a moment; it may shift colors, so sample with care. **Download** saves the current image (with your adjustments
 and/or AI applied) as a PNG to your computer, so you can keep it or reload it
 later. Use **Replace image** to load a different one.
 

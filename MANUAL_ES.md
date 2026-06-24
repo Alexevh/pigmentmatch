@@ -98,9 +98,11 @@ con **Reset**. Corren localmente sobre la imagen y te ayudan a leerla; el color
 que tomás sale de la vista ajustada.
 
 **Mejorar (IA)** *(experimental)* agranda una imagen de baja resolución con un
-modelo de IA que corre en tu navegador. El modelo se descarga la primera vez
-(necesita internet una vez, después queda cacheado) y puede tardar un momento;
-puede alterar colores, así que muestreá con cuidado. **Descargar** guarda la
+modelo de IA que corre en tu navegador. Elegí el **factor** (2x / 3x / 4x) en el
+desplegable chico al lado del botón — más alto da más detalle pero es más lento
+y pesado. El modelo se descarga la primera vez (necesita internet una vez,
+después queda cacheado) y puede tardar un momento; puede alterar colores, así que
+muestreá con cuidado. **Descargar** guarda la
 imagen actual (con tus ajustes y/o la IA aplicados) como PNG en tu computadora,
 para conservarla o volver a cargarla luego. Usá **Replace image** para cargar otra.
 

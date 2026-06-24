@@ -284,6 +284,7 @@ const en: Dict = {
     aiError: "AI enhance failed — try a smaller image.",
     aiTitle:
       "Experimental: upscales the image with AI (downloaded on first use). May shift colors — sample with care.",
+    aiModel: "AI upscale factor (higher = more detail, slower)",
     download: "Download",
   },
   extract: {
@@ -719,6 +720,7 @@ const es: Dict = {
     aiError: "Falló la mejora con IA — probá una imagen más chica.",
     aiTitle:
       "Experimental: agranda la imagen con IA (se descarga la primera vez). Puede alterar colores — muestreá con cuidado.",
+    aiModel: "Factor de mejora IA (mayor = más detalle, más lento)",
     download: "Descargar",
   },
   extract: {

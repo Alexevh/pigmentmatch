@@ -186,6 +186,15 @@ export function ImageSampler({
   // only on click, so the base bundle stays small. May shift colors.
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [aiScale, setAiScale] = useState<"2x" | "3x" | "4x">("2x");
+
+  // Static import() specifiers per scale so the bundler can split each model
+  // into its own chunk (a template-literal path wouldn't be analyzable).
+  const loadModel = async (scale: "2x" | "3x" | "4x") => {
+    if (scale === "3x") return (await import("@upscalerjs/esrgan-slim/3x")).default;
+    if (scale === "4x") return (await import("@upscalerjs/esrgan-slim/4x")).default;
+    return (await import("@upscalerjs/esrgan-slim/2x")).default;
+  };
 
   const enhanceAI = async () => {
     const img = imgRef.current;
@@ -195,9 +204,9 @@ export function ImageSampler({
     try {
       const [{ default: Upscaler }, model] = await Promise.all([
         import("upscaler"),
-        import("@upscalerjs/esrgan-slim/2x"),
+        loadModel(aiScale),
       ]);
-      const upscaler = new Upscaler({ model: model.default });
+      const upscaler = new Upscaler({ model });
       const src = await upscaler.upscale(img, { output: "base64" });
       const up = new Image();
       up.onload = () => {
@@ -529,16 +538,29 @@ export function ImageSampler({
           >
             <SlidersHorizontal className="h-4 w-4" /> {t("image.adjust")}
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={enhanceAI}
-            disabled={aiBusy}
-            title={t("image.aiTitle")}
-          >
-            <Wand2 className="h-4 w-4" />{" "}
-            {aiBusy ? t("image.aiBusy") : t("image.ai")}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={enhanceAI}
+              disabled={aiBusy}
+              title={t("image.aiTitle")}
+            >
+              <Wand2 className="h-4 w-4" />{" "}
+              {aiBusy ? t("image.aiBusy") : t("image.ai")}
+            </Button>
+            <select
+              value={aiScale}
+              onChange={(e) => setAiScale(e.target.value as "2x" | "3x" | "4x")}
+              disabled={aiBusy}
+              title={t("image.aiModel")}
+              className="h-8 rounded-md border border-border bg-background px-1.5 text-xs disabled:opacity-50"
+            >
+              <option value="2x">2x</option>
+              <option value="3x">3x</option>
+              <option value="4x">4x</option>
+            </select>
+          </div>
           <Button
             variant="outline"
             size="sm"

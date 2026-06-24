@@ -97,9 +97,10 @@ src/
       zoom buttons in the toolbar below the image; non-destructive Adjust panel
       — sharpen/brightness/contrast/saturation/temperature on canvas, no deps,
       sampling reads the adjusted view; experimental AI upscaling via UpscalerJS
-      + TF.js + ESRGAN-slim x2, lazy-loaded with a dynamic import() so the base
-      bundle is unaffected — model weights fetched from a CDN on first use, may
-      shift colors; Download exports the current canvas as PNG), PaletteExtractor,
+      + TF.js + ESRGAN-slim with a user-selectable factor (2x/3x/4x, separate
+      static import() per scale), lazy-loaded so the base bundle is unaffected —
+      model weights fetched from a CDN on first use, may shift colors; Download
+      exports the current canvas as PNG), PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
   App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · Calibrate · Palette
 ```

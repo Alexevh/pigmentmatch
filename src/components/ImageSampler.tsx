@@ -253,13 +253,19 @@ export function ImageSampler({
         loadRestoreModel(restoreKey),
       ]);
       upscaler = new Upscaler({ model });
-      // Restoration keeps the size. No patchSize: MAXIM pads to its own
-      // divisibility factor, and tiling breaks when the image is smaller than a
-      // patch (zero-size framebuffer). Cap the input so the whole frame fits in
-      // GPU memory instead.
-      const src: string = await upscaler!.upscale(cappedSource(img, 768), {
-        output: "base64",
-      });
+      // Restoration keeps the size. Tile with a small patch (multiple of MAXIM's
+      // 64 divisibility, and never larger than the image — an oversized patch
+      // gives a zero-size framebuffer) so a single tensor never overflows the
+      // GPU ("texture too large") on heavy MAXIM models.
+      const source = cappedSource(img, 1024);
+      const minDim = Math.min(source.width, source.height);
+      const patch = Math.min(128, Math.floor(minDim / 64) * 64);
+      const opts: Record<string, unknown> = { output: "base64" };
+      if (patch >= 64) {
+        opts.patchSize = patch;
+        opts.padding = 16;
+      }
+      const src: string = await upscaler!.upscale(source, opts);
       const im = new Image();
       im.onload = () => {
         drawImageElement(im, MAX_AI_OUTPUT);

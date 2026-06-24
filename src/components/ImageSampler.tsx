@@ -78,6 +78,20 @@ function sharpenImage(
   return out;
 }
 
+// Cap the AI input size so the upscaled output fits in GPU texture limits
+// (a huge input × the scale factor overflows WebGL and yields a black image).
+const MAX_AI_INPUT = 800;
+function cappedSource(img: HTMLImageElement): HTMLCanvasElement {
+  const scale = Math.min(1, MAX_AI_INPUT / Math.max(img.width, img.height));
+  const w = Math.max(1, Math.round(img.width * scale));
+  const h = Math.max(1, Math.round(img.height * scale));
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  c.getContext("2d")?.drawImage(img, 0, 0, w, h);
+  return c;
+}
+
 const LOUPE = 132; // px diameter of the magnifier
 const ZOOM = 6; // magnification factor
 
@@ -201,13 +215,20 @@ export function ImageSampler({
     if (!img || aiBusy) return;
     setAiBusy(true);
     setAiError(null);
+    let upscaler: { upscale: Function; dispose?: () => unknown } | null = null;
     try {
       const [{ default: Upscaler }, model] = await Promise.all([
         import("upscaler"),
         loadModel(aiScale),
       ]);
-      const upscaler = new Upscaler({ model });
-      const src = await upscaler.upscale(img, { output: "base64" });
+      upscaler = new Upscaler({ model });
+      // Tile the work (patchSize) and cap the input so the GPU doesn't overflow
+      // on large images (which otherwise returns a black frame).
+      const src: string = await upscaler!.upscale(cappedSource(img), {
+        output: "base64",
+        patchSize: 64,
+        padding: 6,
+      });
       const up = new Image();
       up.onload = () => {
         drawImageElement(up, 1800);
@@ -219,8 +240,14 @@ export function ImageSampler({
       };
       up.src = src;
     } catch {
-      setAiError(t("image.aiError"));
+      setAiError(t("image.aiError")); // canvas is left untouched (no black frame)
       setAiBusy(false);
+    } finally {
+      try {
+        upscaler?.dispose?.();
+      } catch {
+        /* ignore */
+      }
     }
   };
 

@@ -281,7 +281,8 @@ const en: Dict = {
       "Adjustments help you read the image; the color you pick comes from the adjusted view.",
     ai: "Enhance (AI)",
     aiBusy: "Enhancing…",
-    aiError: "AI enhance failed — try a smaller image.",
+    aiError:
+      "AI enhance failed — the image is likely too large for your device's GPU. Try a smaller image or a lower factor (2x).",
     aiTitle:
       "Experimental: upscales the image with AI (downloaded on first use). May shift colors — sample with care.",
     aiModel: "AI upscale factor (higher = more detail, slower)",
@@ -717,7 +718,8 @@ const es: Dict = {
       "Los ajustes te ayudan a leer la imagen; el color que tomás sale de la vista ajustada.",
     ai: "Mejorar (IA)",
     aiBusy: "Mejorando…",
-    aiError: "Falló la mejora con IA — probá una imagen más chica.",
+    aiError:
+      "Falló la mejora con IA — la imagen es probablemente muy grande para la GPU de tu dispositivo. Probá una imagen más chica o un factor menor (2x).",
     aiTitle:
       "Experimental: agranda la imagen con IA (se descarga la primera vez). Puede alterar colores — muestreá con cuidado.",
     aiModel: "Factor de mejora IA (mayor = más detalle, más lento)",

@@ -253,12 +253,12 @@ export function ImageSampler({
         loadRestoreModel(restoreKey),
       ]);
       upscaler = new Upscaler({ model });
-      // Restoration keeps the size; tile (patchSize divisible by MAXIM's 64
-      // factor) so peak GPU memory stays bounded on large images.
-      const src: string = await upscaler!.upscale(cappedSource(img, 1024), {
+      // Restoration keeps the size. No patchSize: MAXIM pads to its own
+      // divisibility factor, and tiling breaks when the image is smaller than a
+      // patch (zero-size framebuffer). Cap the input so the whole frame fits in
+      // GPU memory instead.
+      const src: string = await upscaler!.upscale(cappedSource(img, 768), {
         output: "base64",
-        patchSize: 256,
-        padding: 32,
       });
       const im = new Image();
       im.onload = () => {

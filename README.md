@@ -23,15 +23,17 @@ saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`.
   painter's analysis, and six intuitive variations (warmer/cooler,
   lighter/darker, more/less saturated) — each with a **"How to mix it"** link
   showing the base mix plus the tweak needed to reach that variation.
-- **Image** — upload a photo or master painting and click to sample any color.
-  Every photo input (Image, Mix, Coach, Compare, Logbook) can also **capture
-  straight from your camera** (PC webcam or phone camera) — the stream stays in
-  the browser, nothing is uploaded. The image sampler has **+/- zoom with
-  drag-to-pan** inside a fixed box for a finer pick, a non-destructive
-  **Adjust** panel (sharpen, brightness, contrast, saturation, temperature) to
-  clean up a poor photo before sampling, an experimental **Enhance (AI)**
-  upscaler (UpscalerJS + TF.js, lazy-loaded on demand), and **Download** to save
-  the modified image.
+- **Image** — upload a photo or master painting and click to sample any color,
+  with **+/- zoom + drag-to-pan** inside a fixed box and a magnifier loupe for a
+  precise pick. Every photo input (Image, Mix, Coach, Compare, Logbook, IMG Lab)
+  can also **capture straight from your camera** (PC webcam or phone camera) —
+  the stream stays in the browser, nothing is uploaded.
+- **IMG Lab** — a dedicated page to work on a photo: non-destructive
+  **Adjustments** (sharpen, brightness, contrast, saturation, temperature), an
+  experimental **AI enhance** (ESRGAN super-resolution) and **AI restore**
+  (MAXIM deblur / denoise / low-light), and **Download** to save the result.
+  All AI runs locally (UpscalerJS + TensorFlow.js, lazy-loaded) — flagged
+  experimental and resource-heavy.
 - **Extract** — pull the 8 / 12 / 20 dominant colors from a painting (k-means
   in Lab space), arranged light → dark, each with its own recipe, description,
   and a relationship hint ("close to #3 — add a touch of Ultramarine").

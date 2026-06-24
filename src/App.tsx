@@ -9,6 +9,7 @@ import {
   GitCompare,
   Beaker,
   NotebookPen,
+  Wand2,
 } from "lucide-react";
 import type { RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
@@ -30,6 +31,7 @@ import { CalibrateView } from "@/components/CalibrateView";
 import { CompareView } from "@/components/CompareView";
 import { MixCheckView } from "@/components/MixCheckView";
 import { LogbookView } from "@/components/LogbookView";
+import { ImgLabView } from "@/components/ImgLabView";
 
 export default function App() {
   const { lang, t } = useT();
@@ -129,6 +131,9 @@ export default function App() {
             </TabsTrigger>
             <TabsTrigger value="logbook">
               <NotebookPen className="h-4 w-4" /> {t("tabs.logbook")}
+            </TabsTrigger>
+            <TabsTrigger value="imglab">
+              <Wand2 className="h-4 w-4" /> {t("tabs.imglab")}
             </TabsTrigger>
             <TabsTrigger value="calibrate">
               <FlaskConical className="h-4 w-4" /> {t("tabs.calibrate")}
@@ -249,6 +254,18 @@ export default function App() {
               </CardHeader>
               <CardContent>
                 <LogbookView />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* IMG Lab: edit/enhance a photo (adjustments + optional AI), download */}
+          <TabsContent value="imglab">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("tabs.imglab")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ImgLabView />
               </CardContent>
             </Card>
           </TabsContent>

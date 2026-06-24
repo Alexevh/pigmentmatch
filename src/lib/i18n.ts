@@ -57,8 +57,28 @@ const en: Dict = {
     compare: "Compare",
     mix: "Mix",
     logbook: "Logbook",
+    imglab: "IMG Lab",
     calibrate: "Calibrate",
     palette: "Palette",
+  },
+  imglab: {
+    intro:
+      "Work on a photo here — adjust it, optionally enhance it with AI, and download the result to reuse. Then upload the cleaned image in the other tabs to sample colors.",
+    upload: "Upload an image to work on",
+    uploadHint: "Adjust · enhance · download",
+    adjustTitle: "Adjustments",
+    adjustDesc:
+      "Local, predictable tweaks (no AI). Best for color / white balance, exposure and sharpness.",
+    aiExperimental: "AI is experimental",
+    aiWarning:
+      "The AI features run entirely on your computer (no server), so they use a lot of CPU/GPU and memory. They can be slow, may shift colors, and can fail on modest devices — if that happens, reload the page or try a smaller image.",
+    enhanceTitle: "AI enhance — super-resolution",
+    enhanceDesc:
+      "Upscales a low-resolution / pixelated image and reconstructs detail. The gain shows when you zoom in; it won't help an already-sharp photo.",
+    restoreTitle: "AI restore",
+    restoreDesc:
+      "Cleans up a photo instead of enlarging it: remove blur, remove noise, or lift a dark exposure.",
+    run: "Run",
   },
   logbook: {
     title: "Logbook",
@@ -509,8 +529,28 @@ const es: Dict = {
     compare: "Comparar",
     mix: "Mezcla",
     logbook: "Bitácora",
+    imglab: "IMG Lab",
     calibrate: "Calibrar",
     palette: "Paleta",
+  },
+  imglab: {
+    intro:
+      "Trabajá una foto acá — ajustala, opcionalmente mejorala con IA y descargá el resultado para reusarlo. Después subí la imagen ya limpia en las otras pestañas para muestrear colores.",
+    upload: "Subí una imagen para trabajar",
+    uploadHint: "Ajustar · mejorar · descargar",
+    adjustTitle: "Ajustes",
+    adjustDesc:
+      "Retoques locales y predecibles (sin IA). Ideales para color / balance de blancos, exposición y nitidez.",
+    aiExperimental: "La IA es experimental",
+    aiWarning:
+      "Las funciones de IA corren enteramente en tu computadora (sin servidor), así que usan mucha CPU/GPU y memoria. Pueden ser lentas, alterar colores y fallar en equipos modestos — si pasa, recargá la página o probá una imagen más chica.",
+    enhanceTitle: "Mejora con IA — súper-resolución",
+    enhanceDesc:
+      "Agranda una imagen de baja resolución / pixelada y reconstruye detalle. La mejora se nota al hacer zoom; no ayuda en una foto ya nítida.",
+    restoreTitle: "Restauración con IA",
+    restoreDesc:
+      "Limpia la foto en lugar de agrandarla: quita desenfoque, quita ruido o realza una exposición oscura.",
+    run: "Ejecutar",
   },
   logbook: {
     title: "Bitácora",

@@ -14,8 +14,8 @@ dispositivo.
 ## Primeros pasos
 
 1. Abrí la app (`npm run dev` y entrá a la URL local que muestra).
-2. La interfaz tiene nueve pestañas arriba: **Match · Imagen · Extraer · Coach ·
-   Comparar · Mezcla · Bitácora · Calibrar · Paleta**.
+2. La interfaz tiene diez pestañas arriba: **Match · Imagen · Extraer · Coach ·
+   Comparar · Mezcla · Bitácora · IMG Lab · Calibrar · Paleta**.
 3. Empezá en **Match** — abre con el color de ejemplo `#927073`.
 
 El encabezado (arriba a la derecha) muestra tu paleta activa, la cantidad de
@@ -90,31 +90,42 @@ Tu elección se recuerda y aplica en todos lados (incluida la pestaña Extract).
 Usá los botones **+ / −** debajo de la imagen para **acercar o alejar** sin
 cambiar el tamaño de la caja; con zoom podés **arrastrar la imagen** para moverte
 y afinar el pick. El cursor es un cuentagotas — el clic sigue tomando el color
-(un arrastre no).
+(un arrastre no). El botón **Zoom** activa la lupa. Usá **Replace image** para
+cargar otra.
 
-El botón **Ajustes** abre sliders para mejorar una foto de baja calidad —
-**Nitidez, Brillo, Contraste, Saturación, Temperatura** (balance de blancos) —
-con **Reset**. Corren localmente sobre la imagen y te ayudan a leerla; el color
-que tomás sale de la vista ajustada.
+> ¿Querés limpiar o mejorar una foto antes de muestrear? Ahora está en su propia
+> pestaña **IMG Lab** — editala ahí, **Descargá** el resultado y subí la imagen
+> ya limpia acá.
 
-**Mejorar (IA)** *(experimental)* agranda una imagen de baja resolución con un
-modelo de IA que corre en tu navegador. Elegí la **potencia** en el desplegable
-al lado del botón — **Rápido** (liviano), **Mejor** o **Máx** (más detalle, pero
-descarga más grande y más lento). Sirve sobre todo en fotos de **baja resolución
-/ borrosas**; la mejora se nota al **hacer zoom** (a 1× la caja mantiene el mismo
-tamaño). El modelo se descarga la primera vez (necesita internet una vez, después
-queda cacheado) y puede tardar un momento; puede alterar colores, así que
-muestreá con cuidado.
+---
 
-**Restaurar (IA)** *(experimental, aparte)* limpia la foto en lugar de
-agrandarla — elegí **Desenfoque**, **Ruido** o **Luz** en su desplegable. Estos
-modelos son más pesados (descarga más grande la primera vez) y más lentos, y los
-resultados varían; usalos cuando el problema real sea el desenfoque, el ruido o
-una exposición oscura, no la baja resolución.
+## Pestaña IMG Lab — editar y mejorar una foto
 
-**Descargar** guarda la
-imagen actual (con tus ajustes y/o la IA aplicados) como PNG en tu computadora,
-para conservarla o volver a cargarla luego. Usá **Replace image** para cargar otra.
+Un espacio dedicado para arreglar una imagen y después descargarla (los controles
+de edición antes estaban en la pestaña Image). Subí una foto (o usá la cámara),
+trabajala y **Descargá** el resultado como PNG para reusarlo.
+
+### Ajustes
+
+Sliders locales y predecibles, sin IA: **Nitidez, Brillo, Contraste, Saturación,
+Temperatura** (balance de blancos), con **Reset**. Ideales para color, exposición
+y nitidez; nunca inventan detalle.
+
+### Mejora con IA — súper-resolución *(experimental)*
+
+Agranda una imagen de **baja resolución / pixelada** y reconstruye detalle. Elegí
+la potencia — **Rápido**, **Mejor** o **Máx** (más detalle, descarga más grande,
+más lento). La mejora se nota al **hacer zoom**; no ayuda en una foto ya nítida.
+
+### Restauración con IA *(experimental)*
+
+Limpia la foto en lugar de agrandarla: **Desenfoque**, **Ruido** o **Luz**. Usala
+cuando el problema sea el desenfoque, el ruido o una exposición oscura.
+
+> **Atención:** la IA corre enteramente en tu computadora (sin servidor), así que
+> usa mucha CPU/GPU y memoria. Puede ser lenta, alterar colores y fallar en
+> equipos modestos — si pasa, recargá la página o probá una imagen más chica.
+> Para temas de color/blancos, los **Ajustes** comunes suelen ser mejores.
 
 > **Usá tu cámara:** en todos lados donde podés subir una foto (Imagen, Mezcla,
 > Coach, Comparar y la Bitácora) hay un botón **Usar cámara**. Abre la webcam de

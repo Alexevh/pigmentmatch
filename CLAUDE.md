@@ -83,6 +83,8 @@ src/
     storage.ts      localStorage (palettes, active id, observations, calibration)
     logbook.ts      IndexedDB store for the Bitácora: projects + color entries
                     (photos stored as Blobs), image downscale, JSON export/import
+    imagefx.ts      IMG Lab image processing: pixel adjustments (computeAdjusted)
+                    + lazy AI (upscaleImage/restoreImage via UpscalerJS+TF.js)
   hooks/
     usePalettes          palettes CRUD + active selection + presets/library
     useRecipeUnit        "parts" | "percent" display (persisted)
@@ -92,22 +94,18 @@ src/
   components/
     ColorInput, Swatch, RecipeView, AnalysisView, VariationsView,
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
-    ImageSampler (magnifier loupe default off; in-box +/- zoom 1-10x with
-      drag-to-pan via CSS transform + eyedropper cursor, picking still works;
-      zoom buttons in the toolbar below the image; non-destructive Adjust panel
-      — sharpen/brightness/contrast/saturation/temperature on canvas, no deps,
-      sampling reads the adjusted view; experimental AI upscaling via UpscalerJS
-      + TF.js with a user-selectable model strength (ESRGAN slim 2x/4x, medium
-      4x, thick 4x — separate static import() per choice), lazy-loaded so the
-      base bundle is unaffected; input capped so output ≤2048px and tiled
-      (patchSize) to avoid GPU overflow; weights fetched from a CDN on first
-      use, may shift colors; a note warns when the source is already ≥1200px.
-      Separate experimental AI restoration via MAXIM (deblur/denoise/low-light,
-      scale-1 graph models, divisibilityFactor 64, tiled patchSize 256) with its
-      own button + dropdown, also lazy-loaded. Download exports the current
-      canvas as PNG), PaletteExtractor,
+    ImageSampler (sampling only: upload/camera, in-box +/- zoom 1-10x with
+      drag-to-pan via CSS transform + eyedropper cursor, magnifier loupe default
+      off, click to pick). All image EDITING moved to the IMG Lab tab.
+    ImgLabView (IMG Lab tab: dedicated image-processing page using imagefx.ts —
+      sectioned cards for Adjustments (sliders, live, no deps), AI enhance
+      (ESRGAN slim/medium/thick super-resolution), AI restore (MAXIM
+      deblur/denoise/low-light), a prominent "AI is experimental / heavy local
+      resources" warning, a zoom/pan inspector, and Download to PNG. AI models
+      lazy-loaded via dynamic import(), weights from CDN on first use),
+    PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
-  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · Calibrate · Palette
+  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette
 ```
 
 ## How the recipe engine works (`mixer.ts`)

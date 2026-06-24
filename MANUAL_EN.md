@@ -14,8 +14,8 @@ your own device.
 ## Getting started
 
 1. Open the app (`npm run dev`, then visit the local URL it prints).
-2. The interface has nine tabs across the top: **Match · Image · Extract ·
-   Coach · Compare · Mix · Logbook · Calibrate · Palette**.
+2. The interface has ten tabs across the top: **Match · Image · Extract ·
+   Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette**.
 3. Start in **Match** — it opens with the example color `#927073`.
 
 The header (top-right) shows your active palette and pigment count, and a
@@ -86,30 +86,44 @@ Your choice is remembered and applies everywhere (including the Extract tab).
 
 Use the **+ / −** buttons below the image to **zoom in or out** without resizing
 the box; when zoomed in, **drag the image** to pan around for a finer pick. The
-cursor is an eyedropper — clicking still samples the color (a drag won't).
+cursor is an eyedropper — clicking still samples the color (a drag won't). The
+**Zoom** button toggles a magnifier loupe. Use **Replace image** to load a
+different one.
 
-The **Adjust** button opens sliders to clean up a poor photo — **Sharpen,
-Brightness, Contrast, Saturation, Temperature** (white balance) — with a
-**Reset**. They run locally on the image and help you read it; the color you
-pick comes from the adjusted view.
+> Want to clean up or enhance a photo before sampling? That now lives in its own
+> **IMG Lab** tab — edit it there, **Download** the result, and upload the
+> cleaned image back here.
 
-**Enhance (AI)** *(experimental)* upscales a low-resolution image with an AI
-model that runs in your browser. Pick the **strength** in the dropdown next to
-the button — **Fast** (light, quick), **Better**, or **Best** (most detail, but
-a bigger download and slower). It helps most on **low-resolution / blurry**
-photos; the gain shows when you **zoom in** (at 1× the box stays the same size).
-The model downloads on first use (needs internet once, then it's cached) and can
-take a moment; it may shift colors, so sample with care.
+---
 
-**Restore (AI)** *(experimental, separate)* cleans up a photo instead of
-enlarging it — pick **Deblur**, **Denoise**, or **Low-light** in its dropdown.
-These models are heavier (a larger download on first use) and slower, and results
-vary; use them when the real problem is blur, noise, or a dark exposure rather
-than low resolution.
+## The IMG Lab tab — edit & enhance a photo
 
-**Download** saves the current image (with your adjustments
-and/or AI applied) as a PNG to your computer, so you can keep it or reload it
-later. Use **Replace image** to load a different one.
+A dedicated workspace to fix up an image, then download it (the editing controls
+used to live on the Image tab). Upload a photo (or use the camera), work on it,
+and **Download** the result as a PNG to reuse later.
+
+### Adjustments
+
+Predictable, local sliders — no AI: **Sharpen, Brightness, Contrast,
+Saturation, Temperature** (white balance), with **Reset**. Best for color,
+exposure and sharpness; they never invent detail.
+
+### AI enhance — super-resolution *(experimental)*
+
+Upscales a **low-resolution / pixelated** image and reconstructs detail. Pick the
+strength — **Fast**, **Better**, or **Best** (more detail, bigger download,
+slower). The gain shows when you **zoom in**; it won't help an already-sharp
+photo.
+
+### AI restore *(experimental)*
+
+Cleans up a photo instead of enlarging it: **Deblur**, **Denoise**, or
+**Low-light**. Use it when the problem is blur, noise or a dark exposure.
+
+> **Heads-up:** the AI runs entirely on your computer (no server), so it uses a
+> lot of CPU/GPU and memory. It can be slow, may shift colors, and can fail on
+> modest devices — if that happens, reload the page or try a smaller image. For
+> color/white issues, the plain **Adjustments** are usually the better tool.
 
 > **Use your camera:** anywhere you can upload a photo (Image, Mix, Coach,
 > Compare, and the Logbook), there's a **Use camera** button. It opens your PC

@@ -132,7 +132,7 @@ const en: Dict = {
     unnamed: "Unnamed color",
   },
   camera: {
-    use: "Use camera",
+    use: "Camera",
     title: "Take a photo",
     capture: "Capture",
     flip: "Flip camera",
@@ -267,6 +267,7 @@ const en: Dict = {
     uploadTitle: "Upload an image to sample colors",
     uploadHint: "Click anywhere on it to pick a color",
     replace: "Replace image",
+    zoom: "Zoom",
     zoomOn: "Zoom on",
     zoomOff: "Zoom off",
   },
@@ -553,7 +554,7 @@ const es: Dict = {
     unnamed: "Color sin nombre",
   },
   camera: {
-    use: "Usar cámara",
+    use: "Cámara",
     title: "Sacar una foto",
     capture: "Capturar",
     flip: "Cambiar cámara",
@@ -686,6 +687,7 @@ const es: Dict = {
     uploadTitle: "Subí una imagen para muestrear colores",
     uploadHint: "Hacé clic en cualquier punto para tomar un color",
     replace: "Reemplazar imagen",
+    zoom: "Zoom",
     zoomOn: "Zoom activado",
     zoomOff: "Zoom desactivado",
   },

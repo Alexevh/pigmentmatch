@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback } from "react";
-import { Upload, Search, Camera, Plus, Minus } from "lucide-react";
+import { Upload, Search, SearchX, Camera, Plus, Minus } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -302,9 +302,14 @@ export function ImageSampler({
             variant={loupeOn ? "accent" : "outline"}
             size="sm"
             onClick={() => setLoupeOn((z) => !z)}
-            title="Magnifier loupe for precise sampling"
+            title={loupeOn ? t("image.zoomOn") : t("image.zoomOff")}
           >
-            <Search className="h-4 w-4" /> {loupeOn ? t("image.zoomOn") : t("image.zoomOff")}
+            {loupeOn ? (
+              <Search className="h-4 w-4" />
+            ) : (
+              <SearchX className="h-4 w-4" />
+            )}{" "}
+            {t("image.zoom")}
           </Button>
           <div className="flex items-center gap-1">
             <Button

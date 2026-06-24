@@ -90,7 +90,12 @@ Tu elección se recuerda y aplica en todos lados (incluida la pestaña Extract).
 Usá los botones **+ / −** debajo de la imagen para **acercar o alejar** sin
 cambiar el tamaño de la caja; con zoom podés **arrastrar la imagen** para moverte
 y afinar el pick. El cursor es un cuentagotas — el clic sigue tomando el color
-(un arrastre no). Usá **Replace image** para cargar otra.
+(un arrastre no).
+
+El botón **Ajustes** abre sliders para mejorar una foto de baja calidad —
+**Nitidez, Brillo, Contraste, Saturación, Temperatura** (balance de blancos) —
+con **Reset**. Corren localmente sobre la imagen y te ayudan a leerla; el color
+que tomás sale de la vista ajustada. Usá **Replace image** para cargar otra.
 
 > **Usá tu cámara:** en todos lados donde podés subir una foto (Imagen, Mezcla,
 > Coach, Comparar y la Bitácora) hay un botón **Usar cámara**. Abre la webcam de

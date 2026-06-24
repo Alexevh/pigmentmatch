@@ -1,10 +1,80 @@
-import { useRef, useState, useCallback } from "react";
-import { Upload, Search, SearchX, Camera, Plus, Minus } from "lucide-react";
+import { useRef, useState, useCallback, useEffect } from "react";
+import {
+  Upload,
+  Search,
+  SearchX,
+  Camera,
+  Plus,
+  Minus,
+  SlidersHorizontal,
+  RotateCcw,
+} from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { CameraCapture } from "@/components/CameraCapture";
 import { cn } from "@/lib/utils";
+
+// --- Local image adjustments (no dependencies, runs on the canvas) ---
+
+interface Adjust {
+  sharpen: number; // 0..100
+  brightness: number; // -100..100
+  contrast: number; // -100..100
+  saturation: number; // -100..100
+  temperature: number; // -100..100 (warm +)
+}
+const DEFAULT_ADJUST: Adjust = {
+  sharpen: 0,
+  brightness: 0,
+  contrast: 0,
+  saturation: 0,
+  temperature: 0,
+};
+const adjustActive = (a: Adjust) =>
+  a.sharpen !== 0 ||
+  a.brightness !== 0 ||
+  a.contrast !== 0 ||
+  a.saturation !== 0 ||
+  a.temperature !== 0;
+
+const clampByte = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
+
+// 3x3 sharpen kernel, blended into the original by `amount` (0..1).
+function sharpenImage(
+  data: Uint8ClampedArray,
+  w: number,
+  h: number,
+  amount: number
+): Uint8ClampedArray {
+  const k = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+  const out = new Uint8ClampedArray(data.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let r = 0,
+        g = 0,
+        b = 0;
+      for (let ky = -1; ky <= 1; ky++) {
+        const py = y + ky < 0 ? 0 : y + ky >= h ? h - 1 : y + ky;
+        for (let kx = -1; kx <= 1; kx++) {
+          const px = x + kx < 0 ? 0 : x + kx >= w ? w - 1 : x + kx;
+          const idx = (py * w + px) * 4;
+          const kk = k[(ky + 1) * 3 + (kx + 1)];
+          r += data[idx] * kk;
+          g += data[idx + 1] * kk;
+          b += data[idx + 2] * kk;
+        }
+      }
+      const o = (y * w + x) * 4;
+      out[o] = clampByte(data[o] + (r - data[o]) * amount);
+      out[o + 1] = clampByte(data[o + 1] + (g - data[o + 1]) * amount);
+      out[o + 2] = clampByte(data[o + 2] + (b - data[o + 2]) * amount);
+      out[o + 3] = data[o + 3];
+    }
+  }
+  return out;
+}
 
 const LOUPE = 132; // px diameter of the magnifier
 const ZOOM = 6; // magnification factor
@@ -65,6 +135,12 @@ export function ImageSampler({
     panX: 0,
     panY: 0,
   });
+
+  // Image adjustments: the untouched scaled image is kept as `baseRef`; sliders
+  // recompute the visible canvas from it. Sampling reads the adjusted canvas.
+  const baseRef = useRef<ImageData | null>(null);
+  const [adjust, setAdjust] = useState<Adjust>(DEFAULT_ADJUST);
+  const [showAdjust, setShowAdjust] = useState(false);
   const [loupePos, setLoupePos] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -81,10 +157,14 @@ export function ImageSampler({
       canvas.height = Math.round(img.height * scale);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      // keep the untouched scaled pixels so adjustments are non-destructive
+      baseRef.current =
+        ctx?.getImageData(0, 0, canvas.width, canvas.height) ?? null;
       imgRef.current = img; // keep the full-res image for a crisp loupe
       setHasImage(true);
       setZoom(1);
       setPan({ x: 0, y: 0 });
+      setAdjust(DEFAULT_ADJUST);
       onImage?.(img);
       URL.revokeObjectURL(url);
     };
@@ -201,6 +281,51 @@ export function ImageSampler({
       if (nz === 1) setPan({ x: 0, y: 0 });
       return nz;
     });
+
+  // Recompute the visible canvas from the untouched base whenever a slider moves.
+  const redraw = useCallback(() => {
+    const canvas = canvasRef.current;
+    const base = baseRef.current;
+    if (!canvas || !base) return;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    const { width: w, height: h } = base;
+    const px = new Uint8ClampedArray(base.data);
+    const { sharpen, brightness, contrast, saturation, temperature } = adjust;
+    const cf = (259 * (contrast + 255)) / (255 * (259 - contrast)); // contrast factor
+    const satF = 1 + saturation / 100;
+    for (let i = 0; i < px.length; i += 4) {
+      let r = px[i],
+        g = px[i + 1],
+        b = px[i + 2];
+      r += brightness;
+      g += brightness;
+      b += brightness;
+      r = cf * (r - 128) + 128;
+      g = cf * (g - 128) + 128;
+      b = cf * (b - 128) + 128;
+      r += temperature * 0.6; // warm: more red, less blue
+      b -= temperature * 0.6;
+      const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+      r = gray + (r - gray) * satF;
+      g = gray + (g - gray) * satF;
+      b = gray + (b - gray) * satF;
+      px[i] = clampByte(r);
+      px[i + 1] = clampByte(g);
+      px[i + 2] = clampByte(b);
+    }
+    const out = sharpen > 0 ? sharpenImage(px, w, h, sharpen / 100) : px;
+    const result = ctx.createImageData(w, h);
+    result.data.set(out);
+    ctx.putImageData(result, 0, 0);
+  }, [adjust]);
+
+  // Coalesce rapid slider changes to one repaint per frame.
+  useEffect(() => {
+    if (!hasImage) return;
+    const id = requestAnimationFrame(redraw);
+    return () => cancelAnimationFrame(id);
+  }, [redraw, hasImage]);
 
   return (
     <div className="space-y-3">
@@ -339,6 +464,13 @@ export function ImageSampler({
               <Plus className="h-4 w-4" />
             </Button>
           </div>
+          <Button
+            variant={showAdjust || adjustActive(adjust) ? "accent" : "outline"}
+            size="sm"
+            onClick={() => setShowAdjust((s) => !s)}
+          >
+            <SlidersHorizontal className="h-4 w-4" /> {t("image.adjust")}
+          </Button>
           {hover && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span
@@ -351,6 +483,46 @@ export function ImageSampler({
             </div>
           )}
         </div>
+
+        {showAdjust && (
+          <div className="mt-2 space-y-2 rounded-md border border-border bg-secondary/30 p-3">
+            {(
+              [
+                ["sharpen", 0, 100],
+                ["brightness", -100, 100],
+                ["contrast", -100, 100],
+                ["saturation", -100, 100],
+                ["temperature", -100, 100],
+              ] as const
+            ).map(([key, min, max]) => (
+              <div key={key} className="flex items-center gap-3">
+                <span className="w-20 shrink-0 text-xs text-muted-foreground">
+                  {t(`image.${key}`)}
+                </span>
+                <Slider
+                  value={adjust[key]}
+                  min={min}
+                  max={max}
+                  step={1}
+                  onChange={(v) => setAdjust((a) => ({ ...a, [key]: v }))}
+                />
+              </div>
+            ))}
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-[11px] text-muted-foreground">
+                {t("image.adjustHint")}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setAdjust(DEFAULT_ADJUST)}
+                disabled={!adjustActive(adjust)}
+              >
+                <RotateCcw className="h-3.5 w-3.5" /> {t("image.reset")}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Floating magnifier — follows the cursor while hovering the image */}

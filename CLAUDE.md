@@ -94,7 +94,9 @@ src/
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
     ImageSampler (magnifier loupe default off; in-box +/- zoom 1-10x with
       drag-to-pan via CSS transform + eyedropper cursor, picking still works;
-      zoom buttons in the toolbar below the image), PaletteExtractor,
+      zoom buttons in the toolbar below the image; non-destructive Adjust panel
+      — sharpen/brightness/contrast/saturation/temperature on canvas, no deps,
+      sampling reads the adjusted view), PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
   App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · Calibrate · Palette
 ```

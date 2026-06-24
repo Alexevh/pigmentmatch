@@ -86,8 +86,12 @@ Your choice is remembered and applies everywhere (including the Extract tab).
 
 Use the **+ / −** buttons below the image to **zoom in or out** without resizing
 the box; when zoomed in, **drag the image** to pan around for a finer pick. The
-cursor is an eyedropper — clicking still samples the color (a drag won't). Use
-**Replace image** to load a different one.
+cursor is an eyedropper — clicking still samples the color (a drag won't).
+
+The **Adjust** button opens sliders to clean up a poor photo — **Sharpen,
+Brightness, Contrast, Saturation, Temperature** (white balance) — with a
+**Reset**. They run locally on the image and help you read it; the color you
+pick comes from the adjusted view. Use **Replace image** to load a different one.
 
 > **Use your camera:** anywhere you can upload a photo (Image, Mix, Coach,
 > Compare, and the Logbook), there's a **Use camera** button. It opens your PC

@@ -270,6 +270,15 @@ const en: Dict = {
     zoom: "Zoom",
     zoomOn: "Zoom on",
     zoomOff: "Zoom off",
+    adjust: "Adjust",
+    sharpen: "Sharpen",
+    brightness: "Brightness",
+    contrast: "Contrast",
+    saturation: "Saturation",
+    temperature: "Temperature",
+    reset: "Reset",
+    adjustHint:
+      "Adjustments help you read the image; the color you pick comes from the adjusted view.",
   },
   extract: {
     title: "Palette extraction",
@@ -690,6 +699,15 @@ const es: Dict = {
     zoom: "Zoom",
     zoomOn: "Zoom activado",
     zoomOff: "Zoom desactivado",
+    adjust: "Ajustes",
+    sharpen: "Nitidez",
+    brightness: "Brillo",
+    contrast: "Contraste",
+    saturation: "Saturación",
+    temperature: "Temperatura",
+    reset: "Reset",
+    adjustHint:
+      "Los ajustes te ayudan a leer la imagen; el color que tomás sale de la vista ajustada.",
   },
   extract: {
     title: "Extracción de paleta",

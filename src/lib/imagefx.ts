@@ -141,10 +141,13 @@ export async function upscaleImage(
   const up = new Upscaler({ model });
   try {
     const factor = aiFactor(key);
+    // Tile in reasonably large patches: tiny patches (e.g. 32px) spawn thousands
+    // of GPU passes that exhaust WebGL / trip the Windows driver watchdog (lost
+    // context). 128px keeps per-tile memory bounded while staying fast.
     return await up.upscale(cappedSource(img, Math.floor(MAX_AI_OUTPUT / factor)), {
       output: "base64",
-      patchSize: 32,
-      padding: 5,
+      patchSize: 128,
+      padding: 6,
     });
   } finally {
     try {

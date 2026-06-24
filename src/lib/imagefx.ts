@@ -141,14 +141,17 @@ export async function upscaleImage(
   const up = new Upscaler({ model });
   try {
     const factor = aiFactor(key);
-    // Tile in reasonably large patches: tiny patches (e.g. 32px) spawn thousands
-    // of GPU passes that exhaust WebGL / trip the Windows driver watchdog (lost
-    // context). 128px keeps per-tile memory bounded while staying fast.
-    return await up.upscale(cappedSource(img, Math.floor(MAX_AI_OUTPUT / factor)), {
-      output: "base64",
-      patchSize: 128,
-      padding: 6,
-    });
+    // Hard-cap the INPUT so input × factor stays well under the WebGL texture
+    // limit (16384). Process the whole (small) frame — no patchSize — which is
+    // fast and avoids both giant textures and the thousands-of-tiny-passes that
+    // lose the WebGL context.
+    const SAFE_OUTPUT = 1536;
+    const maxInput = Math.max(64, Math.floor(SAFE_OUTPUT / factor));
+    const source = cappedSource(img, maxInput);
+    console.log(
+      `[imgfx] enhance ${key}: input ${source.width}x${source.height} -> ~${source.width * factor}px`
+    );
+    return await up.upscale(source, { output: "base64" });
   } finally {
     try {
       (up as { dispose?: () => unknown }).dispose?.();

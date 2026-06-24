@@ -192,37 +192,6 @@ export function ImgLabView() {
     />
   );
 
-  if (!hasImage) {
-    return (
-      <div className="space-y-3">
-        {showCam && (
-          <CameraCapture
-            onCapture={(b) => drawFile(b)}
-            onClose={() => setShowCam(false)}
-          />
-        )}
-        {fileInput}
-        <p className="text-sm text-muted-foreground">{t("imglab.intro")}</p>
-        <button
-          onClick={() => fileRef.current?.click()}
-          className="flex h-64 w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
-        >
-          <Upload className="h-8 w-8" />
-          <span className="text-sm font-medium">{t("imglab.upload")}</span>
-          <span className="text-xs">{t("imglab.uploadHint")}</span>
-        </button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => setShowCam(true)}
-        >
-          <Camera className="h-4 w-4" /> {t("camera.use")}
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       {showCam && (
@@ -233,7 +202,31 @@ export function ImgLabView() {
       )}
       {fileInput}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-start">
+      {!hasImage && (
+        <div className="space-y-3">
+          <p className="text-sm text-muted-foreground">{t("imglab.intro")}</p>
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="flex h-64 w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
+          >
+            <Upload className="h-8 w-8" />
+            <span className="text-sm font-medium">{t("imglab.upload")}</span>
+            <span className="text-xs">{t("imglab.uploadHint")}</span>
+          </button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={() => setShowCam(true)}
+          >
+            <Camera className="h-4 w-4" /> {t("camera.use")}
+          </Button>
+        </div>
+      )}
+
+      {/* The canvas must stay mounted so the first upload has a target. */}
+      <div className={hasImage ? "block" : "hidden"}>
+        <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-start">
         {/* Viewer */}
         <div className="space-y-2">
           <div className="relative overflow-hidden rounded-lg border border-border bg-black/20">
@@ -432,6 +425,7 @@ export function ImgLabView() {
               </div>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>

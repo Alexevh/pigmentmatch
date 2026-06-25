@@ -307,9 +307,17 @@ cambia toda la app al modelo calibrado.
    tu swatch real (lo más exacto).
 3. Clic en **Add observation**.
 
-Repetí con varias mezclas — **tres o más** da el mejor ajuste. Útiles: blanco +
-cada pigmento en un par de proporciones, y cualquier mezcla que notes que la app
-predice mal ahora.
+Repetí con varias mezclas — **tres o más** da el mejor ajuste.
+
+> **Registrá MEZCLAS, no pigmentos solos.** La calibración ajusta la *fuerza
+> tintórea*, que solo se manifiesta en una mezcla — un pigmento solo siempre
+> predice su propio color sin importar su fuerza, así que no le enseña nada al
+> modelo. Las observaciones más útiles son **un pigmento mezclado con blanco** en
+> una proporción conocida (ej. 1 blanco + 0.5 ocre, o 1 blanco + un toque de
+> ultramar — los colores fuertes necesitan muy poco). Cubrí cada pigmento en al
+> menos una mezcla con blanco, y sumá cualquier mezcla que la app prediga mal.
+> (Esto ajusta solo la fuerza — el color base del pigmento se fija en la pestaña
+> Paleta.)
 
 ### Calibrar
 

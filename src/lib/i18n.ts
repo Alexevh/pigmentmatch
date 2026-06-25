@@ -433,6 +433,9 @@ const en: Dict = {
     recordTitle: "Record a mix you made",
     recordHint:
       "Enter the parts you used of each pigment, then set the real color you got (type it or sample a photo of your swatch).",
+    mixNoteTitle: "Record mixes, not single pigments",
+    mixNote:
+      "A single pigment on its own teaches the model nothing about tinting strength — strength only shows up in mixtures (one pigment alone always predicts its own masstone, whatever its strength). The most useful observations are a pigment mixed with white at a known ratio — e.g. 1 white + 0.5 ochre, or 1 white + a touch of ultramarine (strong colors need very little). Cover each pigment in at least one mix with white, and add any mix the app currently gets wrong. Note: this fits tinting strength only — a pigment's base color is set in the Palette tab.",
     realColor: "Real color you got",
     got: "got",
     model: "model",
@@ -924,6 +927,9 @@ const es: Dict = {
     recordTitle: "Registrá una mezcla que hiciste",
     recordHint:
       "Ingresá las partes que usaste de cada pigmento y fijá el color real que obtuviste (escribilo o muestrealo de una foto del swatch).",
+    mixNoteTitle: "Registrá mezclas, no pigmentos solos",
+    mixNote:
+      "Un pigmento solo no le enseña nada al modelo sobre la fuerza tintórea — la fuerza solo se manifiesta en mezclas (un pigmento solo siempre predice su propio masstone, sea cual sea su fuerza). Las observaciones más útiles son un pigmento mezclado con blanco en una proporción conocida — ej. 1 blanco + 0.5 ocre, o 1 blanco + un toque de ultramar (los colores fuertes necesitan muy poco). Cubrí cada pigmento en al menos una mezcla con blanco, y sumá cualquier mezcla que la app hoy prediga mal. Nota: esto ajusta solo la fuerza tintórea — el color base del pigmento se fija en la pestaña Paleta.",
     realColor: "Color real que obtuviste",
     got: "obtenido",
     model: "modelo",

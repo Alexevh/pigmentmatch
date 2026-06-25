@@ -296,9 +296,16 @@ over to the calibrated model.
    actual swatch (most accurate).
 3. Click **Add observation**.
 
-Repeat for a handful of mixes — **three or more** gives the best fit. Useful
-ones: white + each pigment at a couple of ratios, and any mixes you find the app
-currently predicts poorly.
+Repeat for a handful of mixes — **three or more** gives the best fit.
+
+> **Record MIXES, not single pigments.** Calibration fits *tinting strength*,
+> which only shows up in a mixture — a single pigment on its own always predicts
+> its own color no matter its strength, so it teaches the model nothing. The most
+> useful observations are **a pigment mixed with white** at a known ratio (e.g.
+> 1 white + 0.5 ochre, or 1 white + a touch of ultramarine — strong colors need
+> very little). Cover each pigment in at least one mix with white, and add any
+> mix the app currently gets wrong. (This fits strength only — set a pigment's
+> base color in the Palette tab.)
 
 ### Calibrating
 

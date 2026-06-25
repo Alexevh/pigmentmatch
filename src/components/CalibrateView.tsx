@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FlaskConical, Trash2, Sparkles, Plus } from "lucide-react";
+import { FlaskConical, Trash2, Sparkles, Plus, Info } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import type { Pigment } from "@/lib/pigments";
 import {
@@ -135,6 +135,13 @@ export function CalibrateView({
           <p className="text-xs text-muted-foreground">
             {t("calibrate.recordHint")}
           </p>
+
+          <div className="rounded-md border border-accent/30 bg-accent/5 p-3 text-xs text-muted-foreground">
+            <p className="flex items-center gap-2 font-medium text-accent">
+              <Info className="h-4 w-4 shrink-0" /> {t("calibrate.mixNoteTitle")}
+            </p>
+            <p className="mt-1">{t("calibrate.mixNote")}</p>
+          </div>
 
           <div className="grid gap-2 sm:grid-cols-2">
             {pigments.map((p) => (

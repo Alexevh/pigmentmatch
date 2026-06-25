@@ -10,7 +10,9 @@ painter does, not in math.
 **🎨 Live app: [alexevh.github.io/pigmentmatch](https://alexevh.github.io/pigmentmatch/)**
 
 Everything runs **entirely in your browser**. There is no backend; palettes are
-saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`.
+saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`. It's
+also an **installable PWA** — add it to your home screen / desktop and it works
+offline (an update toast appears when a new version ships).
 
 > 📖 User manuals: [English](MANUAL_EN.md) · [Español](MANUAL_ES.md)
 >

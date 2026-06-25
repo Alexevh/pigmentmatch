@@ -44,6 +44,14 @@ React + TypeScript + Vite (v8) · Tailwind v3 · shadcn-style components · Luci
 icons · dark mode. Path alias `@` → `src`. Vite `base: "./"` (relative) so the
 static build works from any host or subpath.
 
+**PWA:** installable + offline via `vite-plugin-pwa` (Workbox `generateSW`),
+configured in `vite.config.ts` with `registerType: "prompt"`, a relative
+`scope`/`start_url` (`"./"`) for the Pages subpath, and `palette.svg` as the
+(any+maskable) icon. `PwaUpdater` (`virtual:pwa-register/react`) shows a toast
+when a new build is deployed so the SW never silently serves a stale cache —
+strings under i18n `pwa.*`. The AI model weights (CDN, cross-origin) are NOT
+precached, so AI still needs a connection the first time.
+
 ```bash
 npm run dev      # dev server
 npm run build    # tsc -b && vite build  (always run before committing logic)

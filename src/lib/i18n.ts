@@ -49,6 +49,11 @@ const en: Dict = {
     footer:
       "Runs entirely in your browser — palettes are saved locally. Recipes use a subtractive Kubelka-Munk approximation and are a starting point; trust your eye on the easel.",
   },
+  pwa: {
+    updateAvailable: "A new version is available.",
+    update: "Update",
+    dismiss: "Dismiss",
+  },
   tabs: {
     match: "Match",
     image: "Image",
@@ -534,6 +539,11 @@ const es: Dict = {
     calibrated: "Calibrado",
     footer:
       "Corre enteramente en tu navegador — las paletas se guardan localmente. Las recetas usan una aproximación sustractiva de Kubelka-Munk y son un punto de partida; confiá en tu ojo en el caballete.",
+  },
+  pwa: {
+    updateAvailable: "Hay una nueva versión disponible.",
+    update: "Actualizar",
+    dismiss: "Descartar",
   },
   tabs: {
     match: "Match",

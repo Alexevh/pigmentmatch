@@ -117,7 +117,10 @@ src/
       so it can't run in the browser),
     PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
-  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette
+    HelpView (Help tab: About/purpose, Release notes, FAQ — <details> accordions;
+      bilingual content lives in the component, not i18n)
+  version.ts        APP_VERSION ("1.0"), shown next to the header title + release notes
+  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette · Help
 ```
 
 ## How the recipe engine works (`mixer.ts`)

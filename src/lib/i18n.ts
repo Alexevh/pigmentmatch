@@ -65,6 +65,7 @@ const en: Dict = {
     imglab: "IMG Lab",
     calibrate: "Calibrate",
     palette: "Palette",
+    help: "Help",
   },
   imglab: {
     intro:
@@ -556,6 +557,7 @@ const es: Dict = {
     imglab: "IMG Lab",
     calibrate: "Calibrar",
     palette: "Paleta",
+    help: "Ayuda",
   },
   imglab: {
     intro:

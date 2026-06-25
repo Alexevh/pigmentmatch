@@ -14,8 +14,10 @@ dispositivo.
 ## Primeros pasos
 
 1. Abrí la app (`npm run dev` y entrá a la URL local que muestra).
-2. La interfaz tiene diez pestañas arriba: **Match · Imagen · Extraer · Coach ·
-   Comparar · Mezcla · Bitácora · IMG Lab · Calibrar · Paleta**.
+2. La interfaz tiene once pestañas arriba: **Match · Imagen · Extraer · Coach ·
+   Comparar · Mezcla · Bitácora · IMG Lab · Calibrar · Paleta · Ayuda**.
+   La versión de la app se muestra al lado del título (la pestaña **Ayuda**
+   tiene notas de versión, preguntas frecuentes y la historia de la app).
 3. Empezá en **Match** — abre con el color de ejemplo `#927073`.
 
 El encabezado (arriba a la derecha) muestra tu paleta activa, la cantidad de

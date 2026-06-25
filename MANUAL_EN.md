@@ -14,8 +14,10 @@ your own device.
 ## Getting started
 
 1. Open the app (`npm run dev`, then visit the local URL it prints).
-2. The interface has ten tabs across the top: **Match · Image · Extract ·
-   Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette**.
+2. The interface has eleven tabs across the top: **Match · Image · Extract ·
+   Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette · Help**.
+   The app version is shown next to the title (the **Help** tab has release
+   notes, an FAQ, and the story behind the app).
 3. Start in **Match** — it opens with the example color `#927073`.
 
 The header (top-right) shows your active palette and pigment count, and a

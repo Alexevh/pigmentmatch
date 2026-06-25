@@ -10,6 +10,7 @@ import {
   Beaker,
   NotebookPen,
   Wand2,
+  HelpCircle,
 } from "lucide-react";
 import type { RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
@@ -33,6 +34,8 @@ import { MixCheckView } from "@/components/MixCheckView";
 import { LogbookView } from "@/components/LogbookView";
 import { ImgLabView } from "@/components/ImgLabView";
 import { PwaUpdater } from "@/components/PwaUpdater";
+import { HelpView } from "@/components/HelpView";
+import { APP_VERSION } from "@/version";
 
 export default function App() {
   const { lang, t } = useT();
@@ -70,8 +73,11 @@ export default function App() {
             <Palette className="h-4 w-4" />
           </div>
           <div>
-            <h1 className="text-base font-semibold leading-tight">
+            <h1 className="flex items-baseline gap-1.5 text-base font-semibold leading-tight">
               Pigment Match
+              <span className="text-xs font-normal text-muted-foreground">
+                v{APP_VERSION}
+              </span>
             </h1>
             <p className="text-xs text-muted-foreground">{t("app.tagline")}</p>
           </div>
@@ -142,6 +148,9 @@ export default function App() {
             </TabsTrigger>
             <TabsTrigger value="palette">
               <Palette className="h-4 w-4" /> {t("tabs.palette")}
+            </TabsTrigger>
+            <TabsTrigger value="help">
+              <HelpCircle className="h-4 w-4" /> {t("tabs.help")}
             </TabsTrigger>
           </TabsList>
 
@@ -285,6 +294,18 @@ export default function App() {
               </CardHeader>
               <CardContent>
                 <PaletteManager api={api} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Help: about, release notes, FAQ */}
+          <TabsContent value="help">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("tabs.help")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <HelpView />
               </CardContent>
             </Card>
           </TabsContent>

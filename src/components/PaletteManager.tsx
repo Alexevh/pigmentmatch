@@ -7,6 +7,7 @@ import {
   Library,
   Download,
   Upload,
+  Info,
 } from "lucide-react";
 import { hexToRgb, rgbToHex, clamp255 } from "@/lib/color";
 import {
@@ -237,6 +238,13 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
 
   return (
     <div className="space-y-5">
+      <div className="rounded-md border border-accent/30 bg-accent/5 p-3 text-xs text-muted-foreground">
+        <p className="flex items-center gap-2 font-medium text-accent">
+          <Info className="h-4 w-4 shrink-0" /> {t("palette.masstoneTitle")}
+        </p>
+        <p className="mt-1">{t("palette.masstoneNote")}</p>
+      </div>
+
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">

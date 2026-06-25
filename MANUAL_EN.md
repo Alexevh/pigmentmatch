@@ -356,6 +356,12 @@ Click **Edit** to reveal:
 Click the color square to change the pigment's color. **Add pigment** appends a
 new one.
 
+> **Set the real masstone.** Recipes are built from each pigment's base color, so
+> accuracy starts here — and calibration only fits tinting strength, not color.
+> Whenever you edit, add or create a paint, set its true color: paint a pure
+> swatch, photograph it in good light, sample it in the Image tab, and copy that
+> HEX onto the pigment. A note at the top of the Palette tab repeats this.
+
 > **Tip — calibrate to your real tubes:** paint a pure swatch of a tube, photo­
 > graph it in good light, sample it in the **Image** tab, and copy that HEX into
 > the pigment. The closer the pigment data is to your real paint, the better the

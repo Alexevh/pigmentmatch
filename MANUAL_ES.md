@@ -372,6 +372,13 @@ Clic en **Edit** para mostrar:
 Clic en el cuadrado de color para cambiar el color del pigmento. **Add pigment**
 agrega uno nuevo.
 
+> **Fijá el masstone real.** Las recetas se construyen a partir del color base de
+> cada pigmento, así que la precisión empieza acá — y la calibración solo ajusta
+> la fuerza tintórea, no el color. Cada vez que edites, agregues o crees una
+> pintura, fijá su color real: pintá un swatch puro, fotografialo con buena luz,
+> muestrealo en la pestaña Imagen y copiá ese HEX en el pigmento. Una nota arriba
+> de la pestaña Paleta lo repite.
+
 > **Tip — calibrá con tus tubos reales:** pintá un swatch puro de un tubo,
 > fotografialo con buena luz, muestrealo en la pestaña **Image**, y copiá ese
 > HEX al pigmento. Cuanto más cerca estén los datos del pigmento de tu pintura

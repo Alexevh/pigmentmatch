@@ -151,7 +151,9 @@ export async function upscaleImage(
     console.log(
       `[imgfx] enhance ${key}: input ${source.width}x${source.height} -> ~${source.width * factor}px`
     );
-    return await up.upscale(source, { output: "base64" });
+    // Pass a data URL of the already-downscaled canvas (not the canvas/full
+    // image) so the model can only ever see the capped size.
+    return await up.upscale(source.toDataURL("image/png"), { output: "base64" });
   } finally {
     try {
       (up as { dispose?: () => unknown }).dispose?.();

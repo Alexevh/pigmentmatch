@@ -210,45 +210,7 @@ export async function cloudEnhance(
   return `data:${part.inlineData.mimeType || "image/png"};base64,${part.inlineData.data}`;
 }
 
-export type Restore = "deblur" | "denoise" | "lowlight";
-
-async function loadRestoreModel(key: Restore) {
-  switch (key) {
-    case "denoise":
-      return (await import("@upscalerjs/maxim-denoising")).default;
-    case "lowlight":
-      return (await import("@upscalerjs/maxim-enhancement")).default;
-    default:
-      return (await import("@upscalerjs/maxim-deblurring")).default;
-  }
-}
-
-// MAXIM restoration keeps the size. It uses global context, so we never tile
-// (that leaves a grid); instead cap the input small enough to fit the GPU.
-export async function restoreImage(
-  img: HTMLImageElement,
-  key: Restore,
-  maxInput = 256
-): Promise<string> {
-  const [{ default: Upscaler }, model] = await Promise.all([
-    import("upscaler"),
-    loadRestoreModel(key),
-  ]);
-  const up = new Upscaler({ model });
-  try {
-    // MAXIM does global (einsum) mixing whose intermediate tensors grow ~with
-    // the square of the resolution, so even a modest frame overflows the WebGL
-    // texture limit. Keep the input small.
-    const source = cappedSource(img, maxInput);
-    console.log(
-      `[imgfx] restore ${key}: input ${source.width}x${source.height}`
-    );
-    return await up.upscale(source, { output: "base64" });
-  } finally {
-    try {
-      (up as { dispose?: () => unknown }).dispose?.();
-    } catch {
-      /* ignore */
-    }
-  }
-}
+// NOTE: MAXIM restoration models (deblur/denoise/low-light) were removed — their
+// global einsum mixing allocates intermediate WebGL textures far beyond the
+// 16384 limit regardless of input size, so they can't run in the browser TF.js
+// backend. Use ESRGAN enhance, the Gemini cloud option, or the classic sliders.

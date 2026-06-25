@@ -115,18 +115,18 @@ strength — **Fast**, **Better**, or **Best** (more detail, bigger download,
 slower). The gain shows when you **zoom in**; it won't help an already-sharp
 photo.
 
-### AI restore *(experimental)*
-
-Cleans up a photo instead of enlarging it: **Deblur**, **Denoise**, or
-**Low-light**. Use it when the problem is blur, noise or a dark exposure.
-
 ### Cloud AI — Gemini (Nano Banana) *(optional, bring your own key)*
 
-If the local AI is too heavy for your machine, you can use Google's Gemini image
-model instead. Paste **your own** Google AI Studio API key (there's a "Get a free
+For heavier cleanup — **deblur, denoise, low-light, etc.** — use Google's Gemini
+image model. Paste **your own** Google AI Studio API key (there's a "Get a free
 key" link) — it's stored only in your browser and sent only to Google; there's
-no backend. Write an instruction and run it. It's **generative**, so it can
-change colors and content — use it for cleanup, not as a color reference.
+no backend. Write an instruction (e.g. "remove blur and noise, keep colors") and
+run it. It's **generative**, so it can change colors and content — use it for
+cleanup, not as a color reference.
+
+> Local AI restoration (MAXIM deblur/denoise) was removed: those models can't
+> run in a browser GPU (they overflow WebGL's texture limit). Use the Gemini
+> cloud option, the **Adjustments** sliders, or the ESRGAN enhance above.
 
 > **Heads-up:** the AI runs entirely on your computer (no server), so it uses a
 > lot of CPU/GPU and memory. It can be slow, may shift colors, and can fail on

@@ -99,13 +99,14 @@ src/
       off, click to pick). All image EDITING moved to the IMG Lab tab.
     ImgLabView (IMG Lab tab: dedicated image-processing page using imagefx.ts —
       sectioned cards for Adjustments (sliders, live, no deps), AI enhance
-      (ESRGAN slim/medium/thick super-resolution), AI restore (MAXIM
-      deblur/denoise/low-light), an optional **Cloud AI — Gemini "Nano Banana"**
-      (bring-your-own API key, stored in localStorage, called from the browser
-      via `cloudEnhance` in imagefx.ts — no backend), a prominent "AI is
-      experimental / heavy local resources" warning, a zoom/pan inspector, and
-      Download to PNG. Local AI models lazy-loaded via dynamic import(), weights
-      from CDN on first use),
+      (ESRGAN slim/medium/thick super-resolution, lazy-loaded), and an optional
+      **Cloud AI — Gemini "Nano Banana"** (bring-your-own API key in
+      localStorage, called from the browser via `cloudEnhance` in imagefx.ts —
+      no backend; also covers deblur/denoise/low-light via prompt). A prominent
+      "AI is experimental / heavy local resources" warning, a zoom/pan
+      inspector, and Download to PNG. NOTE: local MAXIM restoration was removed —
+      its global einsum overflows the WebGL texture limit regardless of input,
+      so it can't run in the browser),
     PaletteExtractor,
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
   App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette

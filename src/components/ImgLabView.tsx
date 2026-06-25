@@ -10,7 +10,6 @@ import {
   AlertTriangle,
   SlidersHorizontal,
   Sparkles,
-  Stars,
   Cloud,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
@@ -19,12 +18,10 @@ import {
   adjustActive,
   computeAdjusted,
   upscaleImage,
-  restoreImage,
   cloudEnhance,
   MAX_AI_OUTPUT,
   type Adjust,
   type AiModel,
-  type Restore,
 } from "@/lib/imagefx";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +47,6 @@ export function ImgLabView() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiModelKey, setAiModelKey] = useState<AiModel>("slim-2x");
-  const [restoreKey, setRestoreKey] = useState<Restore>("deblur");
 
   // Cloud AI (Gemini) — bring-your-own key, persisted in this browser only.
   const [geminiKey, setGeminiKey] = useState(
@@ -135,30 +131,6 @@ export function ImgLabView() {
       up.src = src;
     } catch (e) {
       console.error("AI enhance failed:", e);
-      setAiError(`${t("image.aiError")} [${(e as Error)?.message ?? e}]`);
-      setAiBusy(false);
-    }
-  };
-
-  const runRestore = async () => {
-    const img = imgRef.current;
-    if (!img || aiBusy) return;
-    setAiBusy(true);
-    setAiError(null);
-    try {
-      const src = await restoreImage(img, restoreKey);
-      const im = new Image();
-      im.onload = () => {
-        drawImageElement(im, MAX_AI_OUTPUT);
-        setAiBusy(false);
-      };
-      im.onerror = () => {
-        setAiError(t("image.aiError"));
-        setAiBusy(false);
-      };
-      im.src = src;
-    } catch (e) {
-      console.error("AI restore failed:", e);
       setAiError(`${t("image.aiError")} [${(e as Error)?.message ?? e}]`);
       setAiBusy(false);
     }
@@ -433,42 +405,6 @@ export function ImgLabView() {
                 >
                   <Wand2 className="h-4 w-4" />{" "}
                   {aiBusy ? t("image.aiBusy") : t("imglab.run")}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* AI restore */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Stars className="h-4 w-4 text-accent" />
-                {t("imglab.restoreTitle")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                {t("imglab.restoreDesc")}
-              </p>
-              <div className="flex items-center gap-2">
-                <select
-                  value={restoreKey}
-                  onChange={(e) => setRestoreKey(e.target.value as Restore)}
-                  disabled={aiBusy}
-                  className="h-9 flex-1 rounded-md border border-border bg-background px-2 text-sm disabled:opacity-50"
-                >
-                  <option value="deblur">{t("image.rDeblur")}</option>
-                  <option value="denoise">{t("image.rDenoise")}</option>
-                  <option value="lowlight">{t("image.rLowlight")}</option>
-                </select>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={runRestore}
-                  disabled={aiBusy}
-                >
-                  <Wand2 className="h-4 w-4" />{" "}
-                  {aiBusy ? t("image.processing") : t("imglab.run")}
                 </Button>
               </div>
             </CardContent>

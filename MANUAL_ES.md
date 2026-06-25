@@ -117,19 +117,19 @@ Agranda una imagen de **baja resolución / pixelada** y reconstruye detalle. Ele
 la potencia — **Rápido**, **Mejor** o **Máx** (más detalle, descarga más grande,
 más lento). La mejora se nota al **hacer zoom**; no ayuda en una foto ya nítida.
 
-### Restauración con IA *(experimental)*
-
-Limpia la foto en lugar de agrandarla: **Desenfoque**, **Ruido** o **Luz**. Usala
-cuando el problema sea el desenfoque, el ruido o una exposición oscura.
-
 ### IA en la nube — Gemini (Nano Banana) *(opcional, con tu propia key)*
 
-Si la IA local es muy pesada para tu equipo, podés usar el modelo de imagen
-Gemini de Google. Pegá **tu propia** API key de Google AI Studio (hay un link
-"Conseguir una key gratis") — se guarda solo en tu navegador y se envía
-únicamente a Google; no hay backend. Escribí una instrucción y ejecutá. Es
-**generativo**, así que puede cambiar colores y contenido — usalo para limpieza,
-no como referencia de color.
+Para limpieza más pesada — **desenfoque, ruido, poca luz, etc.** — usá el modelo
+de imagen Gemini de Google. Pegá **tu propia** API key de Google AI Studio (hay
+un link "Conseguir una key gratis") — se guarda solo en tu navegador y se envía
+únicamente a Google; no hay backend. Escribí una instrucción (ej. "quitá
+desenfoque y ruido, mantené los colores") y ejecutá. Es **generativo**, así que
+puede cambiar colores y contenido — usalo para limpieza, no como referencia de
+color.
+
+> La restauración local con IA (MAXIM deblur/denoise) se quitó: esos modelos no
+> pueden correr en la GPU del navegador (superan el límite de textura de WebGL).
+> Usá la opción Gemini en la nube, los **Ajustes**, o el ESRGAN de arriba.
 
 > **Atención:** la IA corre enteramente en tu computadora (sin servidor), así que
 > usa mucha CPU/GPU y memoria. Puede ser lenta, alterar colores y fallar en

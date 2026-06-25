@@ -79,6 +79,20 @@ const en: Dict = {
     restoreDesc:
       "Cleans up a photo instead of enlarging it: remove blur, remove noise, or lift a dark exposure.",
     run: "Run",
+    cloudTitle: "Cloud AI — Gemini (Nano Banana)",
+    cloudDesc:
+      "Enhance using Google's Gemini image model. It's generative — it can change colors and content, so use it for cleanup, not as a color reference.",
+    cloudKey: "Your Gemini API key",
+    cloudKeyPh: "Paste your Google AI Studio key",
+    cloudGetKey: "Get a free key",
+    cloudKeyNote:
+      "Your key is stored only in this browser and sent only to Google.",
+    cloudInstruction: "Instruction",
+    cloudPromptDefault:
+      "Sharpen and restore fine detail, reduce noise and compression artifacts; keep the colors and content faithful.",
+    cloudRun: "Run cloud AI",
+    cloudNoKey: "Enter your Gemini API key first.",
+    cloudError: "Cloud AI failed.",
   },
   logbook: {
     title: "Logbook",
@@ -551,6 +565,20 @@ const es: Dict = {
     restoreDesc:
       "Limpia la foto en lugar de agrandarla: quita desenfoque, quita ruido o realza una exposición oscura.",
     run: "Ejecutar",
+    cloudTitle: "IA en la nube — Gemini (Nano Banana)",
+    cloudDesc:
+      "Mejorá con el modelo de imagen Gemini de Google. Es generativo — puede cambiar colores y contenido, así que usalo para limpieza, no como referencia de color.",
+    cloudKey: "Tu API key de Gemini",
+    cloudKeyPh: "Pegá tu key de Google AI Studio",
+    cloudGetKey: "Conseguir una key gratis",
+    cloudKeyNote:
+      "Tu key se guarda solo en este navegador y se envía únicamente a Google.",
+    cloudInstruction: "Instrucción",
+    cloudPromptDefault:
+      "Aumentá la nitidez y reconstruí detalle fino, reducí ruido y artefactos de compresión; mantené los colores y el contenido fieles.",
+    cloudRun: "Ejecutar IA en la nube",
+    cloudNoKey: "Ingresá primero tu API key de Gemini.",
+    cloudError: "Falló la IA en la nube.",
   },
   logbook: {
     title: "Bitácora",

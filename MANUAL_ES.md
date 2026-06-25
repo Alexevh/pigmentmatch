@@ -122,6 +122,15 @@ más lento). La mejora se nota al **hacer zoom**; no ayuda en una foto ya nítid
 Limpia la foto en lugar de agrandarla: **Desenfoque**, **Ruido** o **Luz**. Usala
 cuando el problema sea el desenfoque, el ruido o una exposición oscura.
 
+### IA en la nube — Gemini (Nano Banana) *(opcional, con tu propia key)*
+
+Si la IA local es muy pesada para tu equipo, podés usar el modelo de imagen
+Gemini de Google. Pegá **tu propia** API key de Google AI Studio (hay un link
+"Conseguir una key gratis") — se guarda solo en tu navegador y se envía
+únicamente a Google; no hay backend. Escribí una instrucción y ejecutá. Es
+**generativo**, así que puede cambiar colores y contenido — usalo para limpieza,
+no como referencia de color.
+
 > **Atención:** la IA corre enteramente en tu computadora (sin servidor), así que
 > usa mucha CPU/GPU y memoria. Puede ser lenta, alterar colores y fallar en
 > equipos modestos — si pasa, recargá la página o probá una imagen más chica.

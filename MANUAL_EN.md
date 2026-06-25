@@ -120,6 +120,14 @@ photo.
 Cleans up a photo instead of enlarging it: **Deblur**, **Denoise**, or
 **Low-light**. Use it when the problem is blur, noise or a dark exposure.
 
+### Cloud AI — Gemini (Nano Banana) *(optional, bring your own key)*
+
+If the local AI is too heavy for your machine, you can use Google's Gemini image
+model instead. Paste **your own** Google AI Studio API key (there's a "Get a free
+key" link) — it's stored only in your browser and sent only to Google; there's
+no backend. Write an instruction and run it. It's **generative**, so it can
+change colors and content — use it for cleanup, not as a color reference.
+
 > **Heads-up:** the AI runs entirely on your computer (no server), so it uses a
 > lot of CPU/GPU and memory. It can be slow, may shift colors, and can fail on
 > modest devices — if that happens, reload the page or try a smaller image. For

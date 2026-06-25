@@ -11,6 +11,7 @@ import {
   SlidersHorizontal,
   Sparkles,
   Stars,
+  Cloud,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import {
@@ -19,12 +20,14 @@ import {
   computeAdjusted,
   upscaleImage,
   restoreImage,
+  cloudEnhance,
   MAX_AI_OUTPUT,
   type Adjust,
   type AiModel,
   type Restore,
 } from "@/lib/imagefx";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CameraCapture } from "@/components/CameraCapture";
@@ -48,6 +51,21 @@ export function ImgLabView() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiModelKey, setAiModelKey] = useState<AiModel>("slim-2x");
   const [restoreKey, setRestoreKey] = useState<Restore>("deblur");
+
+  // Cloud AI (Gemini) — bring-your-own key, persisted in this browser only.
+  const [geminiKey, setGeminiKey] = useState(
+    () => localStorage.getItem("pigmentmatch.geminiKey") ?? ""
+  );
+  const [cloudPrompt, setCloudPrompt] = useState(() =>
+    t("imglab.cloudPromptDefault")
+  );
+  useEffect(() => {
+    try {
+      localStorage.setItem("pigmentmatch.geminiKey", geminiKey);
+    } catch {
+      /* ignore */
+    }
+  }, [geminiKey]);
 
   const drawImageElement = useCallback((img: HTMLImageElement, maxW: number) => {
     const canvas = canvasRef.current;
@@ -142,6 +160,34 @@ export function ImgLabView() {
     } catch (e) {
       console.error("AI restore failed:", e);
       setAiError(`${t("image.aiError")} [${(e as Error)?.message ?? e}]`);
+      setAiBusy(false);
+    }
+  };
+
+  const runCloud = async () => {
+    const img = imgRef.current;
+    if (!img || aiBusy) return;
+    if (!geminiKey.trim()) {
+      setAiError(t("imglab.cloudNoKey"));
+      return;
+    }
+    setAiBusy(true);
+    setAiError(null);
+    try {
+      const src = await cloudEnhance(img, geminiKey.trim(), cloudPrompt);
+      const im = new Image();
+      im.onload = () => {
+        drawImageElement(im, MAX_AI_OUTPUT);
+        setAiBusy(false);
+      };
+      im.onerror = () => {
+        setAiError(t("imglab.cloudError"));
+        setAiBusy(false);
+      };
+      im.src = src;
+    } catch (e) {
+      console.error("Cloud AI failed:", e);
+      setAiError(`${t("imglab.cloudError")} [${(e as Error)?.message ?? e}]`);
       setAiBusy(false);
     }
   };
@@ -425,6 +471,63 @@ export function ImgLabView() {
                   {aiBusy ? t("image.processing") : t("imglab.run")}
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Cloud AI — Gemini (bring your own key) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Cloud className="h-4 w-4 text-accent" />
+                {t("imglab.cloudTitle")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                {t("imglab.cloudDesc")}
+              </p>
+              <div className="space-y-1">
+                <label className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+                  {t("imglab.cloudKey")}
+                  <a
+                    href="https://aistudio.google.com/apikey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-normal text-accent hover:underline"
+                  >
+                    {t("imglab.cloudGetKey")}
+                  </a>
+                </label>
+                <Input
+                  type="password"
+                  value={geminiKey}
+                  onChange={(e) => setGeminiKey(e.target.value)}
+                  placeholder={t("imglab.cloudKeyPh")}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  {t("imglab.cloudKeyNote")}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium text-muted-foreground">
+                  {t("imglab.cloudInstruction")}
+                </label>
+                <textarea
+                  value={cloudPrompt}
+                  onChange={(e) => setCloudPrompt(e.target.value)}
+                  rows={2}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={runCloud}
+                disabled={aiBusy}
+              >
+                <Cloud className="h-4 w-4" />{" "}
+                {aiBusy ? t("image.processing") : t("imglab.cloudRun")}
+              </Button>
             </CardContent>
           </Card>
         </div>

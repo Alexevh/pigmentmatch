@@ -163,6 +163,53 @@ export async function upscaleImage(
   }
 }
 
+// --- Cloud AI: Google Gemini image model ("Nano Banana"), bring-your-own key.
+// Runs from the browser with the user's API key (CORS-enabled endpoint). The
+// key is the caller's; we never store or send it anywhere but Google.
+
+export async function cloudEnhance(
+  img: HTMLImageElement,
+  apiKey: string,
+  prompt: string,
+  model = "gemini-2.5-flash-image"
+): Promise<string> {
+  // Downscale before sending to keep the upload small and fast.
+  const source = cappedSource(img, 1536);
+  const base64 = source.toDataURL("image/jpeg", 0.92).split(",")[1];
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(
+    apiKey
+  )}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            { inlineData: { mimeType: "image/jpeg", data: base64 } },
+          ],
+        },
+      ],
+      generationConfig: { responseModalities: ["IMAGE"] },
+    }),
+  });
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} ${txt.slice(0, 300)}`);
+  }
+  const json = await res.json();
+  const parts = json?.candidates?.[0]?.content?.parts ?? [];
+  const part = parts.find(
+    (p: { inlineData?: { data?: string; mimeType?: string } }) =>
+      p.inlineData?.data
+  );
+  if (!part?.inlineData?.data) {
+    throw new Error("No image in response");
+  }
+  return `data:${part.inlineData.mimeType || "image/png"};base64,${part.inlineData.data}`;
+}
+
 export type Restore = "deblur" | "denoise" | "lowlight";
 
 async function loadRestoreModel(key: Restore) {

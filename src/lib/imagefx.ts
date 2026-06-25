@@ -228,7 +228,7 @@ async function loadRestoreModel(key: Restore) {
 export async function restoreImage(
   img: HTMLImageElement,
   key: Restore,
-  maxInput = 448
+  maxInput = 256
 ): Promise<string> {
   const [{ default: Upscaler }, model] = await Promise.all([
     import("upscaler"),
@@ -236,7 +236,14 @@ export async function restoreImage(
   ]);
   const up = new Upscaler({ model });
   try {
-    return await up.upscale(cappedSource(img, maxInput), { output: "base64" });
+    // MAXIM does global (einsum) mixing whose intermediate tensors grow ~with
+    // the square of the resolution, so even a modest frame overflows the WebGL
+    // texture limit. Keep the input small.
+    const source = cappedSource(img, maxInput);
+    console.log(
+      `[imgfx] restore ${key}: input ${source.width}x${source.height}`
+    );
+    return await up.upscale(source, { output: "base64" });
   } finally {
     try {
       (up as { dispose?: () => unknown }).dispose?.();

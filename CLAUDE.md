@@ -87,7 +87,10 @@ src/
     mixer.ts        subtractive mixing + recipe generator (the heart)
     coach.ts        directional mixing advice from Lab deltas
     calibration.ts  fit pigment tinting strengths to the painter's real mixes
-    extract.ts      k-means dominant-color extraction (Lab) + relationship hints
+    extract.ts      k-means dominant-color extraction (Lab) + relationship hints.
+                    PaletteExtractor adds an optional Color map (posterize the
+                    image to the palette) and drag-to-select an area to extract
+                    from — both opt-in; default extracts the whole image as before
     storage.ts      localStorage (palettes, active id, observations, calibration)
     logbook.ts      IndexedDB store for the Bitácora: projects + color entries
                     (photos stored as Blobs), image downscale, JSON export/import
@@ -104,7 +107,8 @@ src/
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
     ImageSampler (sampling only: upload/camera, in-box +/- zoom 1-10x with
       drag-to-pan via CSS transform + eyedropper cursor, magnifier loupe default
-      off, click to pick). All image EDITING moved to the IMG Lab tab.
+      off, click to pick; optional sample brush — radius 0 = 1px (default), >0
+      averages a (2r+1)² block). All image EDITING moved to the IMG Lab tab.
     ImgLabView (IMG Lab tab: dedicated image-processing page using imagefx.ts —
       sectioned cards for Adjustments (sliders, live, no deps), AI enhance
       (ESRGAN slim/medium/thick super-resolution, lazy-loaded), and an optional

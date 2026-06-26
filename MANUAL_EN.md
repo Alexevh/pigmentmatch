@@ -96,8 +96,10 @@ Your choice is remembered and applies everywhere (including the Extract tab).
 Use the **+ / −** buttons below the image to **zoom in or out** without resizing
 the box; when zoomed in, **drag the image** to pan around for a finer pick. The
 cursor is an eyedropper — clicking still samples the color (a drag won't). The
-**Zoom** button toggles a magnifier loupe. Use **Replace image** to load a
-different one.
+**Zoom** button toggles a magnifier loupe. The **Brush** slider sets the sample
+area — 0 means one pixel (default); higher averages a square, so a click on a
+high-detail/noisy area gives one representative color instead of a stray pixel.
+Use **Replace image** to load a different one.
 
 > **Compare with your swatch.** Below the sampled color there's a **Compare with
 > your swatch** card: upload a photo of your own painted swatch and click it to
@@ -171,6 +173,14 @@ For each extracted color you get:
   touch of Ultramarine."*
 
 Switching the color count re-extracts instantly from the same image.
+
+Two optional tools (both off by default):
+
+- **Color map** — repaints the image using only the extracted palette, so you
+  see it as broad flat masses (great for planning a portrait's values/areas
+  before doing the transitions yourself).
+- **Select an area** — drag a box on the image to extract colors from just that
+  region (e.g. only the face). Click **Whole image** to clear it.
 
 ---
 

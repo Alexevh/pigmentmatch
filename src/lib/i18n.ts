@@ -331,6 +331,9 @@ const en: Dict = {
   image: {
     uploadTitle: "Upload an image to sample colors",
     uploadHint: "Click anywhere on it to pick a color",
+    brush: "Brush",
+    brushTitle:
+      "Sample area: 0 = one pixel (default). Higher averages a square so a click on a detailed area gives one representative color.",
     compareTitle: "Compare with your swatch",
     compareHint:
       "Upload a photo of your painted swatch and click it to compare with the target color above.",
@@ -378,6 +381,10 @@ const en: Dict = {
     prompt:
       "Upload a painting to extract its dominant colors, arranged from light to dark — each with a mixing recipe and a painter's description.",
     colorN: "Color #{n}",
+    mapView: "Color map",
+    wholeImage: "Whole image",
+    selectHint:
+      "Tip: drag a box on the image to extract colors from just that area.",
     and: "and",
     lightening: "lightening it",
     darkening: "darkening it",
@@ -857,6 +864,9 @@ const es: Dict = {
   image: {
     uploadTitle: "Subí una imagen para muestrear colores",
     uploadHint: "Hacé clic en cualquier punto para tomar un color",
+    brush: "Pincel",
+    brushTitle:
+      "Área de muestreo: 0 = un píxel (por defecto). Más alto promedia un cuadrado, así un clic en una zona con detalle da un color representativo.",
     compareTitle: "Comparar con tu swatch",
     compareHint:
       "Subí una foto de tu swatch pintado y hacé clic para compararlo con el color objetivo de arriba.",
@@ -904,6 +914,10 @@ const es: Dict = {
     prompt:
       "Subí una pintura para extraer sus colores dominantes, ordenados de claro a oscuro — cada uno con su receta de mezcla y una descripción de pintor.",
     colorN: "Color #{n}",
+    mapView: "Mapa de color",
+    wholeImage: "Toda la imagen",
+    selectHint:
+      "Tip: arrastrá un recuadro sobre la imagen para extraer colores solo de esa zona.",
     and: "y",
     lightening: "aclarándolo",
     darkening: "oscureciéndolo",

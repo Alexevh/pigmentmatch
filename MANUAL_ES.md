@@ -99,8 +99,10 @@ Tu elección se recuerda y aplica en todos lados (incluida la pestaña Extract).
 Usá los botones **+ / −** debajo de la imagen para **acercar o alejar** sin
 cambiar el tamaño de la caja; con zoom podés **arrastrar la imagen** para moverte
 y afinar el pick. El cursor es un cuentagotas — el clic sigue tomando el color
-(un arrastre no). El botón **Zoom** activa la lupa. Usá **Replace image** para
-cargar otra.
+(un arrastre no). El botón **Zoom** activa la lupa. El slider **Pincel** fija el
+área de muestreo — 0 es un píxel (por defecto); más alto promedia un cuadrado,
+así un clic en una zona con mucho detalle/ruido da un color representativo en vez
+de un píxel suelto. Usá **Replace image** para cargar otra.
 
 > **Comparar con tu swatch.** Debajo del color muestreado hay una tarjeta
 > **Comparar con tu swatch**: subí una foto de tu propio swatch pintado y hacé
@@ -176,6 +178,15 @@ Para cada color extraído obtenés:
   Ultramarine").
 
 Cambiar la cantidad de colores re-extrae al instante de la misma imagen.
+
+Dos herramientas opcionales (ambas apagadas por defecto):
+
+- **Mapa de color** — repinta la imagen usando solo la paleta extraída, así la
+  ves en masas planas amplias (ideal para planear los valores/zonas de un retrato
+  antes de hacer las transiciones vos).
+- **Seleccionar un área** — arrastrá un recuadro sobre la imagen para extraer
+  colores solo de esa zona (ej. solo la cara). Tocá **Toda la imagen** para
+  quitar la selección.
 
 ---
 

@@ -3,6 +3,7 @@ import { Upload, Search, SearchX, Camera, Plus, Minus } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { CameraCapture } from "@/components/CameraCapture";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,11 @@ export function ImageSampler({
     panY: 0,
   });
 
+  // Optional sample radius: 0 = a single pixel (default, exactly as before);
+  // higher averages a (2r+1)² block so a click on a noisy/high-detail area
+  // returns one representative color instead of one stray pixel.
+  const [sampleR, setSampleR] = useState(0);
+
   const drawFile = useCallback(
     (file: Blob) => {
       const url = URL.createObjectURL(file);
@@ -114,6 +120,39 @@ export function ImageSampler({
     if (!d) return null;
     return { r: d[0], g: d[1], b: d[2] };
   }, []);
+
+  // Sample the color at (x,y): a single pixel when radius is 0 (default), else
+  // the average of a (2r+1)² block — robust to high-detail / noisy areas.
+  const sampleAt = useCallback(
+    (x: number, y: number): RGB | null => {
+      if (sampleR <= 0) return pixelAt(x, y);
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext("2d", { willReadFrequently: true });
+      if (!canvas || !ctx) return null;
+      const x0 = Math.max(0, x - sampleR);
+      const y0 = Math.max(0, y - sampleR);
+      const x1 = Math.min(canvas.width, x + sampleR + 1);
+      const y1 = Math.min(canvas.height, y + sampleR + 1);
+      const w = x1 - x0;
+      const h = y1 - y0;
+      if (w <= 0 || h <= 0) return pixelAt(x, y);
+      const d = ctx.getImageData(x0, y0, w, h).data;
+      let r = 0,
+        g = 0,
+        b = 0,
+        n = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] < 128) continue;
+        r += d[i];
+        g += d[i + 1];
+        b += d[i + 2];
+        n++;
+      }
+      if (n === 0) return pixelAt(x, y);
+      return { r: Math.round(r / n), g: Math.round(g / n), b: Math.round(b / n) };
+    },
+    [sampleR, pixelAt]
+  );
 
   // Magnified region (from the original image, so it stays crisp) centered on
   // the cursor, plus a crosshair marking the exact pixel.
@@ -178,7 +217,7 @@ export function ImageSampler({
 
     const c = coordsAt(e);
     if (!c) return;
-    setHover(pixelAt(c.x, c.y));
+    setHover(sampleAt(c.x, c.y));
     if (probe) setProbePos({ x: e.clientX, y: e.clientY });
     if (loupeOn) {
       drawLoupe(c.x, c.y);
@@ -248,7 +287,7 @@ export function ImageSampler({
               }
               const c = coordsAt(e);
               if (!c) return;
-              const rgb = pixelAt(c.x, c.y);
+              const rgb = sampleAt(c.x, c.y);
               if (rgb) onSample(rgb);
               const cv = canvasRef.current;
               if (cv) onSamplePos?.(c.x / cv.width, c.y / cv.height);
@@ -333,6 +372,25 @@ export function ImageSampler({
             >
               <Plus className="h-4 w-4" />
             </Button>
+          </div>
+          <div
+            className="flex items-center gap-2"
+            title={t("image.brushTitle")}
+          >
+            <span className="text-xs text-muted-foreground">
+              {t("image.brush")}
+            </span>
+            <Slider
+              value={sampleR}
+              min={0}
+              max={24}
+              step={1}
+              onChange={setSampleR}
+              className="w-24"
+            />
+            <span className="w-7 text-xs tabular-nums text-muted-foreground">
+              {sampleR === 0 ? "1px" : `${sampleR * 2 + 1}`}
+            </span>
           </div>
           {hover && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

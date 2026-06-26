@@ -116,7 +116,9 @@ src/
       its global einsum overflows the WebGL texture limit regardless of input,
       so it can't run in the browser),
     PaletteExtractor,
-    CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel, ui/
+    CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel,
+    SwatchCompare (Image tab: upload a photo of your swatch → match %, ΔL,
+      Coach advice vs the target; reuses ImageSampler + coach), ui/
     HelpView (Help tab: About/purpose, Release notes, FAQ — <details> accordions;
       bilingual content lives in the component, not i18n)
   version.ts        APP_VERSION ("1.0"), shown next to the header title + release notes

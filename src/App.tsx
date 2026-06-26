@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ColorInput } from "@/components/ColorInput";
 import { AnalysisView } from "@/components/AnalysisView";
 import { ResultPanel } from "@/components/ResultPanel";
+import { SwatchCompare } from "@/components/SwatchCompare";
 import { ImageSampler } from "@/components/ImageSampler";
 import { PaletteExtractor } from "@/components/PaletteExtractor";
 import { PaletteManager } from "@/components/PaletteManager";
@@ -206,6 +207,7 @@ export default function App() {
                     <ColorInput rgb={target} onChange={setTarget} />
                   </CardContent>
                 </Card>
+                <SwatchCompare target={target} pigments={effectivePigments} />
                 <ResultPanel
                   rgb={target}
                   pigments={effectivePigments}

@@ -102,6 +102,11 @@ y afinar el pick. El cursor es un cuentagotas — el clic sigue tomando el color
 (un arrastre no). El botón **Zoom** activa la lupa. Usá **Replace image** para
 cargar otra.
 
+> **Comparar con tu swatch.** Debajo del color muestreado hay una tarjeta
+> **Comparar con tu swatch**: subí una foto de tu propio swatch pintado y hacé
+> clic para ver cómo compara con el objetivo — match %, la diferencia de valor
+> (ΔL) y el consejo del Coach para acercarte.
+
 > ¿Querés limpiar o mejorar una foto antes de muestrear? Ahora está en su propia
 > pestaña **IMG Lab** — editala ahí, **Descargá** el resultado y subí la imagen
 > ya limpia acá.

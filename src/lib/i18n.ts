@@ -324,6 +324,9 @@ const en: Dict = {
   image: {
     uploadTitle: "Upload an image to sample colors",
     uploadHint: "Click anywhere on it to pick a color",
+    compareTitle: "Compare with your swatch",
+    compareHint:
+      "Upload a photo of your painted swatch and click it to compare with the target color above.",
     replace: "Replace image",
     zoom: "Zoom",
     zoomOn: "Zoom on",
@@ -838,6 +841,9 @@ const es: Dict = {
   image: {
     uploadTitle: "Subí una imagen para muestrear colores",
     uploadHint: "Hacé clic en cualquier punto para tomar un color",
+    compareTitle: "Comparar con tu swatch",
+    compareHint:
+      "Subí una foto de tu swatch pintado y hacé clic para compararlo con el color objetivo de arriba.",
     replace: "Reemplazar imagen",
     zoom: "Zoom",
     zoomOn: "Zoom activado",

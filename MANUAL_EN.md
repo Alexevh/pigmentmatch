@@ -99,6 +99,11 @@ cursor is an eyedropper — clicking still samples the color (a drag won't). The
 **Zoom** button toggles a magnifier loupe. Use **Replace image** to load a
 different one.
 
+> **Compare with your swatch.** Below the sampled color there's a **Compare with
+> your swatch** card: upload a photo of your own painted swatch and click it to
+> see how it compares to the target — match %, the value difference (ΔL), and
+> Coach advice to close the gap.
+
 > Want to clean up or enhance a photo before sampling? That now lives in its own
 > **IMG Lab** tab — edit it there, **Download** the result, and upload the
 > cleaned image back here.

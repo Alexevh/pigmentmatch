@@ -36,6 +36,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
         date: "2026",
         changes: [
           "Logbook: each project now has a reference photo and a finished-painting photo, shown above its colors.",
+          "Logbook: export a whole project to PDF (its photos plus every color's recipe, notes and photos).",
           "Calibrate: added guidance — record mixes (a pigment with white), not single pigments, since calibration fits tinting strength.",
           "Palette: added a note about setting each pigment's real color (masstone) for accurate recipes.",
         ],
@@ -97,6 +98,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
         date: "2026",
         changes: [
           "Bitácora: cada proyecto ahora tiene una foto de referencia y una del cuadro terminado, arriba de sus colores.",
+          "Bitácora: exportá un proyecto entero a PDF (sus fotos más la receta, notas y fotos de cada color).",
           "Calibrar: se agregó una guía — registrá mezclas (un pigmento con blanco), no pigmentos solos, ya que la calibración ajusta la fuerza tintórea.",
           "Paleta: se agregó una nota sobre fijar el color real (masstone) de cada pigmento para recetas precisas.",
         ],

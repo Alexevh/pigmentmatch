@@ -76,6 +76,10 @@ export function ImageSampler({
   // higher averages a (2r+1)² block so a click on a noisy/high-detail area
   // returns one representative color instead of one stray pixel.
   const [sampleR, setSampleR] = useState(0);
+  // Cursor position (screen px) for the brush-size ring overlay.
+  const [brushPos, setBrushPos] = useState<{ x: number; y: number } | null>(
+    null
+  );
 
   const drawFile = useCallback(
     (file: Blob) => {
@@ -211,6 +215,7 @@ export function ImageSampler({
         setHover(null);
         setLoupePos(null);
         setProbePos(null);
+        setBrushPos(null);
         return;
       }
     }
@@ -218,6 +223,7 @@ export function ImageSampler({
     const c = coordsAt(e);
     if (!c) return;
     setHover(sampleAt(c.x, c.y));
+    setBrushPos(sampleR > 0 ? { x: e.clientX, y: e.clientY } : null);
     if (probe) setProbePos({ x: e.clientX, y: e.clientY });
     if (loupeOn) {
       drawLoupe(c.x, c.y);
@@ -311,6 +317,7 @@ export function ImageSampler({
               setHover(null);
               setLoupePos(null);
               setProbePos(null);
+              setBrushPos(null);
             }}
             style={{
               transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
@@ -442,6 +449,26 @@ export function ImageSampler({
           />
         </>
       )}
+
+      {/* Brush-size ring: shows the area a click will average (when radius > 0) */}
+      {sampleR > 0 &&
+        brushPos &&
+        (() => {
+          const cv = canvasRef.current;
+          const pxPerCanvas = cv ? (cv.clientWidth / cv.width) * zoom : zoom;
+          const d = Math.max(6, (sampleR * 2 + 1) * pxPerCanvas);
+          return (
+            <span
+              className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.4)]"
+              style={{
+                left: brushPos.x,
+                top: brushPos.y,
+                width: d,
+                height: d,
+              }}
+            />
+          );
+        })()}
     </div>
   );
 }

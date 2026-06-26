@@ -14,6 +14,7 @@ import {
   Save,
   Pipette,
   Camera,
+  FileText,
   Image as ImageIcon,
 } from "lucide-react";
 import { rgbToHex } from "@/lib/color";
@@ -33,6 +34,7 @@ import {
   type LogProject,
   type LogEntry,
 } from "@/lib/logbook";
+import { exportProjectPdf } from "@/lib/logbookPdf";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -647,6 +649,20 @@ export function LogbookView() {
     await reloadProjects(active.id);
   }
 
+  async function downloadPdf() {
+    if (!active) return;
+    const rows = await getEntries(active.id);
+    await exportProjectPdf(active, rows, {
+      reference: t("logbook.projectReference"),
+      finished: t("logbook.projectFinished"),
+      colors: t("logbook.entries"),
+      recipe: t("logbook.recipe"),
+      notes: t("logbook.notes"),
+      unnamed: t("logbook.unnamed"),
+      generated: t("logbook.pdfGenerated"),
+    });
+  }
+
   async function doExport() {
     if (projects.length === 0) {
       setMsg(t("logbook.exportEmpty"));
@@ -792,6 +808,9 @@ export function LogbookView() {
             )}
             {!renaming && (
               <div className="flex gap-1">
+                <Button variant="ghost" size="sm" onClick={downloadPdf}>
+                  <FileText className="h-3.5 w-3.5" /> {t("logbook.pdf")}
+                </Button>
                 <Button
                   variant="ghost"
                   size="sm"

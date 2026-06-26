@@ -221,7 +221,9 @@ src/
   **sampled by clicking the uploaded swatch photo** (`SwatchSampler` in
   `LogbookView` draws the stored Blob to a canvas and reads a pixel). **Storage is IndexedDB, not localStorage** (`logbook.ts`):
   photos are stored as **Blobs** (no base64 bloat, large quota) and downscaled
-  to ≤1000px JPEG on upload. **Export/Import** is a single self-contained JSON
+  to ≤1000px JPEG on upload. Per-project **PDF export** (`logbookPdf.ts`, jsPDF
+  lazy-loaded) renders the project photos + every color entry.
+  **Export/Import** is a single self-contained JSON
   file with images inlined as base64 data URLs (portable backup; base64 only in
   the export, not the live store). Import merges with fresh ids (never clobbers).
   Independent of palettes/effectivePigments — it's a reference log, not a recipe

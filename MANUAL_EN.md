@@ -260,6 +260,12 @@ project removes its colors too.)
      device; they're shrunk automatically so storage stays small.
 3. Press **Save color**. Edit (pencil) or delete (trash) any entry later.
 
+### Export a project as PDF
+
+The **PDF** button on a project's header downloads a PDF of that project — its
+reference and finished photos, and every color with its chip, recipe, notes and
+photos. Handy to print or share a single piece of work.
+
 ### Backup — export & import
 
 - **Export** downloads your whole logbook — projects, colors, and the embedded

@@ -270,6 +270,12 @@ proyecto**. Usá **Renombrar** y **Eliminar** en el encabezado del proyecto.
 3. Apretá **Guardar color**. Después podés editar (lápiz) o eliminar (tacho)
    cualquier entrada.
 
+### Exportar un proyecto como PDF
+
+El botón **PDF** en el encabezado de un proyecto descarga un PDF de ese proyecto:
+sus fotos de referencia y terminado, y cada color con su chip, receta, notas y
+fotos. Útil para imprimir o compartir un trabajo puntual.
+
 ### Respaldo — exportar e importar
 
 - **Exportar** descarga toda tu bitácora — proyectos, colores y las fotos

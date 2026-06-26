@@ -213,9 +213,11 @@ src/
   observations, fit each pigment's tinting strength (coordinate descent), and
   toggle the calibrated model on globally. Off by default; per-palette.
 - **Logbook (Bitácora):** a painter's notebook of color mixes grouped into
-  **projects**. Each color **entry** holds a name, a free-text recipe, notes, an
-  optional swatch color chip, and optional **swatch + reference photos**. Full
-  CRUD; per-project. The chip color can be picked with a native color input or
+  **projects**. Each **project** also has two photos shown above its colors: an
+  original **reference** and the **finished painting** (`LogProject.reference` /
+  `.finished` Blobs). Each color **entry** holds a name, a free-text recipe,
+  notes, an optional swatch color chip, and optional **swatch + reference
+  photos**. Full CRUD; per-project. The chip color can be picked with a native color input or
   **sampled by clicking the uploaded swatch photo** (`SwatchSampler` in
   `LogbookView` draws the stored Blob to a canvas and reads a pixel). **Storage is IndexedDB, not localStorage** (`logbook.ts`):
   photos are stored as **Blobs** (no base64 bloat, large quota) and downscaled

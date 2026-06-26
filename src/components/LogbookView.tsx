@@ -621,6 +621,15 @@ export function LogbookView() {
     await reloadEntries();
   }
 
+  async function setProjectImage(
+    field: "reference" | "finished",
+    blob?: Blob
+  ) {
+    if (!active) return;
+    await putProject({ ...active, [field]: blob, updatedAt: Date.now() });
+    await reloadProjects(active.id);
+  }
+
   async function doExport() {
     if (projects.length === 0) {
       setMsg(t("logbook.exportEmpty"));
@@ -781,6 +790,20 @@ export function LogbookView() {
                 </Button>
               </div>
             )}
+          </div>
+
+          {/* Project-level photos: original reference + finished painting */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PhotoField
+              label={t("logbook.projectReference")}
+              blob={active.reference}
+              onChange={(b) => setProjectImage("reference", b)}
+            />
+            <PhotoField
+              label={t("logbook.projectFinished")}
+              blob={active.finished}
+              onChange={(b) => setProjectImage("finished", b)}
+            />
           </div>
 
           {/* Add color button / editor */}

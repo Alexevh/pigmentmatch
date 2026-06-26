@@ -15,6 +15,8 @@ export interface LogProject {
   id: string;
   name: string;
   notes: string;
+  reference?: Blob; // the original reference photo for the whole project
+  finished?: Blob; // a photo of the finished painting
   createdAt: number;
   updatedAt: number;
 }
@@ -203,7 +205,12 @@ interface ExportShape {
   type: "pigment-match-logbook";
   version: 1;
   exportedAt: number;
-  projects: LogProject[];
+  projects: Array<
+    Omit<LogProject, "reference" | "finished"> & {
+      reference?: string;
+      finished?: string;
+    }
+  >;
   entries: Array<
     Omit<LogEntry, "ref" | "swatch"> & { ref?: string; swatch?: string }
   >;
@@ -219,7 +226,13 @@ export async function exportLogbook(): Promise<string> {
     type: "pigment-match-logbook",
     version: 1,
     exportedAt: Date.now(),
-    projects,
+    projects: await Promise.all(
+      projects.map(async (p) => ({
+        ...p,
+        reference: p.reference ? await blobToDataURL(p.reference) : undefined,
+        finished: p.finished ? await blobToDataURL(p.finished) : undefined,
+      }))
+    ),
     entries: await Promise.all(
       entries.map(async (e) => ({
         ...e,
@@ -238,40 +251,49 @@ export async function importLogbook(json: string): Promise<number> {
   if (data?.type !== "pigment-match-logbook" || !Array.isArray(data.projects))
     throw new Error("not a logbook file");
 
+  const now = Date.now();
+  const idMap = new Map<string, string>();
+
+  // Decode all images to Blobs BEFORE opening the transaction — an IndexedDB
+  // transaction closes if you await a non-IDB promise (like fetch) mid-flight.
+  const projects: LogProject[] = await Promise.all(
+    data.projects.map(async (p) => {
+      const id = newId("proj");
+      idMap.set(p.id, id);
+      return {
+        id,
+        name: String(p.name ?? "Untitled"),
+        notes: String(p.notes ?? ""),
+        reference: p.reference ? await dataURLToBlob(p.reference) : undefined,
+        finished: p.finished ? await dataURLToBlob(p.finished) : undefined,
+        createdAt: Number(p.createdAt) || now,
+        updatedAt: Number(p.updatedAt) || now,
+      } satisfies LogProject;
+    })
+  );
+  const entries = await Promise.all(
+    (data.entries ?? []).map(async (e) => {
+      const projectId = idMap.get(e.projectId);
+      if (!projectId) return null; // orphan entry
+      return {
+        id: newId("entry"),
+        projectId,
+        name: String(e.name ?? ""),
+        recipe: String(e.recipe ?? ""),
+        notes: String(e.notes ?? ""),
+        hex: e.hex,
+        ref: e.ref ? await dataURLToBlob(e.ref) : undefined,
+        swatch: e.swatch ? await dataURLToBlob(e.swatch) : undefined,
+        createdAt: Number(e.createdAt) || now,
+        updatedAt: Number(e.updatedAt) || now,
+      } satisfies LogEntry;
+    })
+  );
+
   const d = await db();
   const tx = d.transaction([PROJECTS, ENTRIES], "readwrite");
-  const idMap = new Map<string, string>();
-  const now = Date.now();
-
-  for (const p of data.projects) {
-    const id = newId("proj");
-    idMap.set(p.id, id);
-    tx.objectStore(PROJECTS).put({
-      id,
-      name: String(p.name ?? "Untitled"),
-      notes: String(p.notes ?? ""),
-      createdAt: Number(p.createdAt) || now,
-      updatedAt: Number(p.updatedAt) || now,
-    } satisfies LogProject);
-  }
-
-  for (const e of data.entries ?? []) {
-    const projectId = idMap.get(e.projectId);
-    if (!projectId) continue; // orphan entry
-    tx.objectStore(ENTRIES).put({
-      id: newId("entry"),
-      projectId,
-      name: String(e.name ?? ""),
-      recipe: String(e.recipe ?? ""),
-      notes: String(e.notes ?? ""),
-      hex: e.hex,
-      ref: e.ref ? await dataURLToBlob(e.ref) : undefined,
-      swatch: e.swatch ? await dataURLToBlob(e.swatch) : undefined,
-      createdAt: Number(e.createdAt) || now,
-      updatedAt: Number(e.updatedAt) || now,
-    } satisfies LogEntry);
-  }
-
+  for (const p of projects) tx.objectStore(PROJECTS).put(p);
+  for (const e of entries) if (e) tx.objectStore(ENTRIES).put(e);
   await txDone(tx);
-  return data.projects.length;
+  return projects.length;
 }

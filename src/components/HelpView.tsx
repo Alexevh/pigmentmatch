@@ -32,6 +32,15 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.0.1",
+        date: "2026",
+        changes: [
+          "Logbook: each project now has a reference photo and a finished-painting photo, shown above its colors.",
+          "Calibrate: added guidance — record mixes (a pigment with white), not single pigments, since calibration fits tinting strength.",
+          "Palette: added a note about setting each pigment's real color (masstone) for accurate recipes.",
+        ],
+      },
+      {
         version: "1.0",
         date: "2026",
         changes: [
@@ -83,6 +92,15 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.0.1",
+        date: "2026",
+        changes: [
+          "Bitácora: cada proyecto ahora tiene una foto de referencia y una del cuadro terminado, arriba de sus colores.",
+          "Calibrar: se agregó una guía — registrá mezclas (un pigmento con blanco), no pigmentos solos, ya que la calibración ajusta la fuerza tintórea.",
+          "Paleta: se agregó una nota sobre fijar el color real (masstone) de cada pigmento para recetas precisas.",
+        ],
+      },
       {
         version: "1.0",
         date: "2026",

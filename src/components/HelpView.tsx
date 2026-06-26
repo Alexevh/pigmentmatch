@@ -65,6 +65,10 @@ const HELP: Record<"en" | "es", HelpContent> = {
         a: "They're a strong starting point, not a guarantee. Pigment data is estimated and real paint has variables the model can't capture — finish by eye on the palette (the Coach tab is built for that).",
       },
       {
+        q: "What do the Match and Value percentages mean?",
+        a: "Match (ΔE) is how close the overall color is — hue, chroma and value together. Value (ΔL) is how close just the value (lightness) is, often the most important thing in a painting. Both use the same colors: green ≥90% (great), amber ≥75% (close), red below. A 90% value ≈ ΔL 2, which is barely perceptible.",
+      },
+      {
         q: "Where is my data stored?",
         a: "Only in your browser: palettes and settings in localStorage, the Logbook (with photos) in IndexedDB. Nothing is uploaded. Use the export/import options to back up or move it.",
       },
@@ -127,6 +131,10 @@ const HELP: Record<"en" | "es", HelpContent> = {
       {
         q: "¿Las recetas son exactas?",
         a: "Son un buen punto de partida, no una garantía. Los datos de pigmentos son estimados y la pintura real tiene variables que el modelo no captura — terminá a ojo en la paleta (para eso está la pestaña Coach).",
+      },
+      {
+        q: "¿Qué significan los porcentajes de Match y Valor?",
+        a: "Match (ΔE) es qué tan cerca está el color en general — matiz, croma y valor juntos. Valor (ΔL) es qué tan cerca está solo el valor (luminosidad), a menudo lo más importante en una pintura. Ambos usan los mismos colores: verde ≥90% (muy bien), ámbar ≥75% (cerca), rojo por debajo. Un valor de 90% ≈ ΔL 2, casi imperceptible.",
       },
       {
         q: "¿Dónde se guardan mis datos?",

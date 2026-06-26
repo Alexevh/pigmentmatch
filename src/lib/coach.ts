@@ -231,13 +231,62 @@ export function coach(
       ? tr("coach.headlineClose")
       : tr("coach.headlineFar");
 
+  // No axis crossed its threshold, but the colors still differ (dE >= 1.5).
+  // Name the most useful pigment for the small residual so the advice is always
+  // actionable instead of a vague "adjust by eye".
+  let finalTips: CoachTip[];
+  if (tips.length) {
+    finalTips = tips.map((x) => x.tip);
+  } else {
+    const dLr = t.L - c.L;
+    const dar = t.a - c.a;
+    const dbr = t.b - c.b;
+    if (Math.abs(dLr) >= Math.hypot(dar, dbr)) {
+      // value residual dominates
+      if (dLr > 0) {
+        const white = lightestPigment(pigments);
+        finalTips = [
+          {
+            id: "value",
+            text: tr("coach.tooDark", {
+              mag: tr("coach.slightly"),
+              pig: named(white, "coach.white"),
+            }),
+            swatchHex: white ? rgbToHex(white.rgb) : undefined,
+          },
+        ];
+      } else {
+        const dark = valueDarkener(pigments);
+        finalTips = [
+          {
+            id: "value",
+            text: tr("coach.tooLight", {
+              mag: tr("coach.slightly"),
+              pig: named(dark, "coach.darkPigment"),
+            }),
+            swatchHex: dark ? rgbToHex(dark.rgb) : undefined,
+          },
+        ];
+      }
+    } else {
+      // color residual dominates — push toward the target's (a*, b*)
+      const pig =
+        pickByDirection(dar, dbr, pigments) ?? mostNeutralEarth(pigments);
+      finalTips = [
+        {
+          id: "hue",
+          text: tr("coach.fineTune", { pig: named(pig, "coach.rightPigment") }),
+          swatchHex: pig ? rgbToHex(pig.rgb) : undefined,
+        },
+      ];
+    }
+  }
+
   return {
     deltaE: dE,
     match,
     onTarget: false,
     headline,
-    tips: tips.length
-      ? tips.map((x) => x.tip)
-      : [{ id: "done", text: tr("coach.subtle") }],
+    tips: finalTips,
   };
 }

@@ -408,6 +408,7 @@ const en: Dict = {
       "The hue leans off — it needs to go warmer. Nudge it with a touch of {pig}.",
     hueCooler:
       "The hue leans off — it needs to go cooler. Nudge it with a touch of {pig}.",
+    fineTune: "Almost there — nudge it with a tiny touch of {pig}.",
     white: "white",
     darkPigment: "a dark pigment",
     neutralEarth: "a neutral / earth tone",
@@ -926,6 +927,7 @@ const es: Dict = {
       "El matiz está corrido — necesita ir más cálido. Empujalo con un toque de {pig}.",
     hueCooler:
       "El matiz está corrido — necesita ir más frío. Empujalo con un toque de {pig}.",
+    fineTune: "Casi — empujalo con un toque mínimo de {pig}.",
     white: "blanco",
     darkPigment: "un pigmento oscuro",
     neutralEarth: "un tierra / neutro",

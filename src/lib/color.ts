@@ -228,6 +228,12 @@ export function matchScore(dE: number): number {
   return Math.round(clamp(100 - dE * 1.5, 0, 100));
 }
 
+// Value (lightness) match as a percentage from the L* difference (ΔL). Scaled so
+// it lands in the same color bands as matchScore: ΔL 2 → 90%, ΔL 5 → 75%.
+export function valueScore(deltaL: number): number {
+  return Math.round(clamp(100 - deltaL * 5, 0, 100));
+}
+
 // ---------- Painter-oriented analysis ----------
 
 export type ValueLevel = "Light" | "Medium" | "Dark";

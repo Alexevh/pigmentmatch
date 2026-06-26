@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { HelpCircle, X } from "lucide-react";
 import { recipePercentages, percentLabel, type Recipe } from "@/lib/mixer";
-import { rgbToHex } from "@/lib/color";
+import { rgbToHex, valueScore } from "@/lib/color";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -189,6 +189,12 @@ function OptionsHelpModal({ onClose }: { onClose: () => void }) {
             a={t("recipeHelp.maxColors")}
             b={t("recipeHelp.valueFirst")}
           />
+          <Section
+            title={t("recipeHelp.readoutsTitle")}
+            intro={t("recipeHelp.readoutsIntro")}
+            a={t("recipeHelp.matchReadout")}
+            b={t("recipeHelp.valueReadout")}
+          />
         </div>
 
         <div className="flex justify-end border-t border-border/60 px-5 py-3">
@@ -270,18 +276,14 @@ export function RecipeView({
             <div>
               <div
                 className={cn(
-                  "text-sm font-semibold",
-                  recipe.deltaL <= 2
-                    ? "text-emerald-400"
-                    : recipe.deltaL <= 5
-                    ? "text-amber-400"
-                    : "text-rose-400"
+                  "text-base font-semibold",
+                  matchColor(valueScore(recipe.deltaL))
                 )}
               >
-                ΔL {recipe.deltaL.toFixed(1)}
+                {valueScore(recipe.deltaL)}%
               </div>
               <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                {t("recipe.value")}
+                {t("recipe.value")} · ΔL {recipe.deltaL.toFixed(1)}
               </div>
             </div>
             <div>

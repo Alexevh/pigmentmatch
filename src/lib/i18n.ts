@@ -264,6 +264,13 @@ const en: Dict = {
       "Max colors (Auto / ≤2 / ≤3 / ≤4): caps how many pigments the recipe uses. The color may end up further off, but the mix is simpler and more practical.",
     valueFirst:
       "Value-first: when using fewer colors, it keeps the value (lightness) close and lets the hue/chroma drift — useful when the value matters more than an exact color match. The ΔL readout shows how close the value is.",
+    readoutsTitle: "The two scores — Match & Value",
+    readoutsIntro:
+      "At the bottom of the recipe. Both are percentages with the same colors: green ≥90% (great), amber ≥75% (close), red below.",
+    matchReadout:
+      "Match (ΔE): how close the overall color is — hue, chroma and value together. ΔE is the raw perceptual error (lower is better).",
+    valueReadout:
+      "Value (ΔL): how close just the value (lightness) is — often the most important thing in a painting. 90% ≈ ΔL 2 (barely perceptible), 75% ≈ ΔL 5. ΔL is the lightness difference on a 0–100 scale.",
   },
   analysis: {
     title: "Painter analysis",
@@ -785,6 +792,13 @@ const es: Dict = {
       "Máx colores (Auto / ≤2 / ≤3 / ≤4): limita cuántos pigmentos usa la receta. El color puede quedar más lejos, pero la mezcla es más simple y práctica.",
     valueFirst:
       "Prioriza valor: al usar menos colores, mantiene el valor (luminosidad) cerca y deja correr el matiz/saturación — útil cuando el valor importa más que igualar el color exacto. El número ΔL muestra qué tan cerca está el valor.",
+    readoutsTitle: "Los dos puntajes — Match y Valor",
+    readoutsIntro:
+      "Al pie de la receta. Ambos son porcentajes con los mismos colores: verde ≥90% (muy bien), ámbar ≥75% (cerca), rojo por debajo.",
+    matchReadout:
+      "Match (ΔE): qué tan cerca está el color en general — matiz, croma y valor juntos. ΔE es el error perceptual crudo (más bajo es mejor).",
+    valueReadout:
+      "Valor (ΔL): qué tan cerca está solo el valor (luminosidad) — a menudo lo más importante en una pintura. 90% ≈ ΔL 2 (casi imperceptible), 75% ≈ ΔL 5. ΔL es la diferencia de luminosidad en escala 0–100.",
   },
   analysis: {
     title: "Análisis de pintor",

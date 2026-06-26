@@ -3,6 +3,7 @@ import {
   rgbToLab,
   deltaE2000,
   matchScore,
+  valueScore,
   rgbToHex,
   type RGB,
 } from "@/lib/color";
@@ -63,12 +64,27 @@ export function SwatchCompare({
                   </span>
                 </div>
               ))}
-              <div className="ml-auto text-right">
-                <div className={cn("text-lg font-bold", matchColor(match))}>
-                  {match}%
+              <div className="ml-auto flex items-center gap-3 text-right">
+                <div>
+                  <div
+                    className={cn(
+                      "text-base font-semibold",
+                      matchColor(valueScore(Math.abs(dL)))
+                    )}
+                  >
+                    {valueScore(Math.abs(dL))}%
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {t("recipe.value")} · ΔL {Math.abs(dL).toFixed(1)}
+                  </div>
                 </div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  {t("recipe.match")} · ΔE {dE.toFixed(1)}
+                <div>
+                  <div className={cn("text-lg font-bold", matchColor(match))}>
+                    {match}%
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {t("recipe.match")} · ΔE {dE.toFixed(1)}
+                  </div>
                 </div>
               </div>
             </div>

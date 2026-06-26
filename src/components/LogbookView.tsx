@@ -656,6 +656,7 @@ export function LogbookView() {
       reference: t("logbook.projectReference"),
       finished: t("logbook.projectFinished"),
       colors: t("logbook.entries"),
+      palette: t("palette.label"),
       recipe: t("logbook.recipe"),
       notes: t("logbook.notes"),
       unnamed: t("logbook.unnamed"),

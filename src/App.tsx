@@ -183,6 +183,14 @@ export default function App() {
               <div className="space-y-4">
                 <Card className="h-fit">
                   <CardHeader>
+                    <CardTitle>{t("match.sampledColor")}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ColorInput rgb={target} onChange={setTarget} />
+                  </CardContent>
+                </Card>
+                <Card className="h-fit">
+                  <CardHeader>
                     <CardTitle>{t("match.sampleFromImage")}</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -199,14 +207,6 @@ export default function App() {
                 </Card>
               </div>
               <div className="space-y-4">
-                <Card className="h-fit">
-                  <CardHeader>
-                    <CardTitle>{t("match.sampledColor")}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ColorInput rgb={target} onChange={setTarget} />
-                  </CardContent>
-                </Card>
                 <SwatchCompare target={target} pigments={effectivePigments} />
                 <ResultPanel
                   rgb={target}

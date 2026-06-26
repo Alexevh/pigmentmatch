@@ -67,14 +67,31 @@ function PhotoField({
   label,
   blob,
   onChange,
+  large = false,
 }: {
   label: string;
   blob?: Blob;
   onChange: (b?: Blob) => void;
+  // `large` shows a big preview (for project reference / finished photos that
+  // are meant to be looked at, not just small thumbnails).
+  large?: boolean;
 }) {
   const { t } = useT();
   const ref = useRef<HTMLInputElement>(null);
   const [showCam, setShowCam] = useState(false);
+  const actions = (
+    <>
+      <Button variant="outline" size="sm" onClick={() => ref.current?.click()}>
+        {t("logbook.replacePhoto")}
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => setShowCam(true)}>
+        <Camera className="h-3.5 w-3.5" /> {t("camera.use")}
+      </Button>
+      <Button variant="ghost" size="sm" onClick={() => onChange(undefined)}>
+        <X className="h-3.5 w-3.5" /> {t("logbook.removePhoto")}
+      </Button>
+    </>
+  );
   return (
     <div className="space-y-1.5">
       {showCam && (
@@ -98,33 +115,33 @@ function PhotoField({
         }}
       />
       {blob ? (
-        <div className="flex items-start gap-2">
-          <BlobImg
-            blob={blob}
-            alt={label}
-            className="h-20 w-20 rounded-md border border-border object-cover"
-          />
-          <div className="flex flex-col gap-1">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => ref.current?.click()}
-            >
-              {t("logbook.replacePhoto")}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowCam(true)}>
-              <Camera className="h-3.5 w-3.5" /> {t("camera.use")}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => onChange(undefined)}>
-              <X className="h-3.5 w-3.5" /> {t("logbook.removePhoto")}
-            </Button>
+        large ? (
+          <div className="space-y-2">
+            <BlobImg
+              blob={blob}
+              alt={label}
+              className="max-h-72 w-full rounded-md border border-border bg-black/20 object-contain"
+            />
+            <div className="flex flex-wrap gap-1">{actions}</div>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-start gap-2">
+            <BlobImg
+              blob={blob}
+              alt={label}
+              className="h-20 w-20 rounded-md border border-border object-cover"
+            />
+            <div className="flex flex-col gap-1">{actions}</div>
+          </div>
+        )
       ) : (
         <div className="space-y-1.5">
           <button
             onClick={() => ref.current?.click()}
-            className="flex h-20 w-full flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground"
+            className={
+              "flex w-full flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-accent hover:text-foreground " +
+              (large ? "h-44" : "h-20")
+            }
           >
             <ImageIcon className="h-5 w-5" />
             <span className="text-xs">{t("logbook.addPhoto")}</span>
@@ -798,11 +815,13 @@ export function LogbookView() {
               label={t("logbook.projectReference")}
               blob={active.reference}
               onChange={(b) => setProjectImage("reference", b)}
+              large
             />
             <PhotoField
               label={t("logbook.projectFinished")}
               blob={active.finished}
               onChange={(b) => setProjectImage("finished", b)}
+              large
             />
           </div>
 

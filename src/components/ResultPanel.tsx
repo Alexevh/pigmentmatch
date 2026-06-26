@@ -21,6 +21,7 @@ export function ResultPanel({
   onPick,
   stack = false,
   hideAnalysis = false,
+  hideSwatch = false,
   palettes,
   activeId,
   onSelectPalette,
@@ -34,6 +35,9 @@ export function ResultPanel({
   // `hideAnalysis` omits the painter-analysis card (the Image tab shows it
   // under the photo instead).
   hideAnalysis?: boolean;
+  // `hideSwatch` omits the big target swatch (the Image tab shows it above the
+  // swatch-compare card instead).
+  hideSwatch?: boolean;
   // Active palette + switcher, shown as a chip on the recipe so it's clear which
   // pigments the mix is drawn from (and lets the user switch palettes inline).
   palettes?: { id: string; name: string }[];
@@ -107,7 +111,7 @@ export function ResultPanel({
   if (stack) {
     return (
       <div className="space-y-4">
-        {swatch}
+        {!hideSwatch && swatch}
         {recipeCard}
         {variations}
         {!hideAnalysis && analysis}

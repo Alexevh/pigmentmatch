@@ -12,7 +12,7 @@ import {
   Wand2,
   HelpCircle,
 } from "lucide-react";
-import type { RGB } from "@/lib/color";
+import { rgbToHex, type RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
 import { useCalibration } from "@/hooks/useCalibration";
 import { useCalibratedEngine } from "@/hooks/useCalibratedEngine";
@@ -25,6 +25,7 @@ import { ColorInput } from "@/components/ColorInput";
 import { AnalysisView } from "@/components/AnalysisView";
 import { ResultPanel } from "@/components/ResultPanel";
 import { SwatchCompare } from "@/components/SwatchCompare";
+import { Swatch } from "@/components/Swatch";
 import { ImageSampler } from "@/components/ImageSampler";
 import { PaletteExtractor } from "@/components/PaletteExtractor";
 import { PaletteManager } from "@/components/PaletteManager";
@@ -207,6 +208,12 @@ export default function App() {
                 </Card>
               </div>
               <div className="space-y-4">
+                <Swatch
+                  rgb={target}
+                  label={t("match.targetColor")}
+                  sub={`${rgbToHex(target)} · rgb(${target.r}, ${target.g}, ${target.b})`}
+                  className="h-44"
+                />
                 <SwatchCompare target={target} pigments={effectivePigments} />
                 <ResultPanel
                   rgb={target}
@@ -214,6 +221,7 @@ export default function App() {
                   onPick={setTarget}
                   stack
                   hideAnalysis
+                  hideSwatch
                   palettes={api.palettes}
                   activeId={api.activeId}
                   onSelectPalette={api.setActiveId}

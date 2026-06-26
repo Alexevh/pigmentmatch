@@ -82,22 +82,33 @@ export function SwatchCompare({
               · {t("mix.deltaLabel", { n: Math.abs(dL).toFixed(1) })}
             </p>
 
-            {advice && !advice.onTarget && (
-              <ul className="space-y-1.5">
-                {advice.tips.map((tip) => (
-                  <li key={tip.id} className="flex items-start gap-2 text-sm">
-                    {tip.swatchHex ? (
-                      <span
-                        className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-border/50"
-                        style={{ backgroundColor: tip.swatchHex }}
-                      />
-                    ) : (
-                      <span className="mt-0.5 h-4 w-4 shrink-0" />
-                    )}
-                    <span>{tip.text}</span>
-                  </li>
-                ))}
-              </ul>
+            {advice && (
+              <div className="space-y-1.5">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t("image.compareHowTo")}
+                </p>
+                <p className="text-sm font-medium">{advice.headline}</p>
+                {!advice.onTarget && (
+                  <ul className="space-y-1.5">
+                    {advice.tips.map((tip) => (
+                      <li
+                        key={tip.id}
+                        className="flex items-start gap-2 text-sm"
+                      >
+                        {tip.swatchHex ? (
+                          <span
+                            className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-border/50"
+                            style={{ backgroundColor: tip.swatchHex }}
+                          />
+                        ) : (
+                          <span className="mt-0.5 h-4 w-4 shrink-0" />
+                        )}
+                        <span>{tip.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </div>
         )}

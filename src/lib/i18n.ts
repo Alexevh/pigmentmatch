@@ -327,6 +327,7 @@ const en: Dict = {
     compareTitle: "Compare with your swatch",
     compareHint:
       "Upload a photo of your painted swatch and click it to compare with the target color above.",
+    compareHowTo: "How to reach the target from your sample",
     replace: "Replace image",
     zoom: "Zoom",
     zoomOn: "Zoom on",
@@ -844,6 +845,7 @@ const es: Dict = {
     compareTitle: "Comparar con tu swatch",
     compareHint:
       "Subí una foto de tu swatch pintado y hacé clic para compararlo con el color objetivo de arriba.",
+    compareHowTo: "Cómo llegar al objetivo desde tu muestra",
     replace: "Reemplazar imagen",
     zoom: "Zoom",
     zoomOn: "Zoom activado",

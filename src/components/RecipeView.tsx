@@ -304,10 +304,12 @@ export function RecipeView({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between border-t border-border/60 pt-2 text-xs">
-          <span className="text-muted-foreground">{t("recipe.match")}</span>
-          <span className={cn("font-bold", matchColor(recipe.match))}>
-            {recipe.match}%
+        <div className="flex items-center justify-between gap-3 border-t border-border/60 pt-2 text-xs">
+          <span className={cn("font-semibold", matchColor(valueScore(recipe.deltaL)))}>
+            {t("recipe.value")} {valueScore(recipe.deltaL)}%
+          </span>
+          <span className={cn("font-semibold", matchColor(recipe.match))}>
+            {t("recipe.match")} {recipe.match}%
           </span>
         </div>
       )}

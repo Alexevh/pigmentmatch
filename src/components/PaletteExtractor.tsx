@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Upload, Loader2, Grid2x2, X } from "lucide-react";
 import { rgbToHex, rgbToLab, deltaE, type RGB } from "@/lib/color";
 import { extractPalette, relationshipHint } from "@/lib/extract";
@@ -12,9 +12,10 @@ import { cn } from "@/lib/utils";
 import type { Pigment } from "@/lib/pigments";
 import { Button } from "@/components/ui/button";
 import { Swatch } from "./Swatch";
-import { RecipeView } from "./RecipeView";
+import { RecipeView, RecipeControls } from "./RecipeView";
+import { PaletteChipSelect } from "./PaletteChipSelect";
 
-const COUNTS = [8, 12, 20] as const;
+const COUNTS = [4, 8, 12, 20] as const;
 const DISPLAY_MAX = 760;
 
 interface Extracted {
@@ -29,9 +30,15 @@ type Rect = { x: number; y: number; w: number; h: number }; // normalized 0..1
 export function PaletteExtractor({
   pigments,
   onPick,
+  palettes,
+  activeId,
+  onSelectPalette,
 }: {
   pigments: Pigment[];
   onPick: (rgb: RGB) => void;
+  palettes?: { id: string; name: string }[];
+  activeId?: string;
+  onSelectPalette?: (id: string) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,7 +49,6 @@ export function PaletteExtractor({
 
   const [count, setCount] = useState<(typeof COUNTS)[number]>(8);
   const [busy, setBusy] = useState(false);
-  const [colors, setColors] = useState<Extracted[] | null>(null);
   const [palette, setPalette] = useState<RGB[]>([]);
   const [hasImage, setHasImage] = useState(false);
   const [posterize, setPosterize] = useState(false); // optional, off by default
@@ -76,27 +82,32 @@ export function PaletteExtractor({
     return out;
   }, []);
 
+  // k-means only (expensive) — its result doesn't depend on the recipe settings.
   const runExtract = useCallback(
     (sel: Rect | null, k: number) => {
       setBusy(true);
       setTimeout(() => {
-        const pal = extractPalette(pixelsIn(sel), k);
-        setPalette(pal);
-        setColors(
-          pal.map((rgb) => ({
-            rgb,
-            recipe: generateRecipe(rgb, pigments, mode, engine, {
-              maxColors,
-              valuePriority,
-            }),
-            description: analysisSentence(rgb, lang),
-            hint: relationshipHint(rgb, pal, pigments, lang),
-          }))
-        );
+        setPalette(extractPalette(pixelsIn(sel), k));
         setBusy(false);
       }, 30);
     },
-    [pixelsIn, pigments, mode, engine, maxColors, valuePriority, lang]
+    [pixelsIn]
+  );
+
+  // Recipes/descriptions recompute live when the palette OR the recipe settings
+  // (palette tab, mode, engine, max colors, value-first) change — no re-cluster.
+  const colors: Extracted[] = useMemo(
+    () =>
+      palette.map((rgb) => ({
+        rgb,
+        recipe: generateRecipe(rgb, pigments, mode, engine, {
+          maxColors,
+          valuePriority,
+        }),
+        description: analysisSentence(rgb, lang),
+        hint: relationshipHint(rgb, palette, pigments, lang),
+      })),
+    [palette, pigments, mode, engine, maxColors, valuePriority, lang]
   );
 
   const loadFile = (file: File) => {
@@ -315,7 +326,22 @@ export function PaletteExtractor({
         <p className="text-xs text-muted-foreground">{t("extract.selectHint")}</p>
       </div>
 
-      {colors && (
+      {colors.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-3">
+          {palettes && activeId && onSelectPalette ? (
+            <PaletteChipSelect
+              palettes={palettes}
+              activeId={activeId}
+              onSelect={onSelectPalette}
+            />
+          ) : (
+            <span />
+          )}
+          <RecipeControls />
+        </div>
+      )}
+
+      {colors.length > 0 && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {colors.map((c, i) => (
             <div

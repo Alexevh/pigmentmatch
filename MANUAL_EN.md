@@ -160,7 +160,7 @@ cleanup, not as a color reference.
 ## The Extract tab — a palette from a painting
 
 1. Click **Upload a painting**.
-2. Choose how many colors to pull out: **8, 12, or 20**.
+2. Choose how many colors to pull out: **4, 8, 12, or 20**.
 3. The app finds the dominant colors (clustered perceptually) and arranges them
    **from light to dark**.
 
@@ -181,6 +181,11 @@ Two optional tools (both off by default):
   before doing the transitions yourself).
 - **Select an area** — drag a box on the image to extract colors from just that
   region (e.g. only the face). Click **Whole image** to clear it.
+
+The **palette switcher** and the **recipe controls** (Classic/Spectral,
+Simple/Precise, Parts/%, Max colors, Value-first) are available here too, so you
+can change the active palette and how the recipes are built without leaving the
+Extract tab — every color's recipe updates live.
 
 ---
 

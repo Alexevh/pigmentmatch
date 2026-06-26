@@ -90,7 +90,9 @@ src/
     extract.ts      k-means dominant-color extraction (Lab) + relationship hints.
                     PaletteExtractor adds an optional Color map (posterize the
                     image to the palette) and drag-to-select an area to extract
-                    from — both opt-in; default extracts the whole image as before
+                    from — both opt-in; default extracts the whole image as before.
+                    Counts 4/8/12/20; recipes recompute via useMemo so the shared
+                    RecipeControls + PaletteChipSelect (shown there) update live
     storage.ts      localStorage (palettes, active id, observations, calibration)
     logbook.ts      IndexedDB store for the Bitácora: projects + color entries
                     (photos stored as Blobs), image downscale, JSON export/import

@@ -216,6 +216,33 @@ function PigmentDot({ hex }: { hex: string }) {
   );
 }
 
+// The full row of recipe controls (help link + all toggles). Reused by the
+// recipe card and the Extract tab so settings can be changed from either place.
+export function RecipeControls() {
+  const { t } = useT();
+  const [showHelp, setShowHelp] = useState(false);
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      {showHelp && <OptionsHelpModal onClose={() => setShowHelp(false)} />}
+      <button
+        onClick={() => setShowHelp(true)}
+        className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
+      >
+        <HelpCircle className="h-3.5 w-3.5" /> {t("recipeHelp.button")}
+      </button>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <EngineToggle />
+        <ModeToggle />
+        <UnitToggle />
+      </div>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <MaxColorsSelect />
+        <ValuePriorityToggle />
+      </div>
+    </div>
+  );
+}
+
 export function RecipeView({
   recipe,
   compact = false,
@@ -225,7 +252,6 @@ export function RecipeView({
 }) {
   const { t } = useT();
   const unit = useRecipeUnit();
-  const [showHelp, setShowHelp] = useState(false);
 
   if (recipe.items.length === 0) {
     return <p className="text-sm text-muted-foreground">{t("recipe.none")}</p>;
@@ -233,26 +259,7 @@ export function RecipeView({
 
   return (
     <div className="space-y-4">
-      {showHelp && <OptionsHelpModal onClose={() => setShowHelp(false)} />}
-      {!compact && (
-        <div className="flex flex-col items-end gap-1.5">
-          <button
-            onClick={() => setShowHelp(true)}
-            className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
-          >
-            <HelpCircle className="h-3.5 w-3.5" /> {t("recipeHelp.button")}
-          </button>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <EngineToggle />
-            <ModeToggle />
-            <UnitToggle />
-          </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <MaxColorsSelect />
-            <ValuePriorityToggle />
-          </div>
-        </div>
-      )}
+      {!compact && <RecipeControls />}
 
       {unit === "percent" ? (
         <PercentList recipe={recipe} />

@@ -164,7 +164,7 @@ color.
 ## Pestaña Extract — una paleta desde una pintura
 
 1. Clic en **Upload a painting**.
-2. Elegí cuántos colores extraer: **8, 12 o 20**.
+2. Elegí cuántos colores extraer: **4, 8, 12 o 20**.
 3. La app encuentra los colores dominantes (agrupados de forma perceptual) y los
    ordena **de claro a oscuro**.
 
@@ -187,6 +187,11 @@ Dos herramientas opcionales (ambas apagadas por defecto):
 - **Seleccionar un área** — arrastrá un recuadro sobre la imagen para extraer
   colores solo de esa zona (ej. solo la cara). Tocá **Toda la imagen** para
   quitar la selección.
+
+El **selector de paleta** y los **controles de receta** (Classic/Spectral,
+Simple/Preciso, Partes/%, Máx colores, Prioriza valor) también están acá, así
+podés cambiar la paleta activa y cómo se arman las recetas sin salir de Extraer —
+la receta de cada color se actualiza al instante.
 
 ---
 

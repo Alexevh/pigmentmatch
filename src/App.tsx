@@ -243,6 +243,9 @@ export default function App() {
                     setTarget(rgb);
                     setTab("match");
                   }}
+                  palettes={api.palettes}
+                  activeId={api.activeId}
+                  onSelectPalette={api.setActiveId}
                 />
               </CardContent>
             </Card>

@@ -134,6 +134,7 @@ export interface Recipe {
   mixedHex: string;
   deltaE: number;
   match: number; // 0..100
+  deltaL: number; // |target L* − mixed L*| (value error; lower is better)
 }
 
 const EMPTY_RGB: RGB = { r: 255, g: 255, b: 255 };
@@ -149,6 +150,24 @@ const SIMPLIFY_TOLERANCE = 2;
 
 // Precise mode only trims pigments that are essentially search noise.
 const PRECISE_TOLERANCE = 0.5;
+
+// Optional, opt-in recipe controls. Defaults keep the original behavior exactly.
+export interface RecipeOptions {
+  maxColors?: number | null; // cap the pigment count (null = no cap, default)
+  valuePriority?: boolean; // when simplifying, protect value (L*) over hue/chroma
+}
+
+// Value-weighted error: heavily weights lightness (L*) and downweights the
+// color axes (a*, b*), so simplification can let hue/chroma drift while keeping
+// the value close. Roughly on the same scale as ΔE so tolerances still apply.
+function valueError(
+  a: ReturnType<typeof rgbToLab>,
+  b: ReturnType<typeof rgbToLab>
+): number {
+  const dL = a.L - b.L;
+  const dab = Math.hypot(a.a - b.a, a.b - b.b);
+  return Math.hypot(1.4 * dL, 0.35 * dab);
+}
 
 // Deterministic pseudo-random so results are stable across runs (no Math.random).
 function makeRng(seed: number) {
@@ -169,8 +188,11 @@ export function generateRecipe(
   target: RGB,
   pigments: Pigment[],
   mode: RecipeMode = "precise",
-  engine: MixEngine = "classic"
+  engine: MixEngine = "classic",
+  options: RecipeOptions = {}
 ): Recipe {
+  const maxColors = options.maxColors ?? null;
+  const valuePriority = options.valuePriority ?? false;
   if (pigments.length === 0) {
     return {
       items: [],
@@ -178,6 +200,7 @@ export function generateRecipe(
       mixedHex: rgbToHex(EMPTY_RGB),
       deltaE: 100,
       match: 0,
+      deltaL: 100,
     };
   }
 
@@ -213,8 +236,11 @@ export function generateRecipe(
     isSpectral ? 4000 : 2400,
     (isSpectral ? 500 : 300) * n
   );
+  // Cap how many pigments a restart combines. Without a maxColors this equals
+  // Math.min(4, n) — byte-identical to before (same rng draws, same output).
+  const kCap = maxColors != null ? Math.min(maxColors, 4, n) : Math.min(4, n);
   for (let t = 0; t < RESTARTS; t++) {
-    const k = 1 + Math.floor(rng() * Math.min(4, n));
+    const k = 1 + Math.floor(rng() * kCap);
     const w = new Array(n).fill(0);
     for (let j = 0; j < k; j++) {
       const idx = Math.floor(rng() * n);
@@ -262,42 +288,63 @@ export function generateRecipe(
   // load-bearing touches (e.g. the warm tint in a near-white) are never lost.
   const tolerance =
     mode === "simple" ? SIMPLIFY_TOLERANCE : PRECISE_TOLERANCE;
-  const weights = reduceWeights(final, mix, targetLab, tolerance);
+  const weights = reduceWeights(
+    final,
+    mix,
+    targetLab,
+    tolerance,
+    maxColors,
+    valuePriority
+  );
   return buildRecipe(pigments, mix, weights, targetLab);
 }
 
-// Greedily drop the least-useful pigment while the match stays within
-// `tolerance` ΔE of the best achievable. Returns the reduced weight vector.
+// Greedily drop the least-useful pigment. A pigment is dropped while the error
+// stays within `tolerance` of the best achievable, OR while the pigment count is
+// still above `maxColors` (a forced cap, ignoring tolerance). With
+// `valuePriority`, "error" weights lightness over hue/chroma so forced drops
+// keep the value close. Defaults (maxColors=null, valuePriority=false) reproduce
+// the original ΔE2000 behavior exactly.
 function reduceWeights(
   cand: Candidate,
   mix: MixFn,
   targetLab: ReturnType<typeof rgbToLab>,
-  tolerance: number
+  tolerance: number,
+  maxColors: number | null = null,
+  valuePriority = false
 ): number[] {
+  const err = (rgb: RGB) =>
+    valuePriority
+      ? valueError(rgbToLab(rgb), targetLab)
+      : deltaE2000(rgbToLab(rgb), targetLab);
+
   let weights = cand.weights.slice();
-  const ceiling = cand.dE + tolerance;
+  const ceiling = err(cand.rgb) + tolerance;
 
   for (;;) {
     const active = weights
       .map((w, i) => ({ w, i }))
       .filter((x) => x.w > 0);
     if (active.length <= 1) break;
+    const overCap = maxColors != null && active.length > maxColors;
 
     // find the single removal that costs the least extra error
-    let bestRemoval: { weights: number[]; dE: number } | null = null;
+    let bestRemoval: { weights: number[]; e: number } | null = null;
     for (const { i } of active) {
       const trial = weights.slice();
       trial[i] = 0;
       const sum = trial.reduce((a, b) => a + b, 0);
       if (sum <= 0) continue;
       const norm = trial.map((x) => x / sum);
-      const dE = deltaE2000(rgbToLab(mix(norm)), targetLab);
-      if (!bestRemoval || dE < bestRemoval.dE) {
-        bestRemoval = { weights: norm, dE };
+      const e = err(mix(norm));
+      if (!bestRemoval || e < bestRemoval.e) {
+        bestRemoval = { weights: norm, e };
       }
     }
+    if (!bestRemoval) break;
 
-    if (bestRemoval && bestRemoval.dE <= ceiling) {
+    // Drop if it's "free" (within tolerance) or we're still over the cap.
+    if (overCap || bestRemoval.e <= ceiling) {
       weights = bestRemoval.weights;
     } else {
       break;
@@ -326,7 +373,9 @@ function buildRecipe(
   // so the match score always reflects the recipe shown (no stale value).
   const fullWeights = pigments.map((_, i) => weights[i] || 0);
   const mixed = mix(fullWeights);
-  const dE = deltaE2000(rgbToLab(mixed), targetLab);
+  const mixedLab = rgbToLab(mixed);
+  const dE = deltaE2000(mixedLab, targetLab);
+  const deltaL = Math.abs(targetLab.L - mixedLab.L);
 
   const top = norm[0]?.weight ?? 1;
   // structural pigments are a meaningful fraction of the mix; the rest are touches
@@ -360,6 +409,7 @@ function buildRecipe(
     mixedHex: rgbToHex(mixed),
     deltaE: dE,
     match: matchScore(dE),
+    deltaL,
   };
 }
 

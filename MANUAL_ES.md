@@ -68,10 +68,17 @@ Arriba de la receta hay un toggle chico: **Parts | %**.
 
 Tu elección se recuerda y aplica en todos lados (incluida la pestaña Extract).
 
-> ¿No sabés qué hacen los tres toggles arriba de la receta? Hacé clic en **"¿Qué
+> ¿No sabés qué hacen los controles arriba de la receta? Hacé clic en **"¿Qué
 > hacen estas opciones?"** ahí — una explicación corta cubre el modelo de mezcla
-> (Classic / Spectral), el nivel de detalle (Simple / Preciso) y las unidades
-> (Partes / %).
+> (Classic / Spectral), el nivel de detalle (Simple / Preciso), las unidades
+> (Partes / %) y los controles opcionales **Máx colores** / **Prioriza valor**.
+>
+> **Menos colores, cuidando el valor:** para una mezcla más artística y limitada,
+> poné **Máx colores** (≤2/≤3/≤4) para limitar los pigmentos y activá **Prioriza
+> valor** para que la mezcla mantenga el valor (luminosidad) cerca aunque el color
+> se corra. Un número **ΔL** al lado del match muestra qué tan cerca está el
+> valor. Ambos están apagados por defecto — si los dejás así, las recetas se
+> comportan igual que antes.
 
 > **Qué significa el match score:** es la confianza del modelo en su propia
 > predicción, medida en CIE Lab (ΔE). Un puntaje alto significa "esta mezcla

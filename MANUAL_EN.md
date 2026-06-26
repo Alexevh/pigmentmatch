@@ -67,9 +67,16 @@ Above the recipe there's a small toggle: **Parts | %**.
 
 Your choice is remembered and applies everywhere (including the Extract tab).
 
-> Not sure what the three toggles above the recipe do? Click **"What do these
+> Not sure what the controls above the recipe do? Click **"What do these
 > options do?"** there — a short explainer covers the mixing model (Classic /
-> Spectral), the detail level (Simple / Precise), and the units (Parts / %).
+> Spectral), the detail level (Simple / Precise), the units (Parts / %), and the
+> optional **Max colors** / **Value-first** controls.
+>
+> **Fewer colors, keeping the value:** for a more artistic, limited mix, set
+> **Max colors** (≤2/≤3/≤4) to cap the pigments, and turn on **Value-first** so
+> the mix keeps the value (lightness) close even if the color drifts. A **ΔL**
+> readout next to the match shows how close the value is. Both are off by
+> default — leave them and recipes behave exactly as before.
 
 > **What the match score means:** it's the model's confidence in its own
 > prediction, measured in CIE Lab (ΔE). A high score means "this mix *should*

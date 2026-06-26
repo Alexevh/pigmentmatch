@@ -12,6 +12,12 @@ import {
   type RecipeMode,
 } from "@/hooks/useRecipeMode";
 import { setMixEngine, useMixEngine } from "@/hooks/useMixEngine";
+import {
+  setMaxColors,
+  useMaxColors,
+  setValuePriority,
+  useValuePriority,
+} from "@/hooks/useRecipeLimits";
 import type { MixEngine } from "@/lib/mixer";
 import type { RecipeItem } from "@/lib/mixer";
 
@@ -64,6 +70,47 @@ function EngineToggle() {
       {opt("classic", "Classic")}
       {opt("spectral", "Spectral")}
     </div>
+  );
+}
+
+// Optional cap on how many pigments a recipe uses (off by default).
+function MaxColorsSelect() {
+  const { t } = useT();
+  const max = useMaxColors();
+  return (
+    <select
+      value={max ?? "auto"}
+      onChange={(e) =>
+        setMaxColors(e.target.value === "auto" ? null : parseInt(e.target.value, 10))
+      }
+      title={t("recipe.maxColorsTitle")}
+      className="h-7 rounded-md bg-secondary/60 px-1.5 text-xs text-muted-foreground"
+    >
+      <option value="auto">{t("recipe.maxColorsAuto")}</option>
+      <option value="2">{t("recipe.maxColorsN", { n: 2 })}</option>
+      <option value="3">{t("recipe.maxColorsN", { n: 3 })}</option>
+      <option value="4">{t("recipe.maxColorsN", { n: 4 })}</option>
+    </select>
+  );
+}
+
+// Optional: protect value (L*) over hue/chroma when simplifying (off by default).
+function ValuePriorityToggle() {
+  const { t } = useT();
+  const on = useValuePriority();
+  return (
+    <button
+      onClick={() => setValuePriority(!on)}
+      title={t("recipe.valuePriorityTitle")}
+      className={cn(
+        "rounded-md px-2 py-1 text-xs font-medium transition-colors",
+        on
+          ? "bg-accent/15 text-accent"
+          : "bg-secondary/60 text-muted-foreground hover:text-foreground"
+      )}
+    >
+      {t("recipe.valuePriority")}
+    </button>
   );
 }
 
@@ -136,6 +183,12 @@ function OptionsHelpModal({ onClose }: { onClose: () => void }) {
             a={t("recipeHelp.parts")}
             b={t("recipeHelp.percent")}
           />
+          <Section
+            title={t("recipeHelp.limitTitle")}
+            intro={t("recipeHelp.limitIntro")}
+            a={t("recipeHelp.maxColors")}
+            b={t("recipeHelp.valueFirst")}
+          />
         </div>
 
         <div className="flex justify-end border-t border-border/60 px-5 py-3">
@@ -188,6 +241,10 @@ export function RecipeView({
             <ModeToggle />
             <UnitToggle />
           </div>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <MaxColorsSelect />
+            <ValuePriorityToggle />
+          </div>
         </div>
       )}
 
@@ -209,12 +266,31 @@ export function RecipeView({
               {recipe.mixedHex}
             </span>
           </div>
-          <div className="ml-auto text-right">
-            <div className={cn("text-lg font-bold", matchColor(recipe.match))}>
-              {recipe.match}%
+          <div className="ml-auto flex items-center gap-4 text-right">
+            <div>
+              <div
+                className={cn(
+                  "text-sm font-semibold",
+                  recipe.deltaL <= 2
+                    ? "text-emerald-400"
+                    : recipe.deltaL <= 5
+                    ? "text-amber-400"
+                    : "text-rose-400"
+                )}
+              >
+                ΔL {recipe.deltaL.toFixed(1)}
+              </div>
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t("recipe.value")}
+              </div>
             </div>
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-              {t("recipe.match")} · ΔE {recipe.deltaE.toFixed(1)}
+            <div>
+              <div className={cn("text-lg font-bold", matchColor(recipe.match))}>
+                {recipe.match}%
+              </div>
+              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {t("recipe.match")} · ΔE {recipe.deltaE.toFixed(1)}
+              </div>
             </div>
           </div>
         </div>

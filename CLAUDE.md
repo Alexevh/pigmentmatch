@@ -143,6 +143,14 @@ src/
   score must always match the recipe shown. (A past bug showed "100% white" at
   99% when white alone was 91%; this is the fix — do not regress it.)
 - `matchScore(dE) = round(clamp(100 - dE*1.5, 0, 100))` (dE is now ΔE2000).
+- **Optional recipe controls** (`RecipeOptions` arg to `generateRecipe`; opt-in,
+  defaults reproduce the old output byte-for-byte): `maxColors` caps the pigment
+  count (search restarts cap `k`, and `reduceWeights` force-drops past the ΔE
+  tolerance until ≤N); `valuePriority` makes `reduceWeights` use a value-weighted
+  metric (`valueError`: heavy L*, light a*/b*) so forced drops keep the value and
+  let hue/chroma drift. `buildRecipe` also returns `deltaL` (|ΔL*|) shown in the
+  UI. Controls live in `RecipeView` (`MaxColorsSelect`, `ValuePriorityToggle`,
+  persisted via `useRecipeLimits`); read in `ResultPanel`/variation modal.
 - Recipe matching, scoring, the Coach and calibration all use **ΔE2000**
   (`deltaE2000` in color.ts, validated against the Sharma reference 2.0425).
   Method adopted from the Mohammadi/Berns RIT 2004 report (same single-constant

@@ -217,6 +217,13 @@ const en: Dict = {
     of: "of",
     mixed: "Mixed",
     match: "match",
+    value: "Value",
+    maxColorsAuto: "Auto",
+    maxColorsN: "≤{n}",
+    maxColorsTitle: "Limit how many pigments the recipe uses",
+    valuePriority: "Value-first",
+    valuePriorityTitle:
+      "When using fewer colors, keep the value (lightness) close and let hue/chroma drift",
     part: "part",
     parts: "parts",
     partsLabel: "Parts",
@@ -250,6 +257,13 @@ const en: Dict = {
       "Parts: painter-style ratios (1 part white, 2 parts ochre…), with the smallest amounts written as touches.",
     percent:
       "%: each pigment as a percentage of the whole mix — they add up to 100, and anything under 1% shows as <1%.",
+    limitTitle: "Fewer colors / Value-first (optional)",
+    limitIntro:
+      "For a more artistic, limited mix. Both are off by default — leave them and recipes work exactly as before.",
+    maxColors:
+      "Max colors (Auto / ≤2 / ≤3 / ≤4): caps how many pigments the recipe uses. The color may end up further off, but the mix is simpler and more practical.",
+    valueFirst:
+      "Value-first: when using fewer colors, it keeps the value (lightness) close and lets the hue/chroma drift — useful when the value matters more than an exact color match. The ΔL readout shows how close the value is.",
   },
   analysis: {
     title: "Painter analysis",
@@ -719,6 +733,13 @@ const es: Dict = {
     of: "de",
     mixed: "Mezcla",
     match: "match",
+    value: "Valor",
+    maxColorsAuto: "Auto",
+    maxColorsN: "≤{n}",
+    maxColorsTitle: "Limitar cuántos pigmentos usa la receta",
+    valuePriority: "Prioriza valor",
+    valuePriorityTitle:
+      "Al usar menos colores, mantiene el valor (luminosidad) cerca y deja correr matiz/saturación",
     part: "parte",
     parts: "partes",
     partsLabel: "Partes",
@@ -752,6 +773,13 @@ const es: Dict = {
       "Partes: proporciones de pintor (1 parte de blanco, 2 partes de ocre…), con las cantidades más chicas escritas como toques.",
     percent:
       "%: cada pigmento como porcentaje de toda la mezcla — suman 100, y todo lo menor a 1% se muestra como <1%.",
+    limitTitle: "Menos colores / Prioriza valor (opcional)",
+    limitIntro:
+      "Para una mezcla más artística y limitada. Ambos están apagados por defecto — si los dejás así, las recetas funcionan igual que antes.",
+    maxColors:
+      "Máx colores (Auto / ≤2 / ≤3 / ≤4): limita cuántos pigmentos usa la receta. El color puede quedar más lejos, pero la mezcla es más simple y práctica.",
+    valueFirst:
+      "Prioriza valor: al usar menos colores, mantiene el valor (luminosidad) cerca y deja correr el matiz/saturación — útil cuando el valor importa más que igualar el color exacto. El número ΔL muestra qué tan cerca está el valor.",
   },
   analysis: {
     title: "Análisis de pintor",

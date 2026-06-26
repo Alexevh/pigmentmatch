@@ -5,6 +5,7 @@ import { generateRecipe } from "@/lib/mixer";
 import { coach } from "@/lib/coach";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
+import { useMaxColors, useValuePriority } from "@/hooks/useRecipeLimits";
 import { useT } from "@/lib/i18n";
 import type { Pigment } from "@/lib/pigments";
 import { Swatch } from "./Swatch";
@@ -33,10 +34,12 @@ function VariationRecipeModal({
   const { lang, t } = useT();
   const mode = useRecipeMode();
   const engine = useMixEngine();
+  const maxColors = useMaxColors();
+  const valuePriority = useValuePriority();
 
   const baseRecipe = useMemo(
-    () => generateRecipe(base, pigments, mode, engine),
-    [base, pigments, mode, engine]
+    () => generateRecipe(base, pigments, mode, engine, { maxColors, valuePriority }),
+    [base, pigments, mode, engine, maxColors, valuePriority]
   );
   const advice = useMemo(
     () => coach(variation.rgb, base, pigments, lang),

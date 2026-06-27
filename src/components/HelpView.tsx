@@ -44,6 +44,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
           "Extract: a 4-color option, plus the palette switcher and recipe controls right there so you can work from the Extract tab.",
           "Calibrate: added guidance — record mixes (a pigment with white), not single pigments, since calibration fits tinting strength.",
           "Palette: added a note about setting each pigment's real color (masstone) for accurate recipes.",
+          "Palette: pick a pigment's color straight from a swatch photo when creating or editing it.",
         ],
       },
       {
@@ -115,6 +116,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
           "Extraer: opción de 4 colores, más el selector de paleta y los controles de receta ahí mismo para trabajar desde Extraer.",
           "Calibrar: se agregó una guía — registrá mezclas (un pigmento con blanco), no pigmentos solos, ya que la calibración ajusta la fuerza tintórea.",
           "Paleta: se agregó una nota sobre fijar el color real (masstone) de cada pigmento para recetas precisas.",
+          "Paleta: tomá el color de un pigmento directo de una foto de swatch al crearlo o editarlo.",
         ],
       },
       {

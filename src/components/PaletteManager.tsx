@@ -8,6 +8,7 @@ import {
   Download,
   Upload,
   Info,
+  Pipette,
 } from "lucide-react";
 import { hexToRgb, rgbToHex, clamp255 } from "@/lib/color";
 import {
@@ -24,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { ImageSampler } from "./ImageSampler";
 import { cn } from "@/lib/utils";
 
 type PaletteApi = ReturnType<typeof usePalettes>;
@@ -80,6 +82,7 @@ function PigmentRow({
 }) {
   const { t } = useT();
   const [open, setOpen] = useState(false);
+  const [sampling, setSampling] = useState(false);
   const available = isEnabled(pigment);
   return (
     <Card className="overflow-hidden">
@@ -137,6 +140,22 @@ function PigmentRow({
 
       {open && (
         <CardContent className="space-y-3 border-t border-border/60 bg-secondary/20 pt-3">
+          <div>
+            <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
+              <span>{t("palette.colorFromPhoto")}</span>
+              <Button
+                variant={sampling ? "accent" : "ghost"}
+                size="sm"
+                onClick={() => setSampling((s) => !s)}
+              >
+                <Pipette className="h-3.5 w-3.5" />{" "}
+                {sampling ? t("palette.hide") : t("palette.sampleColor")}
+              </Button>
+            </div>
+            {sampling && (
+              <ImageSampler onSample={(rgb) => onUpdate({ rgb })} />
+            )}
+          </div>
           <div>
             <div className="mb-1 flex justify-between text-xs text-muted-foreground">
               <span>{t("palette.opacity")}</span>

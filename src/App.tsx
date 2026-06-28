@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Pipette,
   Image as ImageIcon,
@@ -17,6 +17,8 @@ import { rgbToHex, type RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
 import { useCalibration } from "@/hooks/useCalibration";
 import { useCalibratedEngine } from "@/hooks/useCalibratedEngine";
+import { useFirebaseConfig } from "@/hooks/useFirebaseConfig";
+import { configureCloud } from "@/hooks/useCloudSync";
 import { applyCalibration } from "@/lib/calibration";
 import { isEnabled } from "@/lib/pigments";
 import { useT, setLang, type Lang } from "@/lib/i18n";
@@ -53,6 +55,14 @@ export default function App() {
   const cal = useCalibration(api.activeId, pigments);
   const calibrated = useCalibratedEngine();
   const engineOn = calibrated && cal.calibration != null;
+
+  // Optional cloud sync: keep the orchestrator pointed at the saved Firebase
+  // config. When sync is enabled + signed in it pulls on open and auto-uploads
+  // changes; otherwise it's inert and the app stays fully local.
+  const firebaseConfig = useFirebaseConfig();
+  useEffect(() => {
+    configureCloud(firebaseConfig);
+  }, [firebaseConfig]);
 
   // Only available pigments feed the recipe/coach/extract suggestions; the
   // Palette and Calibrate tabs still see the full list.

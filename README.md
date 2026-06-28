@@ -9,10 +9,13 @@ painter does, not in math.
 
 **🎨 Live app: [alexevh.github.io/pigmentmatch](https://alexevh.github.io/pigmentmatch/)**
 
-Everything runs **entirely in your browser**. There is no backend; palettes are
-saved to `localStorage` and the Logbook (with its photos) to `IndexedDB`. It's
-also an **installable PWA** — add it to your home screen / desktop and it works
-offline (an update toast appears when a new version ships).
+Everything runs **entirely in your browser**. There is no backend of ours;
+palettes are saved to `localStorage` and the Logbook (with its photos) to
+`IndexedDB`. It's also an **installable PWA** — add it to your home screen /
+desktop and it works offline (an update toast appears when a new version ships).
+Optionally, you can turn on cross-device **cloud sync** backed by *your own* free
+Firebase project (see **Settings**) — off by default, so the app stays 100%
+local unless you choose otherwise.
 
 > 📖 User manuals: [English](MANUAL_EN.md) · [Español](MANUAL_ES.md)
 >
@@ -70,6 +73,13 @@ offline (an update toast appears when a new version ships).
   palette as JSON for backup or sharing. Each pigment has a color, opacity,
   temperature, and tinting strength. Ships with a traditional 8-pigment oil
   palette (plus Winsor & Newton and Corfix presets).
+- **Settings** — language, active palette, recipe defaults, your Gemini API key,
+  and **optional cloud sync**. Cloud sync is fully opt-in and **bring-your-own
+  Firebase**: paste your own free Firebase project's config (the in-app guide and
+  the exact Firestore rules are provided), flip **Active sync** on and sign in
+  with Google, and your palettes, settings and logbook **text** follow you across
+  devices — it loads from the cloud on open and uploads changes automatically.
+  Off by default; photos aren't synced; nothing is shared with anyone.
 
 ## How the mixing works
 

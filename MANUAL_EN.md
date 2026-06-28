@@ -17,7 +17,8 @@ your own device.
 2. The interface has twelve tabs across the top: **Match · Image · Extract ·
    Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette · Settings ·
    Help**. The app version is shown next to the title; **Settings** holds app
-   preferences (language, active palette, recipe defaults, Gemini API key) and
+   preferences (language, active palette, recipe defaults, Gemini API key, and
+   optional cross-device cloud sync via your own free Firebase project) and
    **Help** has release notes, an FAQ, and the story behind the app.
 3. Start in **Match** — it opens with the example color `#927073`.
 

@@ -32,6 +32,16 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.0.2",
+        date: "2026",
+        changes: [
+          "Optional cloud sync (Settings → Cloud sync): keep your palettes, settings and logbook (text) in sync across devices using your OWN free Firebase project — nothing is shared with anyone.",
+          "It's a single toggle: when Active sync is on and you're signed in with Google, the app loads your data from the cloud when it opens and uploads changes automatically. When off, the app stays 100% local as before.",
+          "Manual Back up / Restore buttons are still there if you prefer to do it by hand. Photos are not synced (only text).",
+          "Built-in setup guide and the exact Firestore security rules to paste, right in the app.",
+        ],
+      },
+      {
         version: "1.0.1",
         date: "2026",
         changes: [
@@ -75,7 +85,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
       },
       {
         q: "Where is my data stored?",
-        a: "Only in your browser: palettes and settings in localStorage, the Logbook (with photos) in IndexedDB. Nothing is uploaded. Use the export/import options to back up or move it.",
+        a: "Only in your browser: palettes and settings in localStorage, the Logbook (with photos) in IndexedDB. Nothing is uploaded unless you turn on the optional cloud sync (Settings tab), which uses your own Firebase project. Use the export/import options to back up or move data without any cloud.",
       },
       {
         q: "A color matches poorly — is it broken?",
@@ -104,6 +114,16 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.0.2",
+        date: "2026",
+        changes: [
+          "Sync en la nube opcional (Config → Sync en la nube): mantené tus paletas, preferencias y bitácora (texto) sincronizadas entre dispositivos usando TU propio proyecto gratuito de Firebase — no se comparte nada con nadie.",
+          "Es un solo interruptor: con Sync activo encendido y sesión iniciada con Google, la app carga tus datos de la nube al abrir y sube los cambios automáticamente. Apagado, la app sigue 100% local como antes.",
+          "Siguen los botones de Respaldar / Restaurar manuales por si preferís hacerlo a mano. Las fotos no se sincronizan (solo texto).",
+          "Guía de configuración y las reglas de seguridad de Firestore listas para copiar, dentro de la app.",
+        ],
+      },
       {
         version: "1.0.1",
         date: "2026",
@@ -148,7 +168,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
       },
       {
         q: "¿Dónde se guardan mis datos?",
-        a: "Solo en tu navegador: paletas y preferencias en localStorage, la Bitácora (con fotos) en IndexedDB. No se sube nada. Usá exportar/importar para respaldar o mover los datos.",
+        a: "Solo en tu navegador: paletas y preferencias en localStorage, la Bitácora (con fotos) en IndexedDB. No se sube nada salvo que actives el sync en la nube opcional (pestaña Config), que usa tu propio proyecto de Firebase. Usá exportar/importar para respaldar o mover los datos sin ninguna nube.",
       },
       {
         q: "Un color matchea mal, ¿está roto?",

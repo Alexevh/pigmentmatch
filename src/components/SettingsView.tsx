@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { RecipeControls } from "./RecipeView";
+import { CloudSyncView } from "./CloudSyncView";
 
 export function SettingsView({
   palettes,
@@ -120,6 +121,9 @@ export function SettingsView({
           </p>
         </CardContent>
       </Card>
+
+      {/* Cloud sync (optional, BYO Firebase) */}
+      <CloudSyncView />
     </div>
   );
 }

@@ -98,12 +98,29 @@ src/
                     (photos stored as Blobs), image downscale, JSON export/import
     imagefx.ts      IMG Lab image processing: pixel adjustments (computeAdjusted)
                     + lazy AI (upscaleImage/restoreImage via UpscalerJS+TF.js)
+    cloudSync.ts    optional BYO-Firebase sync: lazy-loaded firebase SDK
+                    (app/auth/firestore via dynamic import), Google sign-in,
+                    backup/restore of a single snapshot doc at
+                    /users/{uid}/backup/data. Snapshot = all app localStorage
+                    keys (pigment-match.*/pigmentmatch.*, minus the firebase
+                    config) + the logbook exported WITHOUT photos. Restore
+                    replaces local state then the caller reloads.
   hooks/
     usePalettes          palettes CRUD + active selection + presets/library
     useRecipeUnit        "parts" | "percent" display (persisted)
     useRecipeMode        "simple" | "precise" (default simple, persisted)
     useCalibration       per-palette observations + fitted calibration
     useCalibratedEngine  global on/off for the calibrated model (default off)
+    useGeminiKey         user's Gemini API key store (Settings + IMG Lab)
+    useFirebaseConfig    user's BYO Firebase web config store (+ tolerant
+                         parseFirebaseConfig for the pasted console snippet)
+    useCloudSync         active-sync orchestrator (module singleton): enabled
+                         toggle (persisted), Google auth state, status; on open
+                         pulls if the cloud doc's updatedAt moved past this
+                         device's stored "last applied" then reloads; patches
+                         localStorage.setItem + listens for a logbook event to
+                         debounce-auto-push. App calls configureCloud(config);
+                         setCloudEnabled/sign-in/backup/restore actions for the UI
   components/
     ColorInput, Swatch, RecipeView, AnalysisView, VariationsView,
     PaletteManager (+ PigmentLibrary, availability checkbox, preset dropdown),
@@ -128,8 +145,13 @@ src/
     HelpView (Help tab: About/purpose, Release notes, FAQ — <details> accordions;
       bilingual content lives in the component, not i18n)
     SettingsView (Settings tab: language, active palette, recipe defaults via
-      shared RecipeControls, and the Gemini API key via the useGeminiKey store —
-      shared with IMG Lab so it stays in sync)
+      shared RecipeControls, the Gemini API key via the useGeminiKey store —
+      shared with IMG Lab so it stays in sync — and the CloudSyncView card)
+    CloudSyncView (optional cloud sync, in Settings: paste your own Firebase
+      config + setup steps + Firestore security rules, Google sign-in, Back up /
+      Restore buttons. Manual, conflict-free — backup pushes the whole local
+      state, restore replaces it and reloads. Photos are NOT synced. Off until
+      the user pastes a config; uses cloudSync.ts/useFirebaseConfig)
   version.ts        APP_VERSION, shown next to the header title + release notes
   App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette · Settings · Help
 ```
@@ -249,6 +271,23 @@ src/
   generator. A **"How is my data stored?"** link opens `StorageInfoModal` (in
   `LogbookView`) explaining localStorage vs IndexedDB, per-browser caveats, and
   backup/restore — content under i18n `logbook.storage.*`.
+- **Settings:** language, active palette, recipe defaults (shared
+  `RecipeControls`), Gemini API key, and **optional active cloud sync**
+  (`CloudSyncView` / `cloudSync.ts` primitives / `useCloudSync` orchestrator).
+  Cloud sync is **BYO Firebase** — the user pastes their own free Firebase
+  project's config (it's public, not a secret; security is the Firestore rules +
+  Google sign-in, both set up by the user with the steps/rules shown in-app).
+  It's a single **"Active sync" toggle**: when ON and signed in with Google, the
+  app **pulls on open** (if the cloud doc's `updatedAt` is newer than this
+  device's stored "last applied", it restores + reloads) and **auto-pushes**
+  local changes (debounced; `localStorage.setItem` is patched and the logbook
+  fires a `pm-logbook-changed` event). Manual Back up / Restore buttons remain.
+  The synced snapshot is all app localStorage (minus the firebase config + sync
+  control keys) + the logbook **text only (no photos)**, stored at one doc
+  `/users/{uid}/backup/data`. Firebase SDK is lazy (dynamic import → separate
+  chunk). Why Firebase and not Mongo: Firestore is built for direct browser use
+  (SDK + rules + offline), Mongo speaks raw TCP the browser can't. Strings under
+  i18n `cloud.*`. **Default: OFF** (and no config) → app stays 100% local.
 
 `App.tsx` filters to `enabledPigments` then applies calibration → these
 `effectivePigments` feed Match/Image/Extract/Coach. Palette & Calibrate see the

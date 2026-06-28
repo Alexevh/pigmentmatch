@@ -17,7 +17,8 @@ dispositivo.
 2. La interfaz tiene doce pestañas arriba: **Match · Imagen · Extraer · Coach ·
    Comparar · Mezcla · Bitácora · IMG Lab · Calibrar · Paleta · Config · Ayuda**.
    La versión se muestra al lado del título; **Config** reúne las preferencias
-   (idioma, paleta activa, valores por defecto de receta, API key de Gemini) y
+   (idioma, paleta activa, valores por defecto de receta, API key de Gemini y el
+   sync opcional entre dispositivos vía tu propio proyecto gratuito de Firebase) y
    **Ayuda** tiene notas de versión, preguntas frecuentes y la historia de la app.
 3. Empezá en **Match** — abre con el color de ejemplo `#927073`.
 

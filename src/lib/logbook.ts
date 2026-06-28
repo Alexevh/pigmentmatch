@@ -75,6 +75,15 @@ function txDone(tx: IDBTransaction): Promise<void> {
   });
 }
 
+// Let optional cloud sync know the logbook changed so it can schedule an upload.
+function emitChange() {
+  try {
+    window.dispatchEvent(new Event("pm-logbook-changed"));
+  } catch {
+    // non-browser / no window — ignore
+  }
+}
+
 export function newId(prefix = "lb"): string {
   try {
     if (crypto?.randomUUID) return `${prefix}_${crypto.randomUUID()}`;
@@ -101,6 +110,7 @@ export async function putProject(p: LogProject): Promise<void> {
   const tx = d.transaction(PROJECTS, "readwrite");
   tx.objectStore(PROJECTS).put(p);
   await txDone(tx);
+  emitChange();
 }
 
 export async function deleteProject(id: string): Promise<void> {
@@ -111,6 +121,7 @@ export async function deleteProject(id: string): Promise<void> {
   const keys = await asPromise(idx.getAllKeys(IDBKeyRange.only(id)));
   for (const k of keys as IDBValidKey[]) tx.objectStore(ENTRIES).delete(k);
   await txDone(tx);
+  emitChange();
 }
 
 // ---------- Entries ----------
@@ -130,6 +141,7 @@ export async function putEntry(e: LogEntry): Promise<void> {
   const tx = d.transaction(ENTRIES, "readwrite");
   tx.objectStore(ENTRIES).put(e);
   await txDone(tx);
+  emitChange();
 }
 
 export async function deleteEntry(id: string): Promise<void> {
@@ -137,6 +149,7 @@ export async function deleteEntry(id: string): Promise<void> {
   const tx = d.transaction(ENTRIES, "readwrite");
   tx.objectStore(ENTRIES).delete(id);
   await txDone(tx);
+  emitChange();
 }
 
 async function getAllEntries(): Promise<LogEntry[]> {
@@ -216,8 +229,9 @@ interface ExportShape {
   >;
 }
 
-// Whole logbook → one JSON string with images inlined as data URLs.
-export async function exportLogbook(): Promise<string> {
+// Whole logbook → one JSON string. With includeImages=false the photos are
+// dropped (used for cloud sync, to keep the document small / text-only).
+export async function exportLogbook(includeImages = true): Promise<string> {
   const [projects, entries] = await Promise.all([
     getProjects(),
     getAllEntries(),
@@ -229,19 +243,35 @@ export async function exportLogbook(): Promise<string> {
     projects: await Promise.all(
       projects.map(async (p) => ({
         ...p,
-        reference: p.reference ? await blobToDataURL(p.reference) : undefined,
-        finished: p.finished ? await blobToDataURL(p.finished) : undefined,
+        reference:
+          includeImages && p.reference
+            ? await blobToDataURL(p.reference)
+            : undefined,
+        finished:
+          includeImages && p.finished
+            ? await blobToDataURL(p.finished)
+            : undefined,
       }))
     ),
     entries: await Promise.all(
       entries.map(async (e) => ({
         ...e,
-        ref: e.ref ? await blobToDataURL(e.ref) : undefined,
-        swatch: e.swatch ? await blobToDataURL(e.swatch) : undefined,
+        ref: includeImages && e.ref ? await blobToDataURL(e.ref) : undefined,
+        swatch:
+          includeImages && e.swatch ? await blobToDataURL(e.swatch) : undefined,
       }))
     ),
   };
   return JSON.stringify(out);
+}
+
+// Wipe the whole logbook (used before a cloud Restore that replaces local data).
+export async function clearAll(): Promise<void> {
+  const d = await db();
+  const tx = d.transaction([PROJECTS, ENTRIES], "readwrite");
+  tx.objectStore(PROJECTS).clear();
+  tx.objectStore(ENTRIES).clear();
+  await txDone(tx);
 }
 
 // Import a JSON export, merging it in with fresh ids (never clobbers existing
@@ -295,5 +325,6 @@ export async function importLogbook(json: string): Promise<number> {
   for (const p of projects) tx.objectStore(PROJECTS).put(p);
   for (const e of entries) if (e) tx.objectStore(ENTRIES).put(e);
   await txDone(tx);
+  emitChange();
   return projects.length;
 }

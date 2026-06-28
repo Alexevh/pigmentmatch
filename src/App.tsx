@@ -11,6 +11,7 @@ import {
   NotebookPen,
   Wand2,
   HelpCircle,
+  Cog,
 } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
@@ -37,6 +38,7 @@ import { LogbookView } from "@/components/LogbookView";
 import { ImgLabView } from "@/components/ImgLabView";
 import { PwaUpdater } from "@/components/PwaUpdater";
 import { HelpView } from "@/components/HelpView";
+import { SettingsView } from "@/components/SettingsView";
 import { APP_VERSION } from "@/version";
 
 export default function App() {
@@ -150,6 +152,9 @@ export default function App() {
             </TabsTrigger>
             <TabsTrigger value="palette">
               <Palette className="h-4 w-4" /> {t("tabs.palette")}
+            </TabsTrigger>
+            <TabsTrigger value="settings">
+              <Cog className="h-4 w-4" /> {t("tabs.settings")}
             </TabsTrigger>
             <TabsTrigger value="help">
               <HelpCircle className="h-4 w-4" /> {t("tabs.help")}
@@ -307,6 +312,22 @@ export default function App() {
               </CardHeader>
               <CardContent>
                 <PaletteManager api={api} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Settings: app preferences */}
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("tabs.settings")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SettingsView
+                  palettes={api.palettes}
+                  activeId={api.activeId}
+                  onSelectPalette={api.setActiveId}
+                />
               </CardContent>
             </Card>
           </TabsContent>

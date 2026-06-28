@@ -65,7 +65,21 @@ const en: Dict = {
     imglab: "IMG Lab",
     calibrate: "Calibrate",
     palette: "Palette",
+    settings: "Settings",
     help: "Help",
+  },
+  settings: {
+    intro: "App preferences — all saved in this browser.",
+    language: "Language",
+    activePalette: "Active palette",
+    recipeDefaults: "Recipe defaults",
+    recipeDefaultsHint:
+      "These apply to every recipe across the app (same controls shown on the recipe).",
+    aiTitle: "Cloud AI (Gemini)",
+    aiKey: "Gemini API key",
+    aiKeyHint:
+      "Used by IMG Lab's cloud AI. Stored only in this browser and sent only to Google.",
+    getKey: "Get a free key",
   },
   imglab: {
     intro:
@@ -602,7 +616,21 @@ const es: Dict = {
     imglab: "IMG Lab",
     calibrate: "Calibrar",
     palette: "Paleta",
+    settings: "Config",
     help: "Ayuda",
+  },
+  settings: {
+    intro: "Preferencias de la app — todo se guarda en este navegador.",
+    language: "Idioma",
+    activePalette: "Paleta activa",
+    recipeDefaults: "Valores por defecto de receta",
+    recipeDefaultsHint:
+      "Se aplican a todas las recetas de la app (los mismos controles que se ven en la receta).",
+    aiTitle: "IA en la nube (Gemini)",
+    aiKey: "API key de Gemini",
+    aiKeyHint:
+      "La usa la IA en la nube de IMG Lab. Se guarda solo en este navegador y se envía únicamente a Google.",
+    getKey: "Conseguir una key gratis",
   },
   imglab: {
     intro:

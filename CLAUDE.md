@@ -127,8 +127,11 @@ src/
       Coach advice vs the target; reuses ImageSampler + coach), ui/
     HelpView (Help tab: About/purpose, Release notes, FAQ — <details> accordions;
       bilingual content lives in the component, not i18n)
-  version.ts        APP_VERSION ("1.0"), shown next to the header title + release notes
-  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette · Help
+    SettingsView (Settings tab: language, active palette, recipe defaults via
+      shared RecipeControls, and the Gemini API key via the useGeminiKey store —
+      shared with IMG Lab so it stays in sync)
+  version.ts        APP_VERSION, shown next to the header title + release notes
+  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette · Settings · Help
 ```
 
 ## How the recipe engine works (`mixer.ts`)

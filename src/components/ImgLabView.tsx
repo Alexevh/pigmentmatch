@@ -23,6 +23,7 @@ import {
   type Adjust,
   type AiModel,
 } from "@/lib/imagefx";
+import { useGeminiKey, setGeminiKey } from "@/hooks/useGeminiKey";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -48,20 +49,11 @@ export function ImgLabView() {
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiModelKey, setAiModelKey] = useState<AiModel>("slim-2x");
 
-  // Cloud AI (Gemini) — bring-your-own key, persisted in this browser only.
-  const [geminiKey, setGeminiKey] = useState(
-    () => localStorage.getItem("pigmentmatch.geminiKey") ?? ""
-  );
+  // Cloud AI (Gemini) — bring-your-own key, shared via a store (Settings + here).
+  const geminiKey = useGeminiKey();
   const [cloudPrompt, setCloudPrompt] = useState(() =>
     t("imglab.cloudPromptDefault")
   );
-  useEffect(() => {
-    try {
-      localStorage.setItem("pigmentmatch.geminiKey", geminiKey);
-    } catch {
-      /* ignore */
-    }
-  }, [geminiKey]);
 
   const drawImageElement = useCallback((img: HTMLImageElement, maxW: number) => {
     const canvas = canvasRef.current;

@@ -98,6 +98,12 @@ src/
                     (photos stored as Blobs), image downscale, JSON export/import
     imagefx.ts      IMG Lab image processing: pixel adjustments (computeAdjusted)
                     + lazy AI (upscaleImage/restoreImage via UpscalerJS+TF.js)
+    imageStore.ts   active-image store (IndexedDB `pigmentmatch-images`, keyed by
+                    slot: image.reference / compare.reference / compare.wip /
+                    mix.target / mix.paint / extract.source). Blobs downscaled on
+                    put; emits `pm-image-changed` {slot}; base64 (de)serialize for
+                    cloud. Local-first — works with no cloud; an empty slot = old
+                    behavior.
     cloudSync.ts    optional BYO-Firebase sync: lazy-loaded firebase SDK
                     (app/auth/firestore via dynamic import), Google sign-in,
                     backup/restore of a single snapshot doc at
@@ -114,6 +120,10 @@ src/
     useGeminiKey         user's Gemini API key store (Settings + IMG Lab)
     useFirebaseConfig    user's BYO Firebase web config store (+ tolerant
                          parseFirebaseConfig for the pasted console snippet)
+    useActiveImage       read/write the Blob for an image slot (imageStore):
+                         loads on mount, re-reads on `pm-image-changed` (cloud
+                         pull / other tab); save() persists or clears. No slot =
+                         inert no-op (opt-out / backwards compatible)
     useCloudSync         active-sync orchestrator (module singleton): enabled
                          toggle (persisted), Google auth state, status; on open
                          pulls if the cloud doc's updatedAt moved past this
@@ -291,8 +301,13 @@ src/
   fires a `pm-logbook-changed` event). Manual Back up / Restore buttons remain.
   The synced snapshot is all app localStorage (minus the firebase config + sync
   control keys) + the logbook **text only (no photos)**, stored at one doc
-  `/users/{uid}/backup/data`. Firebase SDK is lazy (dynamic import → separate
-  chunk). Why Firebase and not Mongo: Firestore is built for direct browser use
+  `/users/{uid}/backup/data`. **Active images** (the photos in Image/Compare/Mix/
+  Extract — see `imageStore`) sync SEPARATELY, one Firestore doc per slot at
+  `/users/{uid}/images/{slot}` (downscaled base64, skipped if >~950KB),
+  reconciled both ways by per-slot `updatedAt` (newer wins) on open + auto-pushed
+  on change. This is independent of the text snapshot and needs no reload. Logbook
+  PROJECT photos are still not synced. Firebase SDK is lazy (dynamic import →
+  separate chunk). Why Firebase and not Mongo: Firestore is built for direct browser use
   (SDK + rules + offline), Mongo speaks raw TCP the browser can't. Strings under
   i18n `cloud.*`. **Default: OFF** (and no config) → app stays 100% local.
 

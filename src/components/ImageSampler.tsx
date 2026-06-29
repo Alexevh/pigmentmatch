@@ -1,7 +1,8 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Upload, Search, SearchX, Camera, Plus, Minus } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
+import { useActiveImage } from "@/hooks/useActiveImage";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { CameraCapture } from "@/components/CameraCapture";
@@ -35,13 +36,18 @@ export function ImageSampler({
   onImage,
   onSamplePos,
   probe,
+  slot,
 }: {
   onSample: (rgb: RGB) => void;
   onImage?: (img: HTMLImageElement) => void;
   onSamplePos?: (nx: number, ny: number) => void;
   probe?: string;
+  // Optional persistence: when set, the uploaded photo is saved to this slot
+  // (IndexedDB + optional cloud sync) and restored on mount / across devices.
+  slot?: string;
 }) {
   const { t } = useT();
+  const { blob: storedBlob, save: saveSlot } = useActiveImage(slot);
   const [probePos, setProbePos] = useState<{ x: number; y: number } | null>(
     null
   );
@@ -82,7 +88,7 @@ export function ImageSampler({
   );
 
   const drawFile = useCallback(
-    (file: Blob) => {
+    (file: Blob, persist = false) => {
       const url = URL.createObjectURL(file);
       const img = new Image();
       img.onload = () => {
@@ -102,9 +108,21 @@ export function ImageSampler({
         URL.revokeObjectURL(url);
       };
       img.src = url;
+      // Persist freshly uploaded/captured photos to the slot (if any). Restored
+      // images pass persist=false so we don't re-save (which would loop).
+      if (persist) saveSlot(file);
     },
-    [onImage]
+    [onImage, saveSlot]
   );
+
+  // Restore (or react to a cloud pull / other-tab update of) the stored image.
+  const lastDrawn = useRef<Blob | null>(null);
+  useEffect(() => {
+    if (storedBlob && storedBlob !== lastDrawn.current) {
+      lastDrawn.current = storedBlob;
+      drawFile(storedBlob, false);
+    }
+  }, [storedBlob, drawFile]);
 
   // cursor -> canvas pixel coordinates
   const coordsAt = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -246,7 +264,7 @@ export function ImageSampler({
     <div className="space-y-3">
       {showCam && (
         <CameraCapture
-          onCapture={(b) => drawFile(b)}
+          onCapture={(b) => drawFile(b, true)}
           onClose={() => setShowCam(false)}
         />
       )}
@@ -257,7 +275,7 @@ export function ImageSampler({
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) drawFile(f);
+          if (f) drawFile(f, true);
         }}
       />
 

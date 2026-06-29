@@ -6,6 +6,7 @@ import type { Pigment } from "@/lib/pigments";
 import { extractPalette } from "@/lib/extract";
 import { coach } from "@/lib/coach";
 import { useT, type Lang } from "@/lib/i18n";
+import { useActiveImage } from "@/hooks/useActiveImage";
 import {
   warpImage,
   toLabField,
@@ -219,6 +220,24 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
   const [view, setView] = useState<View>("overlay");
   const [normalize, setNormalize] = useState(false);
 
+  // Persist + cross-device sync of the two photos (local-first; optional cloud).
+  const refSlot = useActiveImage("compare.reference");
+  const wipSlot = useActiveImage("compare.wip");
+  const lastRef = useRef<Blob | null>(null);
+  const lastWip = useRef<Blob | null>(null);
+  useEffect(() => {
+    if (refSlot.blob && refSlot.blob !== lastRef.current) {
+      lastRef.current = refSlot.blob;
+      loadImage(refSlot.blob).then(setRefImg);
+    }
+  }, [refSlot.blob]);
+  useEffect(() => {
+    if (wipSlot.blob && wipSlot.blob !== lastWip.current) {
+      lastWip.current = wipSlot.blob;
+      loadImage(wipSlot.blob).then(setWipImg);
+    }
+  }, [wipSlot.blob]);
+
   const analyze = () => {
     if (!refImg || !wipImg) return;
     const size = outputSize(refCorners, refImg.naturalWidth, refImg.naturalHeight);
@@ -251,12 +270,12 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
           {refImg ? (
             <img src={refImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
           ) : (
-            <Dropzone label={t("compare.uploadRef")} onFile={(f) => loadImage(f).then(setRefImg)} />
+            <Dropzone label={t("compare.uploadRef")} onFile={(f) => { refSlot.save(f); loadImage(f).then(setRefImg); }} />
           )}
           {wipImg ? (
             <img src={wipImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
           ) : (
-            <Dropzone label={t("compare.uploadWip")} onFile={(f) => loadImage(f).then(setWipImg)} />
+            <Dropzone label={t("compare.uploadWip")} onFile={(f) => { wipSlot.save(f); loadImage(f).then(setWipImg); }} />
           )}
         </div>
       )}
@@ -280,7 +299,7 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="accent" onClick={analyze}>{t("compare.analyze")}</Button>
-              <Button variant="ghost" size="sm" onClick={() => { setRefImg(null); setWipImg(null); setAnalyzed(null); }} className="text-muted-foreground">{t("compare.startOver")}</Button>
+              <Button variant="ghost" size="sm" onClick={() => { setRefImg(null); setWipImg(null); setAnalyzed(null); lastRef.current = null; lastWip.current = null; refSlot.save(null); wipSlot.save(null); }} className="text-muted-foreground">{t("compare.startOver")}</Button>
             </div>
           </CardContent>
         </Card>

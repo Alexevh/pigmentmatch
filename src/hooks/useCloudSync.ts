@@ -7,6 +7,8 @@ import {
   cloudBackup,
   cloudRestore,
   cloudInfo,
+  syncImages,
+  cloudPushImage,
   LS_PREFIXES,
   LS_EXCLUDE,
   type CloudUser,
@@ -50,6 +52,9 @@ let config: FirebaseConfig | null = null;
 let unsubAuth: (() => void) | null = null;
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
 let applying = false; // suppress auto-push while a restore writes local data
+let applyingImages = false; // suppress auto-push while a pull writes images
+let imgTimer: ReturnType<typeof setTimeout> | null = null;
+const dirtySlots = new Set<string>();
 
 function readBool(k: string): boolean {
   try {
@@ -127,6 +132,7 @@ function installDetectors() {
     }
   };
   window.addEventListener("pm-logbook-changed", schedulePush);
+  window.addEventListener("pm-image-changed", onImageChanged as EventListener);
   // Flush a pending upload promptly when the tab is hidden / closed.
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden" && pushTimer) flushPush();
@@ -167,6 +173,47 @@ async function flushPush() {
   } catch (e) {
     onError(e);
   }
+}
+
+// ---- active-image auto-push --------------------------------------------------
+
+function onImageChanged(e: CustomEvent<{ slot?: string }>) {
+  if (!live.enabled || !config || !live.user || applyingImages) return;
+  const slot = e.detail?.slot;
+  if (!slot) return;
+  dirtySlots.add(slot);
+  if (imgTimer) clearTimeout(imgTimer);
+  imgTimer = setTimeout(flushImages, PUSH_DEBOUNCE);
+}
+
+async function flushImages() {
+  if (imgTimer) {
+    clearTimeout(imgTimer);
+    imgTimer = null;
+  }
+  if (!live.enabled || !config || !live.user) return;
+  const slots = [...dirtySlots];
+  dirtySlots.clear();
+  live.status = "syncing";
+  emit();
+  try {
+    for (const slot of slots) await cloudPushImage(config, live.user.uid, slot);
+    live.status = "ready";
+    live.error = null;
+    emit();
+  } catch (e) {
+    onError(e);
+  }
+}
+
+// Reconcile active images both ways (best-effort: never breaks the app).
+function runImageSync(uid: string) {
+  if (!config) return;
+  syncImages(config, uid, (on) => {
+    applyingImages = on;
+  }).catch(() => {
+    /* image sync is optional; ignore failures */
+  });
 }
 
 // ---- lifecycle ---------------------------------------------------------------
@@ -227,6 +274,7 @@ async function initialSync() {
       setLastApplied(updatedAt);
       live.status = "ready";
       emit();
+      runImageSync(uid);
       return;
     }
     if (info.updatedAt && info.updatedAt !== readStr(LAST_KEY)) {
@@ -242,6 +290,7 @@ async function initialSync() {
     live.status = "ready";
     if (info.updatedAt) live.lastSync = info.updatedAt;
     emit();
+    runImageSync(uid);
   } catch (e) {
     onError(e);
   }

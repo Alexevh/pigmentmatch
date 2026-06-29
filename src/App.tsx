@@ -234,7 +234,7 @@ export default function App() {
                     <CardTitle>{t("match.sampleFromImage")}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ImageSampler onSample={setTarget} />
+                    <ImageSampler onSample={setTarget} slot="image.reference" />
                   </CardContent>
                 </Card>
                 <Card className="h-fit">

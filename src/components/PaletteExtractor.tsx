@@ -6,6 +6,7 @@ import { generateRecipe, type Recipe } from "@/lib/mixer";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
 import { useMaxColors, useValuePriority } from "@/hooks/useRecipeLimits";
+import { useActiveImage } from "@/hooks/useActiveImage";
 import { useT } from "@/lib/i18n";
 import { analysisSentence } from "@/lib/describe";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,7 @@ export function PaletteExtractor({
   const maxColors = useMaxColors();
   const valuePriority = useValuePriority();
   const { lang, t } = useT();
+  const { blob: storedBlob, save: saveSlot } = useActiveImage("extract.source");
 
   // Collect pixels from the cached base image, optionally only inside `sel`.
   const pixelsIn = useCallback((sel: Rect | null): RGB[] => {
@@ -110,27 +112,40 @@ export function PaletteExtractor({
     [palette, pigments, mode, engine, maxColors, valuePriority, lang]
   );
 
-  const loadFile = (file: File) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const scale = Math.min(1, DISPLAY_MAX / img.width);
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return;
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      baseRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-      setSelection(null);
-      setPosterize(false);
-      setHasImage(true);
-      runExtract(null, count);
-    };
-    img.src = url;
-  };
+  const loadFile = useCallback(
+    (file: Blob, persist = false) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const scale = Math.min(1, DISPLAY_MAX / img.width);
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        baseRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        setSelection(null);
+        setPosterize(false);
+        setHasImage(true);
+        runExtract(null, count);
+      };
+      img.src = url;
+      if (persist) saveSlot(file);
+    },
+    [runExtract, count, saveSlot]
+  );
+
+  // Restore (or react to a cloud pull of) the stored Extract image.
+  const lastLoaded = useRef<Blob | null>(null);
+  useEffect(() => {
+    if (storedBlob && storedBlob !== lastLoaded.current) {
+      lastLoaded.current = storedBlob;
+      loadFile(storedBlob, false);
+    }
+  }, [storedBlob, loadFile]);
 
   // Redraw the canvas: base or posterized, plus a selection/drag rectangle.
   const redraw = useCallback(
@@ -211,7 +226,7 @@ export function PaletteExtractor({
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) loadFile(f);
+          if (f) loadFile(f, true);
           e.target.value = "";
         }}
       />

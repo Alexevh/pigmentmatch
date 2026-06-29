@@ -32,6 +32,15 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.0.4",
+        date: "2026",
+        changes: [
+          "Your active photos now persist: the images you upload in Image, Compare, Mix and Extract are saved locally (IndexedDB) and reappear after a reload or when you switch tabs — no need to re-upload.",
+          "With cloud sync on, those photos also follow you across devices: upload a reference on one device and it's already there on another. Each image syncs on its own, downscaled to stay small.",
+          "Fully backwards compatible: if you don't configure cloud sync, images are still saved and restored locally. An empty slot behaves exactly as before.",
+        ],
+      },
+      {
         version: "1.0.3",
         date: "2026",
         changes: [
@@ -122,6 +131,15 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.0.4",
+        date: "2026",
+        changes: [
+          "Tus fotos activas ahora persisten: las imágenes que subís en Imagen, Comparar, Mezcla y Extraer se guardan localmente (IndexedDB) y reaparecen al recargar o al cambiar de pestaña — no hace falta volver a subirlas.",
+          "Con el sync en la nube activo, esas fotos también te siguen entre dispositivos: subís una referencia en uno y ya está en el otro. Cada imagen se sincroniza por separado, reducida para ocupar poco.",
+          "Totalmente retrocompatible: si no configurás el sync, las imágenes igual se guardan y se restauran localmente. Un espacio vacío funciona igual que antes.",
+        ],
+      },
       {
         version: "1.0.3",
         date: "2026",

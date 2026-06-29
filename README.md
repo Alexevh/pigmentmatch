@@ -79,7 +79,12 @@ local unless you choose otherwise.
   the exact Firestore rules are provided), flip **Active sync** on and sign in
   with Google, and your palettes, settings and logbook **text** follow you across
   devices — it loads from the cloud on open and uploads changes automatically.
-  Off by default; photos aren't synced; nothing is shared with anyone.
+  Off by default; logbook photos aren't synced; nothing is shared with anyone.
+- **Active images persist & sync** — the photos you upload in Image, Compare, Mix
+  and Extract are saved locally (IndexedDB) so they survive reloads and tab
+  switches, and (with cloud sync on) follow you across devices: upload a reference
+  on one device and it's already there on another. Local-first: works with no
+  cloud, and an empty slot behaves exactly as before.
 
 ## How the mixing works
 

@@ -15,6 +15,12 @@
 
 import type { FirebaseConfig } from "@/hooks/useFirebaseConfig";
 import { exportLogbook, importLogbook, clearAll } from "@/lib/logbook";
+import {
+  listImages,
+  getImageRecord,
+  imageToDataURL,
+  putImageFromDataURL,
+} from "@/lib/imageStore";
 
 export interface CloudUser {
   uid: string;
@@ -33,6 +39,9 @@ interface FB {
   doc: typeof import("firebase/firestore").doc;
   getDoc: typeof import("firebase/firestore").getDoc;
   setDoc: typeof import("firebase/firestore").setDoc;
+  getDocs: typeof import("firebase/firestore").getDocs;
+  collection: typeof import("firebase/firestore").collection;
+  deleteDoc: typeof import("firebase/firestore").deleteDoc;
 }
 
 let cached: FB | null = null;
@@ -57,6 +66,9 @@ async function fb(config: FirebaseConfig): Promise<FB> {
     doc: fsMod.doc,
     getDoc: fsMod.getDoc,
     setDoc: fsMod.setDoc,
+    getDocs: fsMod.getDocs,
+    collection: fsMod.collection,
+    deleteDoc: fsMod.deleteDoc,
   };
   return cached;
 }
@@ -188,4 +200,99 @@ export async function cloudRestore(
   if (!data.json) return false;
   await applySnapshot(JSON.parse(data.json) as Snapshot);
   return true;
+}
+
+// ---------- Active images (one Firestore doc per slot) ----------
+
+const IMG_PATH = (uid: string, slot: string) =>
+  ["users", uid, "images", slot] as const;
+
+// 1 MB is the Firestore doc limit; stay clear of it (base64 inflates ~33%).
+const IMG_MAX_CHARS = 950_000;
+
+// List the image slots present in the cloud, with their timestamps.
+export async function cloudListImages(
+  config: FirebaseConfig,
+  uid: string
+): Promise<{ slot: string; updatedAt: number }[]> {
+  const f = await fb(config);
+  const snap = await f.getDocs(f.collection(f.db, "users", uid, "images"));
+  return snap.docs.map((d) => ({
+    slot: d.id,
+    updatedAt: (d.data() as { updatedAt?: number }).updatedAt ?? 0,
+  }));
+}
+
+// Upload one slot's image (or delete its cloud doc if the slot is now empty).
+export async function cloudPushImage(
+  config: FirebaseConfig,
+  uid: string,
+  slot: string
+): Promise<void> {
+  const f = await fb(config);
+  const rec = await getImageRecord(slot);
+  if (!rec) {
+    // Cleared locally — remove the cloud copy too.
+    await f.deleteDoc(f.doc(f.db, ...IMG_PATH(uid, slot)));
+    return;
+  }
+  const dataURL = await imageToDataURL(slot);
+  if (!dataURL) return;
+  if (dataURL.length > IMG_MAX_CHARS) {
+    // Too big for a single doc even after downscaling — keep it local only.
+    console.warn(`[cloud] image "${slot}" too large to sync (${dataURL.length} chars)`);
+    return;
+  }
+  await f.setDoc(f.doc(f.db, ...IMG_PATH(uid, slot)), {
+    data: dataURL,
+    updatedAt: rec.updatedAt,
+  });
+}
+
+// Download one slot's image into the local store, stamped with the cloud time.
+export async function cloudPullImage(
+  config: FirebaseConfig,
+  uid: string,
+  slot: string
+): Promise<void> {
+  const f = await fb(config);
+  const snap = await f.getDoc(f.doc(f.db, ...IMG_PATH(uid, slot)));
+  if (!snap.exists()) return;
+  const data = snap.data() as { data?: string; updatedAt?: number };
+  if (!data.data) return;
+  await putImageFromDataURL(slot, data.data, data.updatedAt ?? Date.now());
+}
+
+// Reconcile local ⇄ cloud images by timestamp (newer wins). `markApplying`
+// brackets the local writes so the orchestrator can suppress re-uploading them.
+export async function syncImages(
+  config: FirebaseConfig,
+  uid: string,
+  markApplying: (on: boolean) => void
+): Promise<void> {
+  const [cloud, local] = await Promise.all([
+    cloudListImages(config, uid),
+    listImages(),
+  ]);
+  const localMap = new Map(local.map((i) => [i.slot, i.updatedAt]));
+  const cloudMap = new Map(cloud.map((i) => [i.slot, i.updatedAt]));
+
+  // Pull: cloud newer than (or missing from) local.
+  markApplying(true);
+  try {
+    for (const { slot, updatedAt } of cloud) {
+      if (updatedAt > (localMap.get(slot) ?? 0)) {
+        await cloudPullImage(config, uid, slot);
+      }
+    }
+  } finally {
+    markApplying(false);
+  }
+
+  // Push: local newer than (or missing from) cloud.
+  for (const { slot, updatedAt } of local) {
+    if (updatedAt > (cloudMap.get(slot) ?? 0)) {
+      await cloudPushImage(config, uid, slot);
+    }
+  }
 }

@@ -138,12 +138,22 @@ export function PaletteExtractor({
     [runExtract, count, saveSlot]
   );
 
-  // Restore (or react to a cloud pull of) the stored Extract image.
+  // Restore (or react to a cloud pull / deletion of) the stored Extract image.
   const lastLoaded = useRef<Blob | null>(null);
   useEffect(() => {
-    if (storedBlob && storedBlob !== lastLoaded.current) {
-      lastLoaded.current = storedBlob;
-      loadFile(storedBlob, false);
+    if (storedBlob) {
+      if (storedBlob !== lastLoaded.current) {
+        lastLoaded.current = storedBlob;
+        loadFile(storedBlob, false);
+      }
+    } else if (lastLoaded.current) {
+      // Cleared / deleted by a sync — reset the Extract view.
+      lastLoaded.current = null;
+      baseRef.current = null;
+      setHasImage(false);
+      setPalette([]);
+      setSelection(null);
+      setPosterize(false);
     }
   }, [storedBlob, loadFile]);
 

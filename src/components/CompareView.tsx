@@ -226,15 +226,27 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
   const lastRef = useRef<Blob | null>(null);
   const lastWip = useRef<Blob | null>(null);
   useEffect(() => {
-    if (refSlot.blob && refSlot.blob !== lastRef.current) {
-      lastRef.current = refSlot.blob;
-      loadImage(refSlot.blob).then(setRefImg);
+    if (refSlot.blob) {
+      if (refSlot.blob !== lastRef.current) {
+        lastRef.current = refSlot.blob;
+        loadImage(refSlot.blob).then(setRefImg);
+      }
+    } else if (lastRef.current) {
+      lastRef.current = null;
+      setRefImg(null);
+      setAnalyzed(null);
     }
   }, [refSlot.blob]);
   useEffect(() => {
-    if (wipSlot.blob && wipSlot.blob !== lastWip.current) {
-      lastWip.current = wipSlot.blob;
-      loadImage(wipSlot.blob).then(setWipImg);
+    if (wipSlot.blob) {
+      if (wipSlot.blob !== lastWip.current) {
+        lastWip.current = wipSlot.blob;
+        loadImage(wipSlot.blob).then(setWipImg);
+      }
+    } else if (lastWip.current) {
+      lastWip.current = null;
+      setWipImg(null);
+      setAnalyzed(null);
     }
   }, [wipSlot.blob]);
 

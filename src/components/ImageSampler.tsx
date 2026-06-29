@@ -115,12 +115,26 @@ export function ImageSampler({
     [onImage, saveSlot]
   );
 
-  // Restore (or react to a cloud pull / other-tab update of) the stored image.
+  // Restore (or react to a cloud pull / other-tab update / deletion of) the
+  // stored image — so a manual sync that pulls or clears it updates the view
+  // immediately, without needing to switch tabs.
   const lastDrawn = useRef<Blob | null>(null);
   useEffect(() => {
-    if (storedBlob && storedBlob !== lastDrawn.current) {
-      lastDrawn.current = storedBlob;
-      drawFile(storedBlob, false);
+    if (storedBlob) {
+      if (storedBlob !== lastDrawn.current) {
+        lastDrawn.current = storedBlob;
+        drawFile(storedBlob, false);
+      }
+    } else if (lastDrawn.current) {
+      // The stored image was removed (cleared / deleted by a sync) — reset.
+      lastDrawn.current = null;
+      setHasImage(false);
+      imgRef.current = null;
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+      setHover(null);
+      const c = canvasRef.current;
+      c?.getContext("2d")?.clearRect(0, 0, c.width, c.height);
     }
   }, [storedBlob, drawFile]);
 

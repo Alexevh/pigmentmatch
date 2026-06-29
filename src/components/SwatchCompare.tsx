@@ -45,7 +45,11 @@ export function SwatchCompare({
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-xs text-muted-foreground">{t("image.compareHint")}</p>
-        <ImageSampler onSample={setSwatch} probe={rgbToHex(target)} />
+        <ImageSampler
+          onSample={setSwatch}
+          probe={rgbToHex(target)}
+          slot="image.swatch"
+        />
 
         {swatch && (
           <div className="space-y-3 border-t border-border/60 pt-3">

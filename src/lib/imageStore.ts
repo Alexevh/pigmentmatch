@@ -14,6 +14,7 @@ import { downscaleImage } from "@/lib/logbook";
 
 export type ImageSlot =
   | "image.reference"
+  | "image.swatch"
   | "compare.reference"
   | "compare.wip"
   | "mix.target"

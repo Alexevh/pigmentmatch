@@ -264,34 +264,36 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
         <p className="mt-1">{t("palette.masstoneNote")}</p>
       </div>
 
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            {t("palette.label")}
-          </span>
-          <select
-            value={activeId}
-            onChange={(e) => setActiveId(e.target.value)}
-            className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-          >
-            {palettes.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            {t("palette.nameLabel")}
-          </span>
-          <Input
-            value={active.name}
-            onChange={(e) => renameActive(e.target.value)}
-            className="h-10 max-w-[220px]"
-          />
-        </label>
-        <div className="ml-auto flex flex-wrap gap-2">
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              {t("palette.label")}
+            </span>
+            <select
+              value={activeId}
+              onChange={(e) => setActiveId(e.target.value)}
+              className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {palettes.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+              {t("palette.nameLabel")}
+            </span>
+            <Input
+              value={active.name}
+              onChange={(e) => renameActive(e.target.value)}
+              className="h-10 max-w-[220px]"
+            />
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2">
           <select
             value=""
             onChange={(e) => {

@@ -7,14 +7,15 @@ import {
   cloudBackup,
   cloudRestore,
   cloudInfo,
-  syncImages,
+  cloudListImages,
+  cloudPullImage,
   cloudPushImage,
   cloudClearImages,
   LS_PREFIXES,
   LS_EXCLUDE,
   type CloudUser,
 } from "@/lib/cloudSync";
-import { clearImages } from "@/lib/imageStore";
+import { clearImages, listImages, deleteImage } from "@/lib/imageStore";
 
 // Orchestrates OPTIONAL active cloud sync. It is a module singleton (one set of
 // auth/listeners for the whole app) exposed to React via useSyncExternalStore.
@@ -208,12 +209,71 @@ async function flushImages() {
   }
 }
 
-// Reconcile active images both ways (best-effort: never breaks the app).
-function runImageSync(uid: string) {
+// Per-device ledger of the last-synced timestamp for each image slot. It lets us
+// tell a remote DELETION (slot was synced, now gone from the cloud → delete it
+// locally) apart from a NEW local image (never synced → upload it, don't delete).
+const IMG_STATE_KEY = "pigmentmatch.imageSyncState";
+function readImgState(): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem(IMG_STATE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+function writeImgState(s: Record<string, number>) {
+  writeRaw(IMG_STATE_KEY, JSON.stringify(s));
+}
+
+// Reconcile active images both ways. Newer wins; deletions propagate via the
+// ledger. Best-effort — wrapped by the caller so it never breaks the app.
+async function reconcileImages(uid: string) {
   if (!config) return;
-  syncImages(config, uid, (on) => {
-    applyingImages = on;
-  }).catch(() => {
+  const [cloud, local] = await Promise.all([
+    cloudListImages(config, uid),
+    listImages(),
+  ]);
+  const cloudMap = new Map(cloud.map((i) => [i.slot, i.updatedAt]));
+  const localMap = new Map(local.map((i) => [i.slot, i.updatedAt]));
+  const state = readImgState();
+
+  applyingImages = true;
+  try {
+    // Pull: cloud newer than (or missing from) local.
+    for (const { slot, updatedAt } of cloud) {
+      if (updatedAt > (localMap.get(slot) ?? 0)) {
+        await cloudPullImage(config, uid, slot);
+      }
+      state[slot] = updatedAt;
+    }
+    // Local present but cloud absent: delete it locally IF we'd synced it before
+    // and it hasn't changed since (a remote deletion). A never-synced or
+    // locally-edited image is left for the push phase instead.
+    for (const { slot, updatedAt } of local) {
+      if (cloudMap.has(slot)) continue;
+      const known = state[slot];
+      if (known != null && updatedAt <= known) {
+        await deleteImage(slot);
+        delete state[slot];
+      }
+    }
+  } finally {
+    applyingImages = false;
+  }
+
+  // Push: local newer/new (and still present after the delete pass).
+  const local2 = await listImages();
+  for (const { slot, updatedAt } of local2) {
+    if (updatedAt > (cloudMap.get(slot) ?? 0)) {
+      await cloudPushImage(config, uid, slot);
+      state[slot] = updatedAt;
+    }
+  }
+  writeImgState(state);
+}
+
+// Reconcile active images (best-effort: never breaks the app).
+function runImageSync(uid: string) {
+  reconcileImages(uid).catch(() => {
     /* image sync is optional; ignore failures */
   });
 }
@@ -346,6 +406,9 @@ export async function cloudBackupNow(): Promise<number> {
   try {
     const { bytes, updatedAt } = await cloudBackup(config, live.user.uid);
     setLastApplied(updatedAt);
+    // A manual sync also reconciles images (pull new, push local, and remove
+    // local copies that were deleted from the cloud elsewhere).
+    await reconcileImages(live.user.uid);
     live.status = "ready";
     emit();
     return Math.max(1, Math.round(bytes / 1024));
@@ -364,6 +427,7 @@ export async function clearActiveImages(): Promise<void> {
     applyingImages = false;
   }
   dirtySlots.clear();
+  writeImgState({}); // forget the sync ledger — nothing is synced anymore
   if (config && live.user) {
     live.status = "syncing";
     emit();

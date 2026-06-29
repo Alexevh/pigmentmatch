@@ -305,10 +305,16 @@ src/
   `/users/{uid}/backup/data`. **Active images** (the photos in Image/Compare/Mix/
   Extract — see `imageStore`) sync SEPARATELY, one Firestore doc per slot at
   `/users/{uid}/images/{slot}` (downscaled base64, skipped if >~950KB),
-  reconciled both ways by per-slot `updatedAt` (newer wins) on open + auto-pushed
-  on change. Settings has an **Active images** card (`ActiveImagesCard`) showing
-  the stored count + a Clear button (`clearActiveImages` → `clearImages` local +
-  `cloudClearImages` in Firestore). This is independent of the text snapshot and needs no reload. Logbook
+  reconciled both ways by per-slot `updatedAt` (newer wins) on open, on a manual
+  sync (`cloudBackupNow` also runs `reconcileImages`), and auto-pushed on change.
+  **Deletions propagate** via a per-device ledger (`pigmentmatch.imageSyncState`,
+  excluded from the snapshot): a slot that was synced before and is now gone from
+  the cloud is deleted locally, while a never-synced/edited local image is pushed
+  instead (so no accidental loss). Settings has an **Active images** card
+  (`ActiveImagesCard`) showing the stored count + a Clear button
+  (`clearActiveImages` → `clearImages` local + `cloudClearImages` in Firestore +
+  reset ledger). NOTE: the ledger is per-device, so deletions only propagate to a
+  device that had reconciled at least once before the deletion. This is independent of the text snapshot and needs no reload. Logbook
   PROJECT photos are still not synced. Firebase SDK is lazy (dynamic import →
   separate chunk). Why Firebase and not Mongo: Firestore is built for direct browser use
   (SDK + rules + offline), Mongo speaks raw TCP the browser can't. Strings under

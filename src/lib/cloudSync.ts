@@ -16,7 +16,6 @@
 import type { FirebaseConfig } from "@/hooks/useFirebaseConfig";
 import { exportLogbook, importLogbook, clearAll } from "@/lib/logbook";
 import {
-  listImages,
   getImageRecord,
   imageToDataURL,
   putImageFromDataURL,
@@ -111,6 +110,7 @@ export const LS_EXCLUDE = new Set([
   "pigmentmatch.firebaseConfig",
   "pigmentmatch.cloudSyncEnabled",
   "pigmentmatch.cloudLastApplied",
+  "pigmentmatch.imageSyncState",
 ]);
 
 interface Snapshot {
@@ -273,36 +273,5 @@ export async function cloudClearImages(
   for (const d of snap.docs) await f.deleteDoc(d.ref);
 }
 
-// Reconcile local ⇄ cloud images by timestamp (newer wins). `markApplying`
-// brackets the local writes so the orchestrator can suppress re-uploading them.
-export async function syncImages(
-  config: FirebaseConfig,
-  uid: string,
-  markApplying: (on: boolean) => void
-): Promise<void> {
-  const [cloud, local] = await Promise.all([
-    cloudListImages(config, uid),
-    listImages(),
-  ]);
-  const localMap = new Map(local.map((i) => [i.slot, i.updatedAt]));
-  const cloudMap = new Map(cloud.map((i) => [i.slot, i.updatedAt]));
-
-  // Pull: cloud newer than (or missing from) local.
-  markApplying(true);
-  try {
-    for (const { slot, updatedAt } of cloud) {
-      if (updatedAt > (localMap.get(slot) ?? 0)) {
-        await cloudPullImage(config, uid, slot);
-      }
-    }
-  } finally {
-    markApplying(false);
-  }
-
-  // Push: local newer than (or missing from) cloud.
-  for (const { slot, updatedAt } of local) {
-    if (updatedAt > (cloudMap.get(slot) ?? 0)) {
-      await cloudPushImage(config, uid, slot);
-    }
-  }
-}
+// (Image reconciliation lives in useCloudSync — it needs the per-device
+// "already synced" ledger to decide deletions vs. new uploads.)

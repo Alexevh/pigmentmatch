@@ -81,6 +81,15 @@ const en: Dict = {
       "Used by IMG Lab's cloud AI. Stored only in this browser and sent only to Google.",
     getKey: "Get a free key",
   },
+  images: {
+    title: "Active images",
+    intro:
+      "The photos you upload in Image, Compare, Mix, Extract, Coach and Calibrate are saved here so they persist across reloads and (with cloud sync on) follow you to your other devices.",
+    count: "Stored images: {n}",
+    clear: "Clear active images",
+    clearConfirm:
+      "Remove all active images from this device and from the cloud (if sync is on)? This can't be undone.",
+  },
   cloud: {
     title: "Cloud sync (optional)",
     intro:
@@ -677,6 +686,15 @@ const es: Dict = {
     aiKeyHint:
       "La usa la IA en la nube de IMG Lab. Se guarda solo en este navegador y se envía únicamente a Google.",
     getKey: "Conseguir una key gratis",
+  },
+  images: {
+    title: "Imágenes activas",
+    intro:
+      "Las fotos que subís en Imagen, Comparar, Mezcla, Extraer, Coach y Calibrar se guardan acá para que persistan al recargar y (con el sync en la nube activo) te sigan a tus otros dispositivos.",
+    count: "Imágenes guardadas: {n}",
+    clear: "Vaciar imágenes activas",
+    clearConfirm:
+      "¿Eliminar todas las imágenes activas de este dispositivo y de la nube (si el sync está activo)? No se puede deshacer.",
   },
   cloud: {
     title: "Sync en la nube (opcional)",

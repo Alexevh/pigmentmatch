@@ -103,7 +103,8 @@ src/
                     mix.target / mix.paint / extract.source). Blobs downscaled on
                     put; emits `pm-image-changed` {slot}; base64 (de)serialize for
                     cloud. Local-first — works with no cloud; an empty slot = old
-                    behavior.
+                    behavior. `clearImages()` empties the store; uploading a new
+                    photo replaces that slot's record (one image per slot).
     cloudSync.ts    optional BYO-Firebase sync: lazy-loaded firebase SDK
                     (app/auth/firestore via dynamic import), Google sign-in,
                     backup/restore of a single snapshot doc at
@@ -305,7 +306,9 @@ src/
   Extract — see `imageStore`) sync SEPARATELY, one Firestore doc per slot at
   `/users/{uid}/images/{slot}` (downscaled base64, skipped if >~950KB),
   reconciled both ways by per-slot `updatedAt` (newer wins) on open + auto-pushed
-  on change. This is independent of the text snapshot and needs no reload. Logbook
+  on change. Settings has an **Active images** card (`ActiveImagesCard`) showing
+  the stored count + a Clear button (`clearActiveImages` → `clearImages` local +
+  `cloudClearImages` in Firestore). This is independent of the text snapshot and needs no reload. Logbook
   PROJECT photos are still not synced. Firebase SDK is lazy (dynamic import →
   separate chunk). Why Firebase and not Mongo: Firestore is built for direct browser use
   (SDK + rules + offline), Mongo speaks raw TCP the browser can't. Strings under

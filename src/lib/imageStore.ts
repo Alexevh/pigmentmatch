@@ -146,6 +146,17 @@ export async function deleteImage(slot: string): Promise<void> {
   emitChange(slot);
 }
 
+// Wipe every active image from the local store. Emits a change per slot so the
+// on-screen samplers / sync know.
+export async function clearImages(): Promise<void> {
+  const slots = (await listImages()).map((i) => i.slot);
+  const d = await db();
+  const tx = d.transaction(STORE, "readwrite");
+  tx.objectStore(STORE).clear();
+  await txDone(tx);
+  slots.forEach((s) => emitChange(s));
+}
+
 // ---------- cloud (de)serialization helpers ----------
 
 // A slot's image as a base64 data URL (for upload), or null if empty.

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { RecipeControls } from "./RecipeView";
+import { ActiveImagesCard } from "./ActiveImagesCard";
 import { CloudSyncView } from "./CloudSyncView";
 
 export function SettingsView({
@@ -121,6 +122,9 @@ export function SettingsView({
           </p>
         </CardContent>
       </Card>
+
+      {/* Active images: stored count + clear (local + cloud) */}
+      <ActiveImagesCard />
 
       {/* Cloud sync (optional, BYO Firebase) */}
       <CloudSyncView />

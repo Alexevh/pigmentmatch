@@ -263,6 +263,16 @@ export async function cloudPullImage(
   await putImageFromDataURL(slot, data.data, data.updatedAt ?? Date.now());
 }
 
+// Delete ALL of this user's image docs in the cloud.
+export async function cloudClearImages(
+  config: FirebaseConfig,
+  uid: string
+): Promise<void> {
+  const f = await fb(config);
+  const snap = await f.getDocs(f.collection(f.db, "users", uid, "images"));
+  for (const d of snap.docs) await f.deleteDoc(d.ref);
+}
+
 // Reconcile local ⇄ cloud images by timestamp (newer wins). `markApplying`
 // brackets the local writes so the orchestrator can suppress re-uploading them.
 export async function syncImages(

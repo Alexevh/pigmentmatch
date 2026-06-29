@@ -9,10 +9,12 @@ import {
   cloudInfo,
   syncImages,
   cloudPushImage,
+  cloudClearImages,
   LS_PREFIXES,
   LS_EXCLUDE,
   type CloudUser,
 } from "@/lib/cloudSync";
+import { clearImages } from "@/lib/imageStore";
 
 // Orchestrates OPTIONAL active cloud sync. It is a module singleton (one set of
 // auth/listeners for the whole app) exposed to React via useSyncExternalStore.
@@ -350,6 +352,28 @@ export async function cloudBackupNow(): Promise<number> {
   } catch (e) {
     onError(e);
     throw e;
+  }
+}
+
+// Empty all active images — from the local store AND (if signed in) the cloud.
+export async function clearActiveImages(): Promise<void> {
+  applyingImages = true; // don't let the local clears trigger per-slot pushes
+  try {
+    await clearImages();
+  } finally {
+    applyingImages = false;
+  }
+  dirtySlots.clear();
+  if (config && live.user) {
+    live.status = "syncing";
+    emit();
+    try {
+      await cloudClearImages(config, live.user.uid);
+      live.status = "ready";
+      emit();
+    } catch (e) {
+      onError(e);
+    }
   }
 }
 

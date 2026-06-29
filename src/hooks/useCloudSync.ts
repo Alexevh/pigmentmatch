@@ -131,6 +131,17 @@ function installDetectors() {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden" && pushTimer) flushPush();
   });
+  // Reflect connectivity in the status (drives the header badge's red state).
+  window.addEventListener("offline", () => {
+    if (!live.enabled || !live.user) return;
+    live.status = "error";
+    live.error = "offline";
+    emit();
+  });
+  window.addEventListener("online", () => {
+    if (!live.enabled || !config || !live.user) return;
+    flushPush(); // re-upload and clear the error → back to ready
+  });
 }
 
 function schedulePush() {
@@ -278,11 +289,19 @@ export async function cloudSignOutAction() {
 // Force an immediate upload. Returns the KB stored.
 export async function cloudBackupNow(): Promise<number> {
   if (!config || !live.user) throw new Error("not signed in");
-  const { bytes, updatedAt } = await cloudBackup(config, live.user.uid);
-  setLastApplied(updatedAt);
-  live.status = "ready";
+  live.status = "syncing";
+  live.error = null;
   emit();
-  return Math.max(1, Math.round(bytes / 1024));
+  try {
+    const { bytes, updatedAt } = await cloudBackup(config, live.user.uid);
+    setLastApplied(updatedAt);
+    live.status = "ready";
+    emit();
+    return Math.max(1, Math.round(bytes / 1024));
+  } catch (e) {
+    onError(e);
+    throw e;
+  }
 }
 
 // Force a pull from the cloud (replaces local + reloads). Returns false if the

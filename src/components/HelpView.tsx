@@ -32,6 +32,14 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.0.3",
+        date: "2026",
+        changes: [
+          "Settings and Help are now icon buttons in the header (next to the language switch), freeing up room in the tab bar.",
+          "Cloud sync status icon in the header: it only appears when sync is active, and its color shows the state — green in sync, blue syncing, red connection lost. Click it to force a sync now.",
+        ],
+      },
+      {
         version: "1.0.2",
         date: "2026",
         changes: [
@@ -114,6 +122,14 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.0.3",
+        date: "2026",
+        changes: [
+          "Config y Ayuda ahora son botones de ícono en el encabezado (al lado del cambio de idioma), liberando espacio en la barra de pestañas.",
+          "Ícono de estado del sync en el encabezado: aparece solo cuando el sync está activo, y su color muestra el estado — verde al día, azul sincronizando, rojo sin conexión. Hacé click para forzar la sincronización.",
+        ],
+      },
       {
         version: "1.0.2",
         date: "2026",

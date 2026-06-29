@@ -153,7 +153,14 @@ src/
       state, restore replaces it and reloads. Photos are NOT synced. Off until
       the user pastes a config; uses cloudSync.ts/useFirebaseConfig)
   version.ts        APP_VERSION, shown next to the header title + release notes
-  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette · Settings · Help
+    CloudStatusButton (header badge for active cloud sync: shows only when sync
+      is enabled + signed in; color = state via useCloudSync.status (green ready
+      / blue syncing+connecting / red error|offline); click forces cloudBackupNow)
+  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette
+                    (Settings + Help are header icon buttons next to the language
+                    toggle, not tabs — they set `tab` to render their TabsContent,
+                    which shows by value even without a TabsList trigger; the
+                    CloudStatusButton sits in that same header icon group)
 ```
 
 ## How the recipe engine works (`mixer.ts`)

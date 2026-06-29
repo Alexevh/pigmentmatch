@@ -41,6 +41,7 @@ import { ImgLabView } from "@/components/ImgLabView";
 import { PwaUpdater } from "@/components/PwaUpdater";
 import { HelpView } from "@/components/HelpView";
 import { SettingsView } from "@/components/SettingsView";
+import { CloudStatusButton } from "@/components/CloudStatusButton";
 import { APP_VERSION } from "@/version";
 
 export default function App() {
@@ -126,6 +127,35 @@ export default function App() {
                 </button>
               ))}
             </div>
+            <div className="flex items-center gap-0.5">
+              <CloudStatusButton />
+              <button
+                onClick={() => setTab("settings")}
+                title={t("tabs.settings")}
+                aria-label={t("tabs.settings")}
+                className={
+                  "rounded-md p-1.5 transition-colors " +
+                  (tab === "settings"
+                    ? "bg-accent/15 text-accent"
+                    : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground")
+                }
+              >
+                <Cog className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setTab("help")}
+                title={t("tabs.help")}
+                aria-label={t("tabs.help")}
+                className={
+                  "rounded-md p-1.5 transition-colors " +
+                  (tab === "help"
+                    ? "bg-accent/15 text-accent"
+                    : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground")
+                }
+              >
+                <HelpCircle className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -162,12 +192,6 @@ export default function App() {
             </TabsTrigger>
             <TabsTrigger value="palette">
               <Palette className="h-4 w-4" /> {t("tabs.palette")}
-            </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Cog className="h-4 w-4" /> {t("tabs.settings")}
-            </TabsTrigger>
-            <TabsTrigger value="help">
-              <HelpCircle className="h-4 w-4" /> {t("tabs.help")}
             </TabsTrigger>
           </TabsList>
 

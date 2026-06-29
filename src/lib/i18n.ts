@@ -494,6 +494,7 @@ const en: Dict = {
     masstoneNote:
       "Recipes are built from each pigment's base color (its masstone), so accuracy starts here. The bundled values are informed estimates — for the best results set each tube's true color: paint a pure swatch, photograph it in good light, sample it in the Image tab and copy that HEX onto the pigment (or click its color square). Do the same whenever you add or create a paint. Calibration only fits tinting strength, not color — the masstone lives here.",
     label: "Palette",
+    nameLabel: "Name",
     addPreset: "Add preset…",
     new: "New",
     reset: "Reset",
@@ -1088,6 +1089,7 @@ const es: Dict = {
     masstoneNote:
       "Las recetas se construyen a partir del color base (el masstone) de cada pigmento, así que la precisión empieza acá. Los valores que vienen cargados son estimaciones informadas — para el mejor resultado, fijá el color real de cada tubo: pintá un swatch puro, fotografialo con buena luz, muestrealo en la pestaña Imagen y copiá ese HEX en el pigmento (o hacé clic en su cuadrado de color). Hacé lo mismo cada vez que agregues o crees una pintura. La calibración solo ajusta la fuerza tintórea, no el color — el masstone se define acá.",
     label: "Paleta",
+    nameLabel: "Nombre",
     addPreset: "Agregar preset…",
     new: "Nueva",
     reset: "Reset",

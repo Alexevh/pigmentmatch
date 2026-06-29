@@ -281,11 +281,16 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
             ))}
           </select>
         </label>
-        <Input
-          value={active.name}
-          onChange={(e) => renameActive(e.target.value)}
-          className="h-10 max-w-[220px] flex-1"
-        />
+        <label className="flex flex-col gap-1">
+          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            {t("palette.nameLabel")}
+          </span>
+          <Input
+            value={active.name}
+            onChange={(e) => renameActive(e.target.value)}
+            className="h-10 max-w-[220px]"
+          />
+        </label>
         <div className="ml-auto flex flex-wrap gap-2">
           <select
             value=""

@@ -188,7 +188,7 @@ export function CalibrateView({
                 </Button>
               </div>
               {sampling ? (
-                <ImageSampler onSample={setObserved} />
+                <ImageSampler onSample={setObserved} slot="calibrate.sample" />
               ) : (
                 <ColorInput rgb={observed} onChange={setObserved} />
               )}

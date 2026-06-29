@@ -19,7 +19,9 @@ export type ImageSlot =
   | "compare.wip"
   | "mix.target"
   | "mix.paint"
-  | "extract.source";
+  | "extract.source"
+  | "coach.sample"
+  | "calibrate.sample";
 
 interface ImageRecord {
   slot: string;

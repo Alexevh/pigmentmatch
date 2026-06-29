@@ -79,7 +79,7 @@ export function CoachView({
               style={{ backgroundColor: rgbToHex(current) }}
             />
             {sampling ? (
-              <ImageSampler onSample={setCurrent} />
+              <ImageSampler onSample={setCurrent} slot="coach.sample" />
             ) : (
               <ColorInput rgb={current} onChange={setCurrent} />
             )}

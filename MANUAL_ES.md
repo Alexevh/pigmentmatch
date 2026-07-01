@@ -87,6 +87,24 @@ Tu elección se recuerda y aplica en todos lados (incluida la pestaña Extract).
 > *debería* caer muy cerca". Es un excelente punto de partida, no una garantía
 > sobre la pintura real — siempre confiá en tu ojo en el caballete.
 
+### 4. Más herramientas de receta
+
+- **Cantidades reales** — activá el control **Preparar [cantidad]** para repartir
+  la receta en ml, g o gotas. La nota ⓘ explica cómo medir cada una (partes =
+  gusanos de igual grosor / cargas de espátula, lo mejor para óleo; g = balanza;
+  ml/gotas = medios fluidos).
+- **Guardar en Bitácora** — un clic guarda la mezcla (color, receta, match) como
+  entrada de un proyecto que elegís o creás.
+- **Armonías de color** — complementario, análogos y tríadas de tu color, cada
+  uno con su "Cómo mezclarlo".
+- **Aviso "no llega"** — cuando el match es pobre, una nota sugiere el pigmento
+  que podrías agregar para acercarte más.
+- **Motores de mezcla** — además de **Classic** (por defecto) y **Spectral**, hay
+  un motor opcional **2-const** que usa la opacidad de cada pigmento (los tubos
+  opacos dominan la mezcla más que los transparentes). Y un toggle
+  **proporción áurea (φ)** que reajusta las proporciones a Fibonacci — un stretch
+  puramente artístico (avisa primero; el color se aleja a propósito).
+
 ---
 
 ## Pestaña Image — sacar colores de una foto
@@ -194,6 +212,12 @@ El **selector de paleta** y los **controles de receta** (Classic/Spectral,
 Simple/Preciso, Partes/%, Máx colores, Prioriza valor) también están acá, así
 podés cambiar la paleta activa y cómo se arman las recetas sin salir de Extraer —
 la receta de cada color se actualiza al instante.
+
+**¿Qué tubos necesito?** — este botón encuentra el **conjunto mínimo de
+pigmentos** que puede mezclar toda la paleta extraída (dentro de una tolerancia)
+y muestra el match que alcanza para cada color. **Usar estos tubos** crea una
+paleta nueva con ellos y la activa, así todas las recetas se recalculan con ese
+set limitado.
 
 ---
 
@@ -391,6 +415,9 @@ mantené esto en sintonía con tus pinturas reales.
 - **Export** — descargar la paleta activa como archivo JSON (respaldo o para
   compartir).
 - **Import** — cargar una paleta desde un JSON; se agrega como paleta nueva.
+- **Compartir** — obtené un **link (y QR)** que lleva la paleta entera dentro
+  (sin cuenta, no se sube nada). Abrí el link en otro dispositivo y te ofrece
+  importarla. Las paletas muy grandes son solo-link (demasiado densas para un QR).
 
 ### Editar un pigmento
 
@@ -399,14 +426,20 @@ eliminar.
 
 Clic en **Edit** para mostrar:
 
-- **Opacity** — de transparente (para veladuras) a totalmente opaco.
+- **Subtono (undertone)** *(opcional)* — el color que muestra el pigmento en capa
+  fina y transparente sobre blanco (una raspada): ultramar → violeta, ftalo →
+  cian. Agregalo (elegilo o tomalo de una foto) y la mezcla se corre hacia él a
+  medida que el pigmento es una parte más chica — tintes y veladuras más precisos.
+  Sin subtono, la mezcla no cambia.
+- **Opacity** — de transparente (para veladuras) a totalmente opaco. El motor
+  opcional **2-const** la usa (los tubos opacos dominan más la mezcla).
 - **Tinting strength** (fuerza tintórea) — cuán fuerte tira el pigmento la
   mezcla hacia su color. Los pigmentos fuertes (ej. los azules) "rinden más" con
   menos cantidad.
 - **Temperature** — cálido / neutro / frío.
 
-Clic en el cuadrado de color para cambiar el color del pigmento. **Add pigment**
-agrega uno nuevo.
+Clic en el cuadrado de color para cambiar el color del pigmento (o tomalo de una
+foto de swatch). **Add pigment** agrega uno nuevo.
 
 > **Fijá el masstone real.** Las recetas se construyen a partir del color base de
 > cada pigmento, así que la precisión empieza acá — y la calibración solo ajusta

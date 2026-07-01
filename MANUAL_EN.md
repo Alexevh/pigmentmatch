@@ -85,6 +85,24 @@ Your choice is remembered and applies everywhere (including the Extract tab).
 > land very close." It is a strong starting point, not a guarantee about real
 > paint — always trust your eye on the easel.
 
+### 4. More recipe tools
+
+- **Make real amounts** — turn on the **Make [amount]** control to split the
+  recipe into ml, g or drops. The ⓘ note explains how to measure each (parts =
+  equal-width beads / knife scoops, best for oil; g = a small scale; ml/drops =
+  fluid media).
+- **Save to Logbook** — one click stores the mix (color, recipe text, match) as
+  a Logbook entry, into a project you pick or create.
+- **Color harmonies** — complement, analogous and triadic colors for your
+  target, each with its own "How to mix it".
+- **"Can't reach it" hint** — when the match is poor, a note suggests the single
+  pigment you could add to get closest.
+- **Mixing engines** — besides **Classic** (default) and **Spectral**, there's
+  an optional **2-const** engine that uses each pigment's opacity (opaque tubes
+  dominate a mix more than transparent ones). And a **golden-ratio (φ)** toggle
+  reshapes the proportions to the Fibonacci sequence — a purely artistic stretch
+  (it warns you first; the color drifts on purpose).
+
 ---
 
 ## The Image tab — sample colors from a photo
@@ -188,6 +206,11 @@ The **palette switcher** and the **recipe controls** (Classic/Spectral,
 Simple/Precise, Parts/%, Max colors, Value-first) are available here too, so you
 can change the active palette and how the recipes are built without leaving the
 Extract tab — every color's recipe updates live.
+
+**What tubes do I need?** — this button finds the **smallest set of pigments**
+that can mix the whole extracted palette (within a tolerance), and shows the
+match it reaches for each color. **Use these tubes** then creates a new palette
+from them and makes it active, so every recipe recomputes with that limited set.
 
 ---
 
@@ -376,6 +399,9 @@ this in sync with your real paints.
 - **Delete** — remove the active palette (you always keep at least one).
 - **Export** — download the active palette as a JSON file (backup or share).
 - **Import** — load a palette from a JSON file; it's added as a new palette.
+- **Share** — get a **link (and QR)** that carries the whole palette inside it
+  (no account, nothing uploaded). Open the link on another device and it offers
+  to import the palette. Very large palettes are link-only (too dense for a QR).
 
 ### Editing a pigment
 
@@ -383,13 +409,19 @@ Each row has a color square, a name, an **Edit** button and a delete icon.
 
 Click **Edit** to reveal:
 
-- **Opacity** — transparent (for glazes) to fully opaque.
+- **Undertone** *(optional)* — the color the pigment shows in a thin, transparent
+  film over white (a drawdown): ultramarine → violet, phthalo → cyan. Add it
+  (pick it or sample it from a photo) and the mix drifts toward it as the pigment
+  becomes a smaller part of a mix — more accurate tints and glazes. Leave it off
+  and mixing is unchanged.
+- **Opacity** — transparent (for glazes) to fully opaque. The optional **2-const**
+  mixing engine uses it (opaque tubes dominate a mix more).
 - **Tinting strength** — how strongly the pigment pulls a mix toward its color.
   Strong pigments (e.g. blues) "go further" with less.
 - **Temperature** — warm / neutral / cool.
 
-Click the color square to change the pigment's color. **Add pigment** appends a
-new one.
+Click the color square to change the pigment's color (or sample it from a swatch
+photo). **Add pigment** appends a new one.
 
 > **Set the real masstone.** Recipes are built from each pigment's base color, so
 > accuracy starts here — and calibration only fits tinting strength, not color.

@@ -106,15 +106,37 @@ type MixFn = (weights: number[]) => RGB;
 const EMPTY: RGB = { r: 255, g: 255, b: 255 };
 
 function buildSpectralMix(pigments: Pigment[]): MixFn {
-  const colors = pigments.map((p) => {
-    const c = new spectral.Color([p.rgb.r, p.rgb.g, p.rgb.b]);
-    c.tintingStrength = p.strength;
-    return c;
+  const items = pigments.map((p) => {
+    const mass = new spectral.Color([p.rgb.r, p.rgb.g, p.rgb.b]);
+    mass.tintingStrength = p.strength;
+    let under: spectral.Color | null = null;
+    if (p.undertone) {
+      under = new spectral.Color([p.undertone.r, p.undertone.g, p.undertone.b]);
+      under.tintingStrength = p.strength;
+    }
+    return { mass, under, strength: p.strength };
   });
   return (weights) => {
+    // Undertone: split a pigment's weight between its masstone and undertone
+    // faces by its own fraction f of the mix (f→1 masstone, f→0 undertone).
+    // With no undertone this pushes exactly one [mass, weight] pair as before.
+    let total = 0;
+    const eff = weights.map((w, i) => {
+      const e = Math.max(0, w) * items[i].strength;
+      total += e;
+      return e;
+    });
     const pairs: Array<[spectral.Color, number]> = [];
-    for (let i = 0; i < colors.length; i++) {
-      if (weights[i] > 0) pairs.push([colors[i], weights[i]]);
+    for (let i = 0; i < items.length; i++) {
+      if (weights[i] <= 0) continue;
+      const it = items[i];
+      if (it.under && total > 0) {
+        const f = eff[i] / total;
+        if (f > 0) pairs.push([it.mass, weights[i] * f]);
+        if (f < 1) pairs.push([it.under, weights[i] * (1 - f)]);
+      } else {
+        pairs.push([it.mass, weights[i]]);
+      }
     }
     if (pairs.length === 0) return EMPTY;
     const [r, g, b] = spectral.mix(...pairs).sRGB;

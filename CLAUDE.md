@@ -409,7 +409,9 @@ full list.
   pigment's K/S between undertone and masstone by its own fraction f in the mix
   (f=1 → masstone, f→0 → undertone). With no undertone (under===ks) the math is
   byte-identical to before, so presets/defaults are unchanged. Set per-tube in
-  the Palette editor (opt-in). The **spectral** engine still ignores undertone.
+  the Palette editor (opt-in). The **spectral** engine also honors it: it splits
+  each pigment's weight between its masstone and undertone spectral colors by the
+  same fraction f (no undertone → one [mass, weight] pair, byte-identical).
 - Opacity is metadata for the classic/spectral engines, but the optional
   **`km2` engine** (opt-in, experimental) now uses it: two-constant K-M where
   the K/S RATIO comes from the masstone (as in classic) and **scattering S is

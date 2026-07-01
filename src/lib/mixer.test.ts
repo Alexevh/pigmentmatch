@@ -95,6 +95,13 @@ describe("mixer", () => {
     expect(r.match).toBe(matchScore(r.deltaE));
   });
 
+  it("spectral engine runs, incl. a pigment with an undertone", () => {
+    const u = P("U", { r: 40, g: 40, b: 160 }, { undertone: { r: 150, g: 30, b: 200 } });
+    const r = generateRecipe(target, [white, red, u], "simple", "spectral");
+    expect(Number.isFinite(r.deltaE)).toBe(true);
+    expect(r.match).toBe(matchScore(r.deltaE));
+  });
+
   it("reachEstimate returns a finite non-negative ΔE", () => {
     const d = reachEstimate(target, pigs);
     expect(d).toBeGreaterThanOrEqual(0);

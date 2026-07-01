@@ -33,6 +33,16 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.1.1",
+        date: "2026",
+        changes: [
+          "Undertone now also works with the Spectral mixing engine (not just Classic / 2-const).",
+          "Calibrate can optionally fit each pigment's color (masstone / undertone) from your real mixes, not just its tinting strength.",
+          "Share a photo straight into the app from your phone's share sheet — it opens in the Image tab (installed PWA).",
+          "Under the hood: tests now run automatically before every deploy.",
+        ],
+      },
+      {
         version: "1.1.0",
         date: "2026",
         changes: [
@@ -148,6 +158,16 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.1.1",
+        date: "2026",
+        changes: [
+          "El subtono ahora también funciona con el motor Spectral (no solo Classic / 2-const).",
+          "Calibrar puede ajustar opcionalmente el color de cada pigmento (masstone / subtono) desde tus mezclas reales, no solo su fuerza tintórea.",
+          "Compartí una foto directo al app desde el menú de compartir del teléfono — se abre en la pestaña Imagen (PWA instalada).",
+          "Por dentro: los tests ahora corren automáticamente antes de cada deploy.",
+        ],
+      },
       {
         version: "1.1.0",
         date: "2026",

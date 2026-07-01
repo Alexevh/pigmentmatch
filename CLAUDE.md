@@ -378,10 +378,15 @@ full list.
   (f=1 → masstone, f→0 → undertone). With no undertone (under===ks) the math is
   byte-identical to before, so presets/defaults are unchanged. Set per-tube in
   the Palette editor (opt-in). The **spectral** engine still ignores undertone.
-- Opacity is stored but **not used by the mixing math** — it's metadata only.
-  Using it properly means two-constant K-M (opacity → scattering coefficient
-  S); a naive "weight × opacity" would be wrong (transparent pigments like
-  phthalo are very strong tinters).
+- Opacity is metadata for the classic/spectral engines, but the optional
+  **`km2` engine** (opt-in, experimental) now uses it: two-constant K-M where
+  the K/S RATIO comes from the masstone (as in classic) and **scattering S is
+  driven by opacity** (`opacityToS`: transparent≈0.15 → opaque 1.0), K=ratio·S.
+  The mix is `Σc·K / Σc·S` (S-weighted), so opaque tubes dominate a mixture more
+  than transparent ones of equal tinting strength. It honors undertone on the
+  ratio. Approximate (opacity is estimated, not measured K/S), so it's opt-in
+  alongside classic/spectral, not the default. Engine picker in `RecipeView`
+  (Classic · Spectral · 2-const); `useMixEngine` persists it.
 - Roadmap, possible improvements:
   - **Undertone**: add a second per-pigment color (the tint/undertone), or use
     a measured spectral curve, so thinned/glazed/tinted behavior is correct.

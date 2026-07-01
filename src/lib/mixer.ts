@@ -98,7 +98,7 @@ export function mixColor(pigments: Pigment[], weights: number[]): RGB {
 // "classic": our single-constant Kubelka-Munk per sRGB channel.
 // "spectral": spectral.js — reconstructs a full reflectance curve from each
 // pigment's sRGB (LHTSS) and mixes with Kubelka-Munk across the spectrum.
-export type MixEngine = "classic" | "spectral";
+export type MixEngine = "classic" | "spectral" | "km2";
 
 // A backend that turns a weight vector into the mixed color.
 type MixFn = (weights: number[]) => RGB;
@@ -122,8 +122,58 @@ function buildSpectralMix(pigments: Pigment[]): MixFn {
   };
 }
 
+// Two-constant Kubelka-Munk (experimental): split absorption K and scattering S
+// per pigment. We can't measure them, so we approximate: the K/S RATIO comes
+// from the masstone (as in classic), and S is driven by OPACITY (opaque →
+// scatters a lot → dominates the mix; transparent → scatters little → glazes).
+// K = ratio·S. The mix is K_mix/S_mix = Σc·K / Σc·S — an S-weighted blend, so
+// opaque tubes take over a mixture more than transparent ones of equal tinting
+// strength. Undertone is honored on the ratio, exactly like classic.
+function opacityToS(opacity: number): number {
+  const o = Math.min(1, Math.max(0, opacity));
+  return 0.15 + 0.85 * o; // never 0 (avoid division blowups); transparent≈0.15
+}
+
+function buildKm2Mix(pigments: Pigment[]): MixFn {
+  const items = pigments.map((p) => {
+    const ratio = rgbToKS3(p.rgb);
+    return {
+      ratio,
+      under: p.undertone ? rgbToKS3(p.undertone) : ratio,
+      S: opacityToS(p.opacity),
+      strength: p.strength,
+    };
+  });
+  return (weights) => {
+    let total = 0;
+    const eff = weights.map((w, i) => {
+      const e = Math.max(0, w) * items[i].strength;
+      total += e;
+      return e;
+    });
+    if (total <= 0) return EMPTY;
+    const K: [number, number, number] = [0, 0, 0];
+    const S: [number, number, number] = [0, 0, 0];
+    for (let i = 0; i < items.length; i++) {
+      const f = eff[i] / total;
+      const it = items[i];
+      for (let c = 0; c < 3; c++) {
+        const r = it.under[c] + f * (it.ratio[c] - it.under[c]);
+        K[c] += f * (r * it.S);
+        S[c] += f * it.S;
+      }
+    }
+    return {
+      r: Math.round(ksToReflectance(K[0] / S[0]) * 255),
+      g: Math.round(ksToReflectance(K[1] / S[1]) * 255),
+      b: Math.round(ksToReflectance(K[2] / S[2]) * 255),
+    };
+  };
+}
+
 function buildMix(engine: MixEngine, pigments: Pigment[]): MixFn {
   if (engine === "spectral") return buildSpectralMix(pigments);
+  if (engine === "km2") return buildKm2Mix(pigments);
   const ks = pigments.map(pigmentToKS);
   return (weights) => mixKS(ks, weights);
 }

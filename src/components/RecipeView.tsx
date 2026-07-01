@@ -80,6 +80,7 @@ function EngineToggle() {
     <div className="flex items-center gap-0.5 rounded-md bg-secondary/60 p-0.5">
       {opt("classic", "Classic")}
       {opt("spectral", "Spectral")}
+      {opt("km2", "2-const")}
     </div>
   );
 }
@@ -282,11 +283,13 @@ function OptionsHelpModal({ onClose }: { onClose: () => void }) {
     intro,
     a,
     b,
+    c,
   }: {
     title: string;
     intro: string;
     a: string;
     b: string;
+    c?: string;
   }) => (
     <div>
       <p className="font-medium">{title}</p>
@@ -294,6 +297,7 @@ function OptionsHelpModal({ onClose }: { onClose: () => void }) {
       <ul className="mt-1.5 list-disc space-y-1 pl-5 text-muted-foreground">
         <li>{a}</li>
         <li>{b}</li>
+        {c && <li>{c}</li>}
       </ul>
     </div>
   );
@@ -323,6 +327,7 @@ function OptionsHelpModal({ onClose }: { onClose: () => void }) {
             intro={t("recipeHelp.modelIntro")}
             a={t("recipeHelp.classic")}
             b={t("recipeHelp.spectral")}
+            c={t("recipeHelp.km2")}
           />
           <Section
             title={t("recipeHelp.modeTitle")}

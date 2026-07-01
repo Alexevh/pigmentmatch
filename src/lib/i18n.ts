@@ -375,6 +375,8 @@ const en: Dict = {
       "Classic (default): fast and reliable — a single-constant Kubelka-Munk approximation per color channel. This is the recommended starting point.",
     spectral:
       "Spectral (experimental): rebuilds a full reflectance curve for each pigment and mixes it across the light spectrum, so it's more physically detailed. It can match some mixes better, but on tricky colors in a limited palette it's sometimes slightly worse, and it's a bit slower. Switch to it to compare.",
+    km2:
+      "2-const (experimental): a two-constant Kubelka-Munk that uses each pigment's opacity as its scattering — so opaque tubes take over a mixture more than transparent ones of equal tinting strength. Approximate (opacity is an estimate, not measured); try it to compare.",
     modeTitle: "Detail — Simple / Precise",
     modeIntro: "How many pigments the recipe is allowed to use.",
     simple:
@@ -1048,6 +1050,8 @@ const es: Dict = {
       "Classic (por defecto): rápido y confiable — una aproximación de Kubelka-Munk de una sola constante por canal de color. Es el punto de partida recomendado.",
     spectral:
       "Spectral (experimental): reconstruye una curva de reflectancia completa para cada pigmento y la mezcla a lo largo del espectro de luz, así que es más detallado físicamente. Puede igualar mejor algunas mezclas, pero en colores difíciles con paleta limitada a veces da un poco peor, y es algo más lento. Cambiá a él para comparar.",
+    km2:
+      "2-const (experimental): un Kubelka-Munk de dos constantes que usa la opacidad de cada pigmento como su dispersión — así los tubos opacos dominan una mezcla más que los transparentes de igual fuerza tintórea. Aproximado (la opacidad es estimada, no medida); probalo para comparar.",
     modeTitle: "Detalle — Simple / Preciso",
     modeIntro: "Cuántos pigmentos puede usar la receta.",
     simple:

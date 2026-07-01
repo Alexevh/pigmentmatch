@@ -9,7 +9,8 @@ const KEY = "pigment-match.mixEngine.v1";
 
 function read(): MixEngine {
   try {
-    return localStorage.getItem(KEY) === "spectral" ? "spectral" : "classic";
+    const v = localStorage.getItem(KEY);
+    return v === "spectral" || v === "km2" ? v : "classic";
   } catch {
     return "classic";
   }

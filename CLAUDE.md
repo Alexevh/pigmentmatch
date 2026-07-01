@@ -63,12 +63,19 @@ on every push to `main`. It uses `npm install` (NOT `npm ci`) on Node 22 —
 `npm ci` failed over cross-platform optional-dep drift (`@emnapi`) in the
 lockfile. Pages source must be set to "GitHub Actions" in repo settings (done).
 
-**Testing lib logic without the UI:** Node can't run the `.ts` files directly
-(extensionless relative imports). Write a temp `*.mts`, then:
-```bash
-npx esbuild test.mts --bundle --format=esm --platform=node --outfile=.t.mjs && node .t.mjs
-```
-Clean up the temp files afterward.
+**Automated tests (Vitest):** `npm test` (run once) / `npm run test:watch`.
+Config in `vitest.config.ts` (node env, `@`→`src` alias, matches
+`src/**/*.test.ts`). Suites cover the pure library heart:
+`color.test.ts` (hex/Lab/ΔE2000 Sharma ref/HSL/harmonies),
+`mixer.test.ts` (determinism, the "score reflects the displayed recipe"
+invariant, undertone, golden ratio, km2, reachEstimate, empty palette),
+`compare.test.ts` (homography maps corners, value histogram normalized).
+Add a `*.test.ts` next to any lib you touch — these guard the invariants
+(e.g. the "100% white at 99%" score bug must never come back).
+
+One-off ad-hoc check without the harness: write a temp `*.mts` and
+`npx esbuild test.mts --bundle --format=esm --platform=node --outfile=.t.mjs && node .t.mjs`
+(clean up after). Prefer a real Vitest test.
 
 ## Architecture
 

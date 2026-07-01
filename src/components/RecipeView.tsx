@@ -7,6 +7,14 @@ import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { setRecipeUnit, useRecipeUnit } from "@/hooks/useRecipeUnit";
 import {
+  useBatchAmount,
+  useBatchUnit,
+  setBatchAmount,
+  setBatchUnit,
+  formatBatchQty,
+  type BatchUnit,
+} from "@/hooks/useRecipeAmount";
+import {
   setRecipeMode,
   useRecipeMode,
   type RecipeMode,
@@ -194,6 +202,47 @@ function GoldenRatioToggle() {
   );
 }
 
+// Optional batch size: split the recipe into real amounts (ml / g / drops).
+function BatchControl() {
+  const { t } = useT();
+  const amount = useBatchAmount();
+  const unit = useBatchUnit();
+  return (
+    <div className="flex items-center gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+      <span className="font-medium">{t("recipe.batch")}</span>
+      <input
+        type="number"
+        min={0}
+        step="any"
+        value={amount || ""}
+        onChange={(e) => setBatchAmount(parseFloat(e.target.value))}
+        placeholder="0"
+        title={t("recipe.batchHint")}
+        className="h-7 w-16 rounded-md border border-input bg-background px-2 text-xs tabular-nums"
+      />
+      <select
+        value={unit}
+        onChange={(e) => setBatchUnit(e.target.value as BatchUnit)}
+        className="h-7 rounded-md bg-secondary/60 px-1.5 text-xs"
+      >
+        <option value="ml">{t("recipe.unitMl")}</option>
+        <option value="g">{t("recipe.unitG")}</option>
+        <option value="drops">{t("recipe.unitDrops")}</option>
+      </select>
+      {amount > 0 && (
+        <span className="text-[11px] text-muted-foreground/80">
+          {t("recipe.batchNote")}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// Localized unit label for a batch amount.
+function unitLabel(t: (k: string) => string, u: BatchUnit): string {
+  return t(u === "ml" ? "recipe.unitMl" : u === "g" ? "recipe.unitG" : "recipe.unitDrops");
+}
+
 // Explains the three recipe toggles (mixing model, detail, units) in plain
 // language so the user knows what each one changes.
 function OptionsHelpModal({ onClose }: { onClose: () => void }) {
@@ -333,6 +382,12 @@ export function RecipeView({
 }) {
   const { t } = useT();
   const unit = useRecipeUnit();
+  const batchAmount = useBatchAmount();
+  const batchUnit = useBatchUnit();
+  // Quantities only show in the full recipe view (not tiny compact cards).
+  const batch = !compact && batchAmount > 0
+    ? { amount: batchAmount, unit: batchUnit }
+    : null;
 
   if (recipe.items.length === 0) {
     return <p className="text-sm text-muted-foreground">{t("recipe.none")}</p>;
@@ -343,10 +398,12 @@ export function RecipeView({
       {!compact && <RecipeControls />}
 
       {unit === "percent" ? (
-        <PercentList recipe={recipe} />
+        <PercentList recipe={recipe} batch={batch} />
       ) : (
-        <PartsList recipe={recipe} />
+        <PartsList recipe={recipe} batch={batch} />
       )}
+
+      {!compact && <BatchControl />}
 
       {!compact ? (
         <div className="flex items-center gap-4 border-t border-border/60 pt-3">
@@ -402,7 +459,21 @@ function partsText(item: RecipeItem, t: (k: string) => string): string {
   return `${item.parts} ${t(item.parts === 1 ? "recipe.part" : "recipe.parts")}`;
 }
 
-function PercentList({ recipe }: { recipe: Recipe }) {
+type Batch = { amount: number; unit: BatchUnit } | null;
+
+function QtyLabel({ weight, batch }: { weight: number; batch: Batch }) {
+  const { t } = useT();
+  if (!batch) return null;
+  const q = formatBatchQty(weight, batch.amount, batch.unit);
+  if (!q) return null;
+  return (
+    <span className="ml-auto shrink-0 tabular-nums text-xs text-muted-foreground">
+      {q} {unitLabel(t, batch.unit)}
+    </span>
+  );
+}
+
+function PercentList({ recipe, batch }: { recipe: Recipe; batch: Batch }) {
   const pcts = recipePercentages(recipe.items);
   return (
     <div className="space-y-2">
@@ -413,13 +484,14 @@ function PercentList({ recipe }: { recipe: Recipe }) {
             {percentLabel(pcts[i])}
           </span>
           <span className="text-foreground/90">{item.pigment.name}</span>
+          <QtyLabel weight={item.weight} batch={batch} />
         </div>
       ))}
     </div>
   );
 }
 
-function PartsList({ recipe }: { recipe: Recipe }) {
+function PartsList({ recipe, batch }: { recipe: Recipe; batch: Batch }) {
   const { t } = useT();
   const base = recipe.items.filter((i) => i.parts != null);
   const touches = recipe.items.filter((i) => i.parts == null);
@@ -433,6 +505,7 @@ function PartsList({ recipe }: { recipe: Recipe }) {
               {partsText(item, t)}
             </span>
             <span className="text-foreground/90">{item.pigment.name}</span>
+            <QtyLabel weight={item.weight} batch={batch} />
           </div>
         ))}
       </div>
@@ -452,6 +525,7 @@ function PartsList({ recipe }: { recipe: Recipe }) {
                 {t(`recipe.${item.amount}`)} {t("recipe.of")}
               </span>
               <span className="text-foreground/90">{item.pigment.name}</span>
+              <QtyLabel weight={item.weight} batch={batch} />
             </div>
           ))}
         </div>

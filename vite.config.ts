@@ -14,6 +14,11 @@ export default defineConfig({
       // "prompt": when a new build is deployed, the app shows an "update"
       // toast instead of silently serving a stale cache (PwaUpdater handles it).
       registerType: "prompt",
+      // Custom service worker (src/sw.ts) so we can add a Web Share Target
+      // handler. It still precaches everything via precacheAndRoute.
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       includeAssets: ["palette.svg", "favicon.svg"],
       manifest: {
         name: "Pigment Match",
@@ -35,12 +40,20 @@ export default defineConfig({
             purpose: "any maskable",
           },
         ],
+        // Share a photo from the OS share sheet straight into the app (handled
+        // by the service worker, which stashes the file and opens the Image tab).
+        share_target: {
+          action: "./share-target",
+          method: "POST",
+          enctype: "multipart/form-data",
+          params: {
+            files: [{ name: "image", accept: ["image/*"] }],
+          },
+        },
       },
-      workbox: {
+      injectManifest: {
         // The optional spectral/AI chunk (TF.js) is ~1.1MB — allow precaching it.
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-        // No navigateFallback: the app has no client-side routes, and a fallback
-        // path is awkward under the GitHub Pages subpath.
         globIgnores: ["**/*.map"],
       },
     }),

@@ -19,6 +19,8 @@ import { useCalibration } from "@/hooks/useCalibration";
 import { useCalibratedEngine } from "@/hooks/useCalibratedEngine";
 import { useFirebaseConfig } from "@/hooks/useFirebaseConfig";
 import { configureCloud } from "@/hooks/useCloudSync";
+import { consumeSharedImage, clearSharedFlag } from "@/lib/sharedImage";
+import { putImage } from "@/lib/imageStore";
 import { applyCalibration } from "@/lib/calibration";
 import { isEnabled } from "@/lib/pigments";
 import { useT, setLang, type Lang } from "@/lib/i18n";
@@ -67,6 +69,18 @@ export default function App() {
   useEffect(() => {
     configureCloud(firebaseConfig);
   }, [firebaseConfig]);
+
+  // A photo shared into the app (Web Share Target) → drop it into the Image tab.
+  useEffect(() => {
+    if (!/[?&]shared=1/.test(location.search)) return;
+    consumeSharedImage().then((blob) => {
+      if (blob) {
+        void putImage("image.reference", blob);
+        setTab("image");
+      }
+      clearSharedFlag();
+    });
+  }, []);
 
   // Only available pigments feed the recipe/coach/extract suggestions; the
   // Palette and Calibrate tabs still see the full list.

@@ -32,24 +32,38 @@ function ksToReflectance(ks: number): number {
 }
 
 // Precompute per-pigment per-channel K/S so the inner mixing loop is cheap.
+// `under` is the undertone K/S (equals `ks` when the pigment has no undertone).
 interface PigmentKS {
   ks: [number, number, number];
+  under: [number, number, number];
   strength: number;
 }
 
+function rgbToKS3(rgb: RGB): [number, number, number] {
+  return [
+    reflectanceToKS(rgb.r / 255),
+    reflectanceToKS(rgb.g / 255),
+    reflectanceToKS(rgb.b / 255),
+  ];
+}
+
 function pigmentToKS(p: Pigment): PigmentKS {
+  const ks = rgbToKS3(p.rgb);
   return {
-    ks: [
-      reflectanceToKS(p.rgb.r / 255),
-      reflectanceToKS(p.rgb.g / 255),
-      reflectanceToKS(p.rgb.b / 255),
-    ],
+    ks,
+    under: p.undertone ? rgbToKS3(p.undertone) : ks,
     strength: p.strength,
   };
 }
 
 // Mix a set of pigments given non-negative weights (parts). Weights are scaled
 // by each pigment's tinting strength so a strong pigment "goes further".
+//
+// Undertone: a pigment reads as its masstone when it dominates the mix and
+// drifts toward its undertone as it becomes a smaller fraction (thinned/tinted).
+// We blend each pigment's K/S between undertone and masstone by its own fraction
+// f (f=1 → masstone, f→0 → undertone). With no undertone (under===ks) this is
+// exactly the previous math.
 function mixKS(items: PigmentKS[], weights: number[]): RGB {
   let total = 0;
   const eff = weights.map((w, i) => {
@@ -61,9 +75,11 @@ function mixKS(items: PigmentKS[], weights: number[]): RGB {
   const ks: [number, number, number] = [0, 0, 0];
   for (let i = 0; i < items.length; i++) {
     const f = eff[i] / total;
-    ks[0] += f * items[i].ks[0];
-    ks[1] += f * items[i].ks[1];
-    ks[2] += f * items[i].ks[2];
+    const it = items[i];
+    for (let c = 0; c < 3; c++) {
+      const eff_ks = it.under[c] + f * (it.ks[c] - it.under[c]);
+      ks[c] += f * eff_ks;
+    }
   }
   return {
     r: Math.round(ksToReflectance(ks[0]) * 255),

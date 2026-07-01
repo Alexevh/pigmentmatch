@@ -7,7 +7,12 @@ export type Temperature = "warm" | "cool" | "neutral";
 export interface Pigment {
   id: string;
   name: string;
-  rgb: RGB; // masstone RGB approximation
+  rgb: RGB; // masstone RGB approximation (full-strength color)
+  // Optional undertone: the color the pigment shows thinned / tinted / glazed
+  // (e.g. ultramarine → violet, phthalo → cyan). When set, the mixing model
+  // blends toward it as the pigment becomes a smaller fraction of the mix.
+  // Undefined means "same as masstone" — byte-identical to the old behavior.
+  undertone?: RGB;
   opacity: number; // 0 (transparent) .. 1 (opaque)
   temperature: Temperature;
   strength: number; // tinting strength 0..1 (how strongly it influences a mix)

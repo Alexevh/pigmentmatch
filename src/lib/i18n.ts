@@ -578,6 +578,11 @@ const en: Dict = {
     newPigment: "New Pigment",
     opacity: "Opacity",
     strength: "Tinting strength",
+    undertone: "Undertone",
+    undertoneAdd: "＋ Add undertone",
+    undertoneClear: "Remove",
+    undertoneNote:
+      "Optional: the color this pigment shows thinned / tinted / glazed (e.g. ultramarine → violet, phthalo → cyan). The mix drifts toward it as the pigment becomes a smaller part.",
     temperature: "Temperature",
     warm: "warm",
     cool: "cool",
@@ -1244,6 +1249,11 @@ const es: Dict = {
     newPigment: "Pigmento nuevo",
     opacity: "Opacidad",
     strength: "Fuerza tintórea",
+    undertone: "Subtono (undertone)",
+    undertoneAdd: "＋ Agregar subtono",
+    undertoneClear: "Quitar",
+    undertoneNote:
+      "Opcional: el color que muestra este pigmento diluido / en tinte / glaseado (p. ej. ultramar → violeta, ftalo → cian). La mezcla se corre hacia él a medida que el pigmento es una parte más chica.",
     temperature: "Temperatura",
     warm: "cálido",
     cool: "frío",

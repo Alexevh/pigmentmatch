@@ -46,6 +46,15 @@ function normalizePalette(obj: unknown): Palette | null {
     const rgb = p.rgb as Record<string, unknown> | undefined;
     if (!rgb || typeof rgb !== "object") return;
     const temp = p.temperature;
+    const u = p.undertone as Record<string, unknown> | undefined;
+    const undertone =
+      u && typeof u === "object"
+        ? {
+            r: clamp255(num(u.r, 128)),
+            g: clamp255(num(u.g, 128)),
+            b: clamp255(num(u.b, 128)),
+          }
+        : undefined;
     pigments.push({
       id: typeof p.id === "string" ? p.id : `imp-${i}`,
       name: typeof p.name === "string" ? p.name : `Pigment ${i + 1}`,
@@ -54,6 +63,7 @@ function normalizePalette(obj: unknown): Palette | null {
         g: clamp255(num(rgb.g, 128)),
         b: clamp255(num(rgb.b, 128)),
       },
+      undertone,
       opacity: clamp01(num(p.opacity, 0.8)),
       temperature:
         temp === "warm" || temp === "cool" || temp === "neutral"
@@ -155,6 +165,48 @@ function PigmentRow({
             {sampling && (
               <ImageSampler onSample={(rgb) => onUpdate({ rgb })} />
             )}
+          </div>
+          <div>
+            <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
+              <span>{t("palette.undertone")}</span>
+              {pigment.undertone && (
+                <button
+                  onClick={() => onUpdate({ undertone: undefined })}
+                  className="text-muted-foreground hover:text-rose-400 hover:underline"
+                >
+                  {t("palette.undertoneClear")}
+                </button>
+              )}
+            </div>
+            {pigment.undertone ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={rgbToHex(pigment.undertone)}
+                  onChange={(e) =>
+                    onUpdate({
+                      undertone: hexToRgb(e.target.value) ?? pigment.undertone,
+                    })
+                  }
+                  className="h-9 w-9 shrink-0 cursor-pointer rounded-md border border-input bg-background p-0.5"
+                  aria-label={`${pigment.name} undertone`}
+                />
+                <span className="font-mono text-xs text-muted-foreground">
+                  {rgbToHex(pigment.undertone)}
+                </span>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onUpdate({ undertone: { ...pigment.rgb } })}
+              >
+                {t("palette.undertoneAdd")}
+              </Button>
+            )}
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              {t("palette.undertoneNote")}
+            </p>
           </div>
           <div>
             <div className="mb-1 flex justify-between text-xs text-muted-foreground">

@@ -371,10 +371,13 @@ full list.
 - The **spectral** engine (spectral.js, opt-in) is single-constant K-M
   (scattering assumed constant), not full two-constant. Its search is tuned
   separately from classic but still weaker on some hard colors.
-- We store only a single masstone RGB per pigment, so **undertone** (the
-  color a pigment shows thinned / glazed / tinted — e.g. ultramarine goes
-  violet, phthalo goes cyan) is NOT modeled. Two pigments with similar masstone
-  but different undertone look identical to us.
+- **Undertone** (the color a pigment shows thinned / glazed / tinted — e.g.
+  ultramarine → violet, phthalo → cyan) IS now modeled (classic engine only):
+  `Pigment.undertone?` (optional; undefined = masstone). `mixKS` blends each
+  pigment's K/S between undertone and masstone by its own fraction f in the mix
+  (f=1 → masstone, f→0 → undertone). With no undertone (under===ks) the math is
+  byte-identical to before, so presets/defaults are unchanged. Set per-tube in
+  the Palette editor (opt-in). The **spectral** engine still ignores undertone.
 - Opacity is stored but **not used by the mixing math** — it's metadata only.
   Using it properly means two-constant K-M (opacity → scattering coefficient
   S); a naive "weight × opacity" would be wrong (transparent pigments like

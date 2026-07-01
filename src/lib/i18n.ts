@@ -385,6 +385,20 @@ const en: Dict = {
     start: "Get started",
     replay: "Replay the intro",
   },
+  share: {
+    title: "Share this palette",
+    intro:
+      "This link carries the whole palette (its pigments) — no account or upload needed. Open it on another device to import it.",
+    copy: "Copy",
+    copied: "Copied",
+    qrHint: "Scan to open on your phone",
+    tooBig: "This palette is too big for a scannable QR — use the link instead.",
+    note: "The palette travels inside the link itself; nothing is uploaded anywhere.",
+    importTitle: "Import shared palette?",
+    importBody: 'Add "{name}" ({n} pigments) to your palettes?',
+    importAdd: "Import",
+    importDismiss: "Not now",
+  },
   recipeHelp: {
     button: "What do these options do?",
     title: "Recipe options",
@@ -600,6 +614,7 @@ const en: Dict = {
     newPigment: "New Pigment",
     opacity: "Opacity",
     strength: "Tinting strength",
+    share: "Share",
     undertone: "Undertone",
     undertoneAdd: "＋ Add undertone",
     undertoneClear: "Remove",
@@ -1080,6 +1095,21 @@ const es: Dict = {
     start: "Empezar",
     replay: "Ver la intro de nuevo",
   },
+  share: {
+    title: "Compartir esta paleta",
+    intro:
+      "Este link lleva la paleta entera (sus pigmentos) — sin cuenta ni subida. Abrilo en otro dispositivo para importarla.",
+    copy: "Copiar",
+    copied: "Copiado",
+    qrHint: "Escaneá para abrir en el teléfono",
+    tooBig:
+      "Esta paleta es demasiado grande para un QR escaneable — usá el link.",
+    note: "La paleta viaja dentro del propio link; no se sube nada a ningún lado.",
+    importTitle: "¿Importar paleta compartida?",
+    importBody: '¿Agregar "{name}" ({n} pigmentos) a tus paletas?',
+    importAdd: "Importar",
+    importDismiss: "Ahora no",
+  },
   recipeHelp: {
     button: "¿Qué hacen estas opciones?",
     title: "Opciones de receta",
@@ -1293,6 +1323,7 @@ const es: Dict = {
     newPigment: "Pigmento nuevo",
     opacity: "Opacidad",
     strength: "Fuerza tintórea",
+    share: "Compartir",
     undertone: "Subtono (undertone)",
     undertoneAdd: "＋ Agregar subtono",
     undertoneClear: "Quitar",

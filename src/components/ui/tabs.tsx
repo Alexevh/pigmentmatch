@@ -35,7 +35,10 @@ export function TabsList({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-1 rounded-lg bg-secondary/60 p-1",
+        // Single row that scrolls horizontally on narrow screens (many tabs),
+        // instead of wrapping into several rows. Scrollbar hidden.
+        "flex items-center gap-1 overflow-x-auto rounded-lg bg-secondary/60 p-1",
+        "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className
       )}
     >
@@ -59,7 +62,7 @@ export function TabsTrigger({
     <button
       onClick={() => ctx.setValue(value)}
       className={cn(
-        "inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+        "inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
         active
           ? "bg-background text-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground",

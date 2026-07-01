@@ -9,6 +9,7 @@ import {
   Upload,
   Info,
   Pipette,
+  Share2,
 } from "lucide-react";
 import { hexToRgb, rgbToHex, clamp255 } from "@/lib/color";
 import {
@@ -26,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { ImageSampler } from "./ImageSampler";
+import { SharePaletteModal } from "./SharePaletteModal";
 import { cn } from "@/lib/utils";
 
 type PaletteApi = ReturnType<typeof usePalettes>;
@@ -292,6 +294,7 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
   } = api;
   const { t } = useT();
   const [showLibrary, setShowLibrary] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
   if (!active) return null;
@@ -328,6 +331,9 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
 
   return (
     <div className="space-y-5">
+      {showShare && (
+        <SharePaletteModal palette={active} onClose={() => setShowShare(false)} />
+      )}
       <div className="rounded-md border border-accent/30 bg-accent/5 p-3 text-xs text-muted-foreground">
         <p className="flex items-center gap-2 font-medium text-accent">
           <Info className="h-4 w-4 shrink-0" /> {t("palette.masstoneTitle")}
@@ -409,6 +415,9 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
             onClick={() => importRef.current?.click()}
           >
             <Upload className="h-4 w-4" /> {t("palette.import")}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowShare(true)}>
+            <Share2 className="h-4 w-4" /> {t("palette.share")}
           </Button>
           <input
             ref={importRef}

@@ -502,3 +502,90 @@ export function recipePercentages(items: RecipeItem[]): number[] {
 export function percentLabel(pct: number): string {
   return pct < 0 ? "<1%" : `${pct}%`;
 }
+
+// --- Gamut reachability / "add this pigment" suggestion ---
+
+// A quick, lower-budget estimate of the best ΔE2000 a palette can reach for a
+// target. Cheaper than generateRecipe (we only need the score, not a tidy
+// recipe), so it can be run across many candidate palettes. Always classic
+// (fast) — it's a heuristic for reachability, not the displayed recipe.
+export function reachEstimate(target: RGB, pigments: Pigment[]): number {
+  if (!pigments.length) return 100;
+  const mix = buildMix("classic", pigments);
+  const targetLab = rgbToLab(target);
+  const n = pigments.length;
+  const rng = makeRng(target.r * 65536 + target.g * 256 + target.b + n * 7919);
+  const evalW = (w: number[]) => deltaE2000(rgbToLab(mix(w)), targetLab);
+
+  let best = Infinity;
+  let bestW: number[] = new Array(n).fill(0);
+  for (let i = 0; i < n; i++) {
+    const w = new Array(n).fill(0);
+    w[i] = 1;
+    const d = evalW(w);
+    if (d < best) {
+      best = d;
+      bestW = w;
+    }
+  }
+  const R = Math.min(400, 120 * n);
+  const kCap = Math.min(4, n);
+  for (let t = 0; t < R; t++) {
+    const k = 1 + Math.floor(rng() * kCap);
+    const w = new Array(n).fill(0);
+    for (let j = 0; j < k; j++) w[Math.floor(rng() * n)] += rng();
+    const s = w.reduce((a, b) => a + b, 0);
+    if (s <= 0) continue;
+    const d = evalW(w.map((x) => x / s));
+    if (d < best) {
+      best = d;
+      bestW = w.map((x) => x / s);
+    }
+  }
+  let cur = bestW.slice();
+  let curD = best;
+  let step = 0.25;
+  for (let it = 0; it < 200; it++) {
+    const w = cur.slice();
+    const idx = Math.floor(rng() * n);
+    w[idx] = Math.max(0, w[idx] + (rng() - 0.5) * step);
+    const s = w.reduce((a, b) => a + b, 0);
+    if (s <= 0) continue;
+    const d = evalW(w.map((x) => x / s));
+    if (d < curD) {
+      curD = d;
+      cur = w.map((x) => x / s);
+      if (d < best) best = d;
+    }
+    if (it % 40 === 39) step *= 0.6;
+  }
+  return best;
+}
+
+export interface PigmentSuggestion {
+  pigment: Pigment;
+  deltaE: number;
+  match: number;
+}
+
+// Find the single library pigment that, added to the palette, most improves the
+// reachable ΔE for a target. Returns null unless it helps by a real margin.
+export function suggestPigment(
+  target: RGB,
+  palette: Pigment[],
+  candidates: Pigment[],
+  baseDeltaE: number,
+  minImprovement = 2
+): PigmentSuggestion | null {
+  const have = new Set(palette.map((p) => p.name.toLowerCase()));
+  let best: PigmentSuggestion | null = null;
+  for (const c of candidates) {
+    if (have.has(c.name.toLowerCase())) continue;
+    const dE = reachEstimate(target, [...palette, c]);
+    if (dE < (best?.deltaE ?? Infinity)) {
+      best = { pigment: c, deltaE: dE, match: matchScore(dE) };
+    }
+  }
+  if (best && best.deltaE <= baseDeltaE - minImprovement) return best;
+  return null;
+}

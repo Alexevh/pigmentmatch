@@ -1,6 +1,8 @@
 import { useMemo } from "react";
+import { AlertTriangle } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
-import { generateRecipe } from "@/lib/mixer";
+import { generateRecipe, suggestPigment } from "@/lib/mixer";
+import { libraryPigments } from "@/lib/pigments";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
 import {
@@ -64,6 +66,28 @@ export function ResultPanel({
     [rgb, pigments, mode, engine, maxColors, valuePriority, goldenRatio]
   );
 
+  // When the match is poor, the palette probably can't reach this color. Offer
+  // the single library pigment that would close the gap most. Deduped by name.
+  const REACH_THRESHOLD = 90;
+  const candidates = useMemo(() => {
+    const seen = new Set<string>();
+    const out: Pigment[] = [];
+    for (const { pigment } of libraryPigments()) {
+      const key = pigment.name.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(pigment);
+    }
+    return out;
+  }, []);
+  const suggestion = useMemo(
+    () =>
+      recipe.match >= REACH_THRESHOLD
+        ? null
+        : suggestPigment(rgb, pigments, candidates, recipe.deltaE),
+    [rgb, pigments, candidates, recipe.match, recipe.deltaE]
+  );
+
   const swatch = (
     <Swatch
       rgb={rgb}
@@ -97,8 +121,26 @@ export function ResultPanel({
           )}
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-3">
         <RecipeView recipe={recipe} target={rgb} paletteName={activeName} />
+        {recipe.match < REACH_THRESHOLD && (
+          <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-muted-foreground">
+            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+            <div>
+              <p>{t("reach.warn")}</p>
+              {suggestion ? (
+                <p className="mt-0.5">
+                  {t("reach.suggest", {
+                    name: suggestion.pigment.name,
+                    match: suggestion.match,
+                  })}
+                </p>
+              ) : (
+                <p className="mt-0.5">{t("reach.noSuggest")}</p>
+              )}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

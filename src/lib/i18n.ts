@@ -341,6 +341,11 @@ const en: Dict = {
     cancel: "Cancel",
     saved: "Saved to the Logbook",
   },
+  reach: {
+    warn: "Your palette can't fully reach this color.",
+    suggest: "Adding {name} could get closer (→ {match}%).",
+    noSuggest: "Try adding or editing pigments, or switch palettes.",
+  },
   recipeHelp: {
     button: "What do these options do?",
     title: "Recipe options",
@@ -984,6 +989,11 @@ const es: Dict = {
     save: "Guardar",
     cancel: "Cancelar",
     saved: "Guardado en la Bitácora",
+  },
+  reach: {
+    warn: "Tu paleta no llega del todo a este color.",
+    suggest: "Agregar {name} podría acercarte (→ {match}%).",
+    noSuggest: "Probá agregar o editar pigmentos, o cambiar de paleta.",
   },
   recipeHelp: {
     button: "¿Qué hacen estas opciones?",

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { HelpCircle, X, AlertTriangle, Info } from "lucide-react";
+import { HelpCircle, X, AlertTriangle, Info, NotebookPen } from "lucide-react";
 import { recipePercentages, percentLabel, type Recipe } from "@/lib/mixer";
-import { rgbToHex, valueScore } from "@/lib/color";
+import { rgbToHex, valueScore, type RGB } from "@/lib/color";
+import { SaveRecipeModal } from "./SaveRecipeModal";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -399,14 +400,20 @@ export function RecipeControls() {
 export function RecipeView({
   recipe,
   compact = false,
+  target,
+  paletteName,
 }: {
   recipe: Recipe;
   compact?: boolean;
+  // When a target color is provided (full view), show a "Save to Logbook" button.
+  target?: RGB;
+  paletteName?: string;
 }) {
   const { t } = useT();
   const unit = useRecipeUnit();
   const batchAmount = useBatchAmount();
   const batchUnit = useBatchUnit();
+  const [saveOpen, setSaveOpen] = useState(false);
   // Quantities only show in the full recipe view (not tiny compact cards).
   const batch = !compact && batchAmount > 0
     ? { amount: batchAmount, unit: batchUnit }
@@ -473,6 +480,23 @@ export function RecipeView({
             {t("recipe.match")} {recipe.match}%
           </span>
         </div>
+      )}
+
+      {!compact && target && (
+        <button
+          onClick={() => setSaveOpen(true)}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-accent hover:underline"
+        >
+          <NotebookPen className="h-3.5 w-3.5" /> {t("saveRecipe.button")}
+        </button>
+      )}
+      {saveOpen && target && (
+        <SaveRecipeModal
+          target={target}
+          recipe={recipe}
+          paletteName={paletteName}
+          onClose={() => setSaveOpen(false)}
+        />
       )}
     </div>
   );

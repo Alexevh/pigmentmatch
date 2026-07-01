@@ -98,7 +98,7 @@ export function ResultPanel({
         </div>
       </CardHeader>
       <CardContent>
-        <RecipeView recipe={recipe} />
+        <RecipeView recipe={recipe} target={rgb} paletteName={activeName} />
       </CardContent>
     </Card>
   );

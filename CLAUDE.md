@@ -199,9 +199,15 @@ src/
   count (search restarts cap `k`, and `reduceWeights` force-drops past the ΔE
   tolerance until ≤N); `valuePriority` makes `reduceWeights` use a value-weighted
   metric (`valueError`: heavy L*, light a*/b*) so forced drops keep the value and
-  let hue/chroma drift. `buildRecipe` also returns `deltaL` (|ΔL*|) shown in the
-  UI. Controls live in `RecipeView` (`MaxColorsSelect`, `ValuePriorityToggle`,
-  persisted via `useRecipeLimits`); read in `ResultPanel`/variation modal.
+  let hue/chroma drift. `goldenRatio` reshapes the final proportions to the
+  Fibonacci sequence (`applyGoldenRatio`: largest pigment → largest Fibonacci
+  number; consecutive ratios approach φ) as an artistic constraint — the mix
+  usually drifts, and since `buildRecipe` recomputes the color/ΔE/ΔL from the
+  reshaped weights, the shown match/value honestly reflect it. `buildRecipe` also
+  returns `deltaL` (|ΔL*|) shown in the UI. Controls live in `RecipeView`
+  (`MaxColorsSelect`, `ValuePriorityToggle`, `GoldenRatioToggle`, persisted via
+  `useRecipeLimits`); read in `ResultPanel`/variation modal/Extract. All opt-in,
+  off by default.
 - Recipe matching, scoring, the Coach and calibration all use **ΔE2000**
   (`deltaE2000` in color.ts, validated against the Sharma reference 2.0425).
   Method adopted from the Mohammadi/Berns RIT 2004 report (same single-constant

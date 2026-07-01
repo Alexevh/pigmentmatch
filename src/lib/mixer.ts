@@ -155,6 +155,42 @@ const PRECISE_TOLERANCE = 0.5;
 export interface RecipeOptions {
   maxColors?: number | null; // cap the pigment count (null = no cap, default)
   valuePriority?: boolean; // when simplifying, protect value (L*) over hue/chroma
+  goldenRatio?: boolean; // reshape the proportions to Fibonacci / golden ratio
+}
+
+// The first n distinct Fibonacci numbers [1,2,3,5,8,13,...]. Consecutive ratios
+// approach the golden ratio φ (~1.618).
+function fibSequence(n: number): number[] {
+  const out: number[] = [];
+  let a = 1;
+  let b = 2;
+  for (let i = 0; i < n; i++) {
+    out.push(a);
+    const c = a + b;
+    a = b;
+    b = c;
+  }
+  return out;
+}
+
+// Reshape a weight vector so the pigment proportions follow the Fibonacci
+// sequence (the largest pigment gets the largest Fibonacci number, etc.). This
+// is an artistic constraint: the mix usually drifts from the target — that's
+// expected, and the recomputed ΔE / ΔL reflect it. Untouched for 0–1 pigments.
+function applyGoldenRatio(weights: number[]): number[] {
+  const active = weights
+    .map((w, i) => ({ w, i }))
+    .filter((x) => x.w > 0)
+    .sort((a, b) => b.w - a.w);
+  if (active.length <= 1) return weights;
+  const fib = fibSequence(active.length);
+  const sum = fib.reduce((a, b) => a + b, 0);
+  const out = new Array(weights.length).fill(0);
+  active.forEach((x, k) => {
+    // active is largest→smallest; give it the largest→smallest Fibonacci value
+    out[x.i] = fib[active.length - 1 - k] / sum;
+  });
+  return out;
 }
 
 // Value-weighted error: heavily weights lightness (L*) and downweights the
@@ -288,7 +324,7 @@ export function generateRecipe(
   // load-bearing touches (e.g. the warm tint in a near-white) are never lost.
   const tolerance =
     mode === "simple" ? SIMPLIFY_TOLERANCE : PRECISE_TOLERANCE;
-  const weights = reduceWeights(
+  let weights = reduceWeights(
     final,
     mix,
     targetLab,
@@ -296,6 +332,10 @@ export function generateRecipe(
     maxColors,
     valuePriority
   );
+  // Optional artistic pass: snap the proportions to Fibonacci / golden ratio.
+  // buildRecipe then recomputes the mix + ΔE/ΔL from these weights, so the shown
+  // score honestly reflects the (usually looser) golden-ratio mix.
+  if (options.goldenRatio) weights = applyGoldenRatio(weights);
   return buildRecipe(pigments, mix, weights, targetLab);
 }
 

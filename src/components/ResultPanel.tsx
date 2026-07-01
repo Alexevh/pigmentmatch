@@ -3,7 +3,11 @@ import { rgbToHex, type RGB } from "@/lib/color";
 import { generateRecipe } from "@/lib/mixer";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
-import { useMaxColors, useValuePriority } from "@/hooks/useRecipeLimits";
+import {
+  useMaxColors,
+  useValuePriority,
+  useGoldenRatio,
+} from "@/hooks/useRecipeLimits";
 import { useT } from "@/lib/i18n";
 import type { Pigment } from "@/lib/pigments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,9 +53,15 @@ export function ResultPanel({
   const engine = useMixEngine();
   const maxColors = useMaxColors();
   const valuePriority = useValuePriority();
+  const goldenRatio = useGoldenRatio();
   const recipe = useMemo(
-    () => generateRecipe(rgb, pigments, mode, engine, { maxColors, valuePriority }),
-    [rgb, pigments, mode, engine, maxColors, valuePriority]
+    () =>
+      generateRecipe(rgb, pigments, mode, engine, {
+        maxColors,
+        valuePriority,
+        goldenRatio,
+      }),
+    [rgb, pigments, mode, engine, maxColors, valuePriority, goldenRatio]
   );
 
   const swatch = (

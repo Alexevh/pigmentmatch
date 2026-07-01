@@ -292,6 +292,16 @@ const en: Dict = {
     valuePriority: "Value-first",
     valuePriorityTitle:
       "When using fewer colors, keep the value (lightness) close and let hue/chroma drift",
+    golden: "Golden ratio",
+    goldenTitle:
+      "Reshape the proportions to the Fibonacci sequence (golden ratio) — an artistic constraint. The mix usually drifts from the target; the match/value % reflect it.",
+    goldenModalTitle: "Golden ratio — experimental",
+    goldenModalBody:
+      "This reshapes the mix into Fibonacci proportions. The resulting color and its value will be noticeably FAR from the target, so the match and value percentages will drop. It's a purely artistic stretch — it does NOT improve the accuracy of the mix in any way.",
+    goldenModalNerd:
+      "It's just a nerdy little extra I wanted to include. Enable it anyway?",
+    goldenModalEnable: "Enable anyway",
+    goldenModalCancel: "Cancel",
     part: "part",
     parts: "parts",
     partsLabel: "Parts",
@@ -898,6 +908,16 @@ const es: Dict = {
     valuePriority: "Prioriza valor",
     valuePriorityTitle:
       "Al usar menos colores, mantiene el valor (luminosidad) cerca y deja correr matiz/saturación",
+    golden: "Proporción áurea",
+    goldenTitle:
+      "Reajusta las proporciones a la secuencia de Fibonacci (proporción áurea) — una restricción artística. La mezcla suele alejarse del objetivo; los % de match/valor lo reflejan.",
+    goldenModalTitle: "Proporción áurea — experimental",
+    goldenModalBody:
+      "Esto reajusta la mezcla a proporciones de Fibonacci. El color resultante y su valor van a quedar notablemente LEJOS del objetivo, así que los porcentajes de match y valor van a bajar. Es un stretch puramente artístico — NO mejora en nada la exactitud de la mezcla.",
+    goldenModalNerd:
+      "Es solo un detalle nerd que quise incluir. ¿La activás igual?",
+    goldenModalEnable: "Activar igual",
+    goldenModalCancel: "Cancelar",
     part: "parte",
     parts: "partes",
     partsLabel: "Partes",

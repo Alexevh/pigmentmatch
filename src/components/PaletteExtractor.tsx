@@ -5,7 +5,11 @@ import { extractPalette, relationshipHint } from "@/lib/extract";
 import { generateRecipe, type Recipe } from "@/lib/mixer";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
-import { useMaxColors, useValuePriority } from "@/hooks/useRecipeLimits";
+import {
+  useMaxColors,
+  useValuePriority,
+  useGoldenRatio,
+} from "@/hooks/useRecipeLimits";
 import { useActiveImage } from "@/hooks/useActiveImage";
 import { useT } from "@/lib/i18n";
 import { analysisSentence } from "@/lib/describe";
@@ -59,6 +63,7 @@ export function PaletteExtractor({
   const engine = useMixEngine();
   const maxColors = useMaxColors();
   const valuePriority = useValuePriority();
+  const goldenRatio = useGoldenRatio();
   const { lang, t } = useT();
   const { blob: storedBlob, save: saveSlot } = useActiveImage("extract.source");
 
@@ -105,11 +110,12 @@ export function PaletteExtractor({
         recipe: generateRecipe(rgb, pigments, mode, engine, {
           maxColors,
           valuePriority,
+          goldenRatio,
         }),
         description: analysisSentence(rgb, lang),
         hint: relationshipHint(rgb, palette, pigments, lang),
       })),
-    [palette, pigments, mode, engine, maxColors, valuePriority, lang]
+    [palette, pigments, mode, engine, maxColors, valuePriority, goldenRatio, lang]
   );
 
   const loadFile = useCallback(

@@ -76,3 +76,38 @@ export function useValuePriority(): boolean {
     () => vpValue
   );
 }
+
+// --- golden ratio (Fibonacci proportions) ---
+const GR_KEY = "pigment-match.goldenRatio.v1";
+
+function readGr(): boolean {
+  try {
+    return localStorage.getItem(GR_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+let grValue: boolean = readGr();
+const grListeners = new Set<() => void>();
+
+export function setGoldenRatio(next: boolean) {
+  grValue = next;
+  try {
+    localStorage.setItem(GR_KEY, next ? "1" : "0");
+  } catch {
+    // ignore
+  }
+  grListeners.forEach((l) => l());
+}
+
+export function useGoldenRatio(): boolean {
+  return useSyncExternalStore(
+    (cb) => {
+      grListeners.add(cb);
+      return () => grListeners.delete(cb);
+    },
+    () => grValue,
+    () => grValue
+  );
+}

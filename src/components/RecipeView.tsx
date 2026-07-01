@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { HelpCircle, X } from "lucide-react";
+import { HelpCircle, X, AlertTriangle } from "lucide-react";
 import { recipePercentages, percentLabel, type Recipe } from "@/lib/mixer";
 import { rgbToHex, valueScore } from "@/lib/color";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,8 @@ import {
   useMaxColors,
   setValuePriority,
   useValuePriority,
+  setGoldenRatio,
+  useGoldenRatio,
 } from "@/hooks/useRecipeLimits";
 import type { MixEngine } from "@/lib/mixer";
 import type { RecipeItem } from "@/lib/mixer";
@@ -111,6 +113,84 @@ function ValuePriorityToggle() {
     >
       {t("recipe.valuePriority")}
     </button>
+  );
+}
+
+// Experimental warning shown before turning the golden-ratio pass ON.
+function GoldenWarnModal({
+  onConfirm,
+  onClose,
+}: {
+  onConfirm: () => void;
+  onClose: () => void;
+}) {
+  const { t } = useT();
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-lg border border-border bg-background shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-2 border-b border-border/60 px-5 py-3.5">
+          <AlertTriangle className="h-4 w-4 text-amber-400" />
+          <h3 className="font-semibold">{t("recipe.goldenModalTitle")}</h3>
+        </div>
+        <div className="space-y-2.5 px-5 py-4 text-sm text-muted-foreground">
+          <p>{t("recipe.goldenModalBody")}</p>
+          <p className="italic">{t("recipe.goldenModalNerd")}</p>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-border/60 px-5 py-3">
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            {t("recipe.goldenModalCancel")}
+          </Button>
+          <Button variant="accent" size="sm" onClick={onConfirm}>
+            {t("recipe.goldenModalEnable")}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Optional artistic pass: snap proportions to Fibonacci / golden ratio (off by
+// default). Turning it ON first shows an experimental warning; OFF is immediate.
+function GoldenRatioToggle() {
+  const { t } = useT();
+  const on = useGoldenRatio();
+  const [warn, setWarn] = useState(false);
+  return (
+    <>
+      {warn && (
+        <GoldenWarnModal
+          onConfirm={() => {
+            setGoldenRatio(true);
+            setWarn(false);
+          }}
+          onClose={() => setWarn(false)}
+        />
+      )}
+      <button
+        onClick={() => (on ? setGoldenRatio(false) : setWarn(true))}
+        title={t("recipe.goldenTitle")}
+        className={cn(
+          "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors",
+          on
+            ? "bg-accent/15 text-accent"
+            : "bg-secondary/60 text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <span className="font-serif text-sm italic leading-none">φ</span>
+        {t("recipe.golden")}
+      </button>
+    </>
   );
 }
 
@@ -238,6 +318,7 @@ export function RecipeControls() {
       <div className="flex flex-wrap items-center justify-end gap-2">
         <MaxColorsSelect />
         <ValuePriorityToggle />
+        <GoldenRatioToggle />
       </div>
     </div>
   );

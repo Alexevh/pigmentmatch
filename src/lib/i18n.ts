@@ -365,6 +365,26 @@ const en: Dict = {
     triadB: "Triad −",
     howToMix: "How to mix it",
   },
+  onboarding: {
+    title: "Welcome to Pigment Match",
+    s1Title: "Match any color",
+    s1Body:
+      "Type, pick or sample a color and get a paint-mixing recipe from real pigments — described in painter's terms (value, temperature, saturation), not just numbers.",
+    s2Title: "From a color, a photo, or a painting",
+    s2Body:
+      "Match a color directly, sample it from a photo in the Image tab, or pull a whole palette from a painting in Extract (and see what tubes you'd need).",
+    s3Title: "Make it yours",
+    s3Body:
+      "In Palette, set your real tubes — color, undertone and tinting strength. Calibrate fine-tunes the model to mixes you've actually made. Accuracy starts here.",
+    s4Title: "Close the gap on the easel",
+    s4Body:
+      "Coach, Compare and Mix help you nail it while painting, and the Logbook saves your mixes. Settings and Help are the icons at the top-right.",
+    skip: "Skip",
+    back: "Back",
+    next: "Next",
+    start: "Get started",
+    replay: "Replay the intro",
+  },
   recipeHelp: {
     button: "What do these options do?",
     title: "Recipe options",
@@ -1039,6 +1059,26 @@ const es: Dict = {
     triadA: "Tríada +",
     triadB: "Tríada −",
     howToMix: "Cómo mezclarlo",
+  },
+  onboarding: {
+    title: "Bienvenido a Pigment Match",
+    s1Title: "Igualá cualquier color",
+    s1Body:
+      "Tipeá, elegí o muestreá un color y obtené una receta de mezcla con pigmentos reales — descripta en términos de pintor (valor, temperatura, saturación), no solo números.",
+    s2Title: "Desde un color, una foto o un cuadro",
+    s2Body:
+      "Igualá un color directo, muestrealo de una foto en la pestaña Imagen, o sacá una paleta entera de un cuadro en Extraer (y mirá qué tubos necesitarías).",
+    s3Title: "Hacela tuya",
+    s3Body:
+      "En Paleta, definí tus tubos reales — color, subtono y fuerza tintórea. Calibrar afina el modelo con mezclas que hiciste de verdad. La precisión empieza acá.",
+    s4Title: "Cerrá la brecha en el caballete",
+    s4Body:
+      "Coach, Comparar y Mezcla te ayudan a afinar mientras pintás, y la Bitácora guarda tus mezclas. Config y Ayuda son los íconos de arriba a la derecha.",
+    skip: "Saltar",
+    back: "Atrás",
+    next: "Siguiente",
+    start: "Empezar",
+    replay: "Ver la intro de nuevo",
   },
   recipeHelp: {
     button: "¿Qué hacen estas opciones?",

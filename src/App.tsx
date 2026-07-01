@@ -39,6 +39,7 @@ import { MixCheckView } from "@/components/MixCheckView";
 import { LogbookView } from "@/components/LogbookView";
 import { ImgLabView } from "@/components/ImgLabView";
 import { PwaUpdater } from "@/components/PwaUpdater";
+import { Onboarding } from "@/components/Onboarding";
 import { HelpView } from "@/components/HelpView";
 import { SettingsView } from "@/components/SettingsView";
 import { CloudStatusButton } from "@/components/CloudStatusButton";
@@ -82,6 +83,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <PwaUpdater />
+      <Onboarding />
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-5 py-3.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-accent-foreground">

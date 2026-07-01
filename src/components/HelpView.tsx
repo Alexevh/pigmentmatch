@@ -1,5 +1,6 @@
-import { ChevronDown, Info, ListChecks, MessagesSquare } from "lucide-react";
+import { ChevronDown, Info, ListChecks, MessagesSquare, Sparkles } from "lucide-react";
 import { useT } from "@/lib/i18n";
+import { openOnboarding } from "@/hooks/useOnboarding";
 
 // Help content lives here (bilingual) rather than in i18n.ts because it's long
 // prose / structured lists. UI is plain <details> accordions — no deps.
@@ -251,7 +252,7 @@ function Accordion({
 }
 
 export function HelpView() {
-  const { lang } = useT();
+  const { lang, t } = useT();
   const c = HELP[lang];
 
   return (
@@ -266,6 +267,12 @@ export function HelpView() {
           {c.about.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
+          <button
+            onClick={openOnboarding}
+            className="inline-flex items-center gap-1.5 pt-1 text-sm font-medium text-accent hover:underline"
+          >
+            <Sparkles className="h-3.5 w-3.5" /> {t("onboarding.replay")}
+          </button>
         </div>
       </Accordion>
 

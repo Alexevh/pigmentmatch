@@ -28,6 +28,7 @@ jobs:
       # npm install (not ci) so a cross-platform optional-dependency drift in
       # the lockfile — e.g. @emnapi on the Linux runner — doesn't fail the build.
       - run: npm install --no-audit --no-fund
+      - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

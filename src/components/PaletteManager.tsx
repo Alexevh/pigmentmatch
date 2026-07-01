@@ -93,6 +93,7 @@ function PigmentRow({
   const { t } = useT();
   const [open, setOpen] = useState(false);
   const [sampling, setSampling] = useState(false);
+  const [samplingUnder, setSamplingUnder] = useState(false);
   const available = isEnabled(pigment);
   return (
     <Card className="overflow-hidden">
@@ -178,31 +179,49 @@ function PigmentRow({
                 </button>
               )}
             </div>
-            {pigment.undertone ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={rgbToHex(pigment.undertone)}
-                  onChange={(e) =>
-                    onUpdate({
-                      undertone: hexToRgb(e.target.value) ?? pigment.undertone,
-                    })
-                  }
-                  className="h-9 w-9 shrink-0 cursor-pointer rounded-md border border-input bg-background p-0.5"
-                  aria-label={`${pigment.name} undertone`}
-                />
-                <span className="font-mono text-xs text-muted-foreground">
-                  {rgbToHex(pigment.undertone)}
-                </span>
-              </div>
-            ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              {pigment.undertone && (
+                <>
+                  <input
+                    type="color"
+                    value={rgbToHex(pigment.undertone)}
+                    onChange={(e) =>
+                      onUpdate({
+                        undertone: hexToRgb(e.target.value) ?? pigment.undertone,
+                      })
+                    }
+                    className="h-9 w-9 shrink-0 cursor-pointer rounded-md border border-input bg-background p-0.5"
+                    aria-label={`${pigment.name} undertone`}
+                  />
+                  <span className="font-mono text-xs text-muted-foreground">
+                    {rgbToHex(pigment.undertone)}
+                  </span>
+                </>
+              )}
+              {!pigment.undertone && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onUpdate({ undertone: { ...pigment.rgb } })}
+                >
+                  {t("palette.undertoneAdd")}
+                </Button>
+              )}
               <Button
-                variant="outline"
+                variant={samplingUnder ? "accent" : "ghost"}
                 size="sm"
-                onClick={() => onUpdate({ undertone: { ...pigment.rgb } })}
+                onClick={() => setSamplingUnder((s) => !s)}
               >
-                {t("palette.undertoneAdd")}
+                <Pipette className="h-3.5 w-3.5" />{" "}
+                {samplingUnder ? t("palette.hide") : t("palette.sampleColor")}
               </Button>
+            </div>
+            {samplingUnder && (
+              <div className="mt-2">
+                <ImageSampler
+                  onSample={(rgb) => onUpdate({ undertone: rgb })}
+                />
+              </div>
             )}
             <p className="mt-1 text-[11px] text-muted-foreground">
               {t("palette.undertoneNote")}

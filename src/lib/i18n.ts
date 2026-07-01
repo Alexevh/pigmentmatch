@@ -582,7 +582,7 @@ const en: Dict = {
     undertoneAdd: "＋ Add undertone",
     undertoneClear: "Remove",
     undertoneNote:
-      "Optional: the color this pigment shows thinned / tinted / glazed (e.g. ultramarine → violet, phthalo → cyan). The mix drifts toward it as the pigment becomes a smaller part.",
+      "Optional. The color this pigment shows in a thin, transparent film over white (a thin scrape / drawdown) — usually a cleaner, shifted hue: ultramarine → violet, phthalo → cyan. Pick it, or sample it from a photo of that thin scrape. It's the saturated hue, not a pale tint — the model lightens it as the pigment becomes a smaller part of the mix.",
     temperature: "Temperature",
     warm: "warm",
     cool: "cool",
@@ -1253,7 +1253,7 @@ const es: Dict = {
     undertoneAdd: "＋ Agregar subtono",
     undertoneClear: "Quitar",
     undertoneNote:
-      "Opcional: el color que muestra este pigmento diluido / en tinte / glaseado (p. ej. ultramar → violeta, ftalo → cian). La mezcla se corre hacia él a medida que el pigmento es una parte más chica.",
+      "Opcional. El color que muestra este pigmento en capa fina y transparente sobre blanco (una raspada finita) — suele ser un tono más limpio y corrido: ultramar → violeta, ftalo → cian. Elegilo, o tomalo de una foto de esa raspada. Es el hue saturado, no un tinte claro — el modelo lo aclara a medida que el pigmento es una parte más chica de la mezcla.",
     temperature: "Temperatura",
     warm: "cálido",
     cool: "frío",

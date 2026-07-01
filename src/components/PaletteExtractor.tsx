@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Upload, Loader2, Grid2x2, X } from "lucide-react";
+import { Upload, Loader2, Grid2x2, X, FlaskConical } from "lucide-react";
 import { rgbToHex, rgbToLab, deltaE, type RGB } from "@/lib/color";
 import { extractPalette, relationshipHint } from "@/lib/extract";
-import { generateRecipe, type Recipe } from "@/lib/mixer";
+import {
+  generateRecipe,
+  planPalette,
+  type Recipe,
+  type PalettePlan,
+} from "@/lib/mixer";
+import { libraryPigments } from "@/lib/pigments";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
 import { useMixEngine } from "@/hooks/useMixEngine";
 import {
@@ -22,6 +28,12 @@ import { PaletteChipSelect } from "./PaletteChipSelect";
 
 const COUNTS = [4, 8, 12, 20] as const;
 const DISPLAY_MAX = 760;
+
+function planMatchClass(m: number): string {
+  if (m >= 90) return "text-emerald-400";
+  if (m >= 75) return "text-amber-400";
+  return "text-rose-400";
+}
 
 interface Extracted {
   rgb: RGB;
@@ -117,6 +129,32 @@ export function PaletteExtractor({
       })),
     [palette, pigments, mode, engine, maxColors, valuePriority, goldenRatio, lang]
   );
+
+  // Limited-palette planner: the smallest set of library tubes that can mix the
+  // whole extracted palette. Computed on demand (it's heavier than a recipe).
+  const candidates = useMemo(() => {
+    const seen = new Set<string>();
+    const out: Pigment[] = [];
+    for (const { pigment } of libraryPigments()) {
+      const k = pigment.name.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push(pigment);
+    }
+    return out;
+  }, []);
+  const [plan, setPlan] = useState<PalettePlan | null>(null);
+  const [planning, setPlanning] = useState(false);
+  useEffect(() => {
+    setPlan(null); // a new/changed palette invalidates the plan
+  }, [palette]);
+  const runPlan = () => {
+    setPlanning(true);
+    setTimeout(() => {
+      setPlan(planPalette(palette, candidates));
+      setPlanning(false);
+    }, 30);
+  };
 
   const loadFile = useCallback(
     (file: Blob, persist = false) => {
@@ -369,6 +407,70 @@ export function PaletteExtractor({
             <span />
           )}
           <RecipeControls />
+        </div>
+      )}
+
+      {/* Limited-palette planner */}
+      {palette.length > 0 && (
+        <div className="space-y-3 border-t border-border/60 pt-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={runPlan}
+              disabled={planning}
+            >
+              {planning ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <FlaskConical className="h-4 w-4" />
+              )}
+              {t("plan.button")}
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              {t("plan.hint")}
+            </span>
+          </div>
+
+          {plan && (
+            <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+              <p className="text-sm font-medium">
+                {t("plan.result", { n: plan.pigments.length })}
+              </p>
+              {!plan.covered && (
+                <p className="text-xs text-amber-400">{t("plan.partial")}</p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {plan.pigments.map((p) => (
+                  <span
+                    key={p.id}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/40 px-2.5 py-1 text-xs"
+                  >
+                    <span
+                      className="h-3 w-3 rounded-full border border-border/50"
+                      style={{ backgroundColor: rgbToHex(p.rgb) }}
+                    />
+                    {p.name}
+                  </span>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2 border-t border-border/60 pt-2">
+                {plan.perTarget.map((pt, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1.5 text-xs tabular-nums"
+                    title={rgbToHex(pt.rgb)}
+                  >
+                    <span
+                      className="h-4 w-4 rounded border border-border/50"
+                      style={{ backgroundColor: rgbToHex(pt.rgb) }}
+                    />
+                    <span className={planMatchClass(pt.match)}>{pt.match}%</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

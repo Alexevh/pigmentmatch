@@ -346,6 +346,12 @@ const en: Dict = {
     suggest: "Adding {name} could get closer (→ {match}%).",
     noSuggest: "Try adding or editing pigments, or switch palettes.",
   },
+  plan: {
+    button: "What tubes do I need?",
+    hint: "The smallest set of pigments that can mix these colors.",
+    result: "These {n} tubes can mix your palette:",
+    partial: "Best effort — some colors are still out of reach.",
+  },
   recipeHelp: {
     button: "What do these options do?",
     title: "Recipe options",
@@ -994,6 +1000,12 @@ const es: Dict = {
     warn: "Tu paleta no llega del todo a este color.",
     suggest: "Agregar {name} podría acercarte (→ {match}%).",
     noSuggest: "Probá agregar o editar pigmentos, o cambiar de paleta.",
+  },
+  plan: {
+    button: "¿Qué tubos necesito?",
+    hint: "El conjunto mínimo de pigmentos que puede mezclar estos colores.",
+    result: "Con estos {n} tubos podés mezclar tu paleta:",
+    partial: "Lo más cerca posible — algunos colores quedan fuera de alcance.",
   },
   recipeHelp: {
     button: "¿Qué hacen estas opciones?",

@@ -509,7 +509,11 @@ export function percentLabel(pct: number): string {
 // target. Cheaper than generateRecipe (we only need the score, not a tidy
 // recipe), so it can be run across many candidate palettes. Always classic
 // (fast) — it's a heuristic for reachability, not the displayed recipe.
-export function reachEstimate(target: RGB, pigments: Pigment[]): number {
+export function reachEstimate(
+  target: RGB,
+  pigments: Pigment[],
+  coarse = false
+): number {
   if (!pigments.length) return 100;
   const mix = buildMix("classic", pigments);
   const targetLab = rgbToLab(target);
@@ -528,7 +532,7 @@ export function reachEstimate(target: RGB, pigments: Pigment[]): number {
       bestW = w;
     }
   }
-  const R = Math.min(400, 120 * n);
+  const R = coarse ? Math.min(150, 40 * n) : Math.min(400, 120 * n);
   const kCap = Math.min(4, n);
   for (let t = 0; t < R; t++) {
     const k = 1 + Math.floor(rng() * kCap);
@@ -545,7 +549,8 @@ export function reachEstimate(target: RGB, pigments: Pigment[]): number {
   let cur = bestW.slice();
   let curD = best;
   let step = 0.25;
-  for (let it = 0; it < 200; it++) {
+  const HILL = coarse ? 80 : 200;
+  for (let it = 0; it < HILL; it++) {
     const w = cur.slice();
     const idx = Math.floor(rng() * n);
     w[idx] = Math.max(0, w[idx] + (rng() - 0.5) * step);
@@ -588,4 +593,62 @@ export function suggestPigment(
   }
   if (best && best.deltaE <= baseDeltaE - minImprovement) return best;
   return null;
+}
+
+// --- Limited-palette planner ---
+
+export interface PalettePlan {
+  pigments: Pigment[];
+  perTarget: { rgb: RGB; deltaE: number; match: number }[];
+  covered: boolean; // all targets within tolerance
+}
+
+// Given a set of target colors (e.g. a painting's dominant palette), greedily
+// pick the smallest set of pigments that can mix them all within `tolerance`
+// ΔE. Seeds with a white (nearly every mix needs it) and adds, one at a time,
+// the pigment that most reduces the total reachable error, until every target
+// is covered or `maxTubes` is hit. Uses the coarse reach estimate for speed.
+export function planPalette(
+  targets: RGB[],
+  candidates: Pigment[],
+  opts: { tolerance?: number; maxTubes?: number } = {}
+): PalettePlan {
+  const tolerance = opts.tolerance ?? 5;
+  const maxTubes = opts.maxTubes ?? 8;
+
+  const set: Pigment[] = [];
+  const white = candidates.find((c) => /white/i.test(c.name));
+  if (white) set.push(white);
+  const remaining = candidates.filter((c) => c !== white);
+
+  const worstOk = () =>
+    set.length > 0 &&
+    targets.every((t) => reachEstimate(t, set, true) <= tolerance);
+
+  while (set.length < maxTubes && !worstOk()) {
+    let bestC: Pigment | null = null;
+    let bestScore = Infinity;
+    for (const c of remaining) {
+      const trial = [...set, c];
+      let sum = 0;
+      for (const t of targets) sum += reachEstimate(t, trial, true);
+      if (sum < bestScore) {
+        bestScore = sum;
+        bestC = c;
+      }
+    }
+    if (!bestC) break;
+    set.push(bestC);
+    remaining.splice(remaining.indexOf(bestC), 1);
+  }
+
+  const perTarget = targets.map((rgb) => {
+    const d = reachEstimate(rgb, set, true);
+    return { rgb, deltaE: d, match: matchScore(d) };
+  });
+  return {
+    pigments: set,
+    perTarget,
+    covered: perTarget.every((p) => p.deltaE <= tolerance),
+  };
 }

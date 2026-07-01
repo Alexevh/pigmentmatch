@@ -356,6 +356,15 @@ const en: Dict = {
       "Creates a palette with these pigments and makes it active, so the recipes recompute with them.",
     newPaletteName: "Planned palette",
   },
+  harmony: {
+    title: "Color harmonies",
+    complement: "Complement",
+    analogA: "Analogous −",
+    analogB: "Analogous +",
+    triadA: "Triad +",
+    triadB: "Triad −",
+    howToMix: "How to mix it",
+  },
   recipeHelp: {
     button: "What do these options do?",
     title: "Recipe options",
@@ -1014,6 +1023,15 @@ const es: Dict = {
     useHint:
       "Crea una paleta con estos pigmentos y la activa, así las recetas se recalculan con ellos.",
     newPaletteName: "Paleta planificada",
+  },
+  harmony: {
+    title: "Armonías de color",
+    complement: "Complementario",
+    analogA: "Análogo −",
+    analogB: "Análogo +",
+    triadA: "Tríada +",
+    triadB: "Tríada −",
+    howToMix: "Cómo mezclarlo",
   },
   recipeHelp: {
     button: "¿Qué hacen estas opciones?",

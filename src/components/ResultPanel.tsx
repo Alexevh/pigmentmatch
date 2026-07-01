@@ -17,6 +17,7 @@ import { Swatch } from "./Swatch";
 import { RecipeView } from "./RecipeView";
 import { AnalysisView } from "./AnalysisView";
 import { VariationsView } from "./VariationsView";
+import { HarmoniesView } from "./HarmoniesView";
 import { PaletteChipSelect } from "./PaletteChipSelect";
 
 // Shared results for a target color: big swatch, mix recipe, painter analysis
@@ -159,6 +160,16 @@ export function ResultPanel({
       </CardContent>
     </Card>
   );
+  const harmonies = (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("harmony.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <HarmoniesView rgb={rgb} pigments={pigments} onPick={onPick} />
+      </CardContent>
+    </Card>
+  );
 
   if (stack) {
     return (
@@ -166,6 +177,7 @@ export function ResultPanel({
         {!hideSwatch && swatch}
         {recipeCard}
         {variations}
+        {harmonies}
         {!hideAnalysis && analysis}
       </div>
     );
@@ -180,6 +192,7 @@ export function ResultPanel({
       <div className="space-y-4">
         {recipeCard}
         {variations}
+        {harmonies}
       </div>
     </div>
   );

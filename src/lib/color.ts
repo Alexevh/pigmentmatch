@@ -430,6 +430,38 @@ export function buildVariations(rgb: RGB): Variation[] {
   });
 }
 
+// --- Color-wheel harmonies (hue rotations at the same S/L) ---
+
+export type HarmonyKind =
+  | "complement"
+  | "analogA"
+  | "analogB"
+  | "triadA"
+  | "triadB";
+
+export interface Harmony {
+  kind: HarmonyKind;
+  rgb: RGB;
+  hex: string;
+}
+
+const HARMONY_ROT: Record<HarmonyKind, number> = {
+  complement: 180,
+  analogA: -30,
+  analogB: 30,
+  triadA: 120,
+  triadB: -120,
+};
+
+export function buildHarmonies(rgb: RGB): Harmony[] {
+  const hsl = rgbToHsl(rgb);
+  return (Object.keys(HARMONY_ROT) as HarmonyKind[]).map((kind) => {
+    const h = ((hsl.h + HARMONY_ROT[kind]) % 360 + 360) % 360;
+    const out = hslToRgb({ ...hsl, h });
+    return { kind, rgb: out, hex: rgbToHex(out) };
+  });
+}
+
 // Relative luminance to decide readable text color over a swatch.
 export function isLight(rgb: RGB): boolean {
   return rgbToLab(rgb).L > 60;

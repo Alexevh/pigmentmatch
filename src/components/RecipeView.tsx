@@ -235,7 +235,7 @@ function BatchControl() {
           onClick={() => setShowHelp((s) => !s)}
           title={t("recipe.batchHelpTitle")}
           aria-label={t("recipe.batchHelpTitle")}
-          className="text-muted-foreground hover:text-foreground"
+          className="text-accent hover:text-accent/80"
         >
           <Info className="h-3.5 w-3.5" />
         </button>

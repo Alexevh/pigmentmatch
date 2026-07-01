@@ -308,6 +308,13 @@ const en: Dict = {
     unitDrops: "drops",
     batchHint: "Split the recipe into real amounts to mix",
     batchNote: "split by proportion",
+    batchHelpTitle: "How to measure",
+    batchHelpParts:
+      "Parts — relative: squeeze beads of equal width and compare their lengths, or count palette-knife scoops. Best for oil / heavy body.",
+    batchHelpGrams:
+      "Grams — weigh each blob on a small digital scale. Repeatable, and works for oil.",
+    batchHelpFluid:
+      "ml / drops — for fluid media (fluid acrylic, ink, watercolor). Not practical for stiff oil paste — use parts or grams there.",
     part: "part",
     parts: "parts",
     partsLabel: "Parts",
@@ -930,6 +937,13 @@ const es: Dict = {
     unitDrops: "gotas",
     batchHint: "Reparte la receta en cantidades reales para mezclar",
     batchNote: "repartido por proporción",
+    batchHelpTitle: "Cómo medir",
+    batchHelpParts:
+      "Partes — relativo: apretá gusanos de igual grosor y comparás sus largos, o contás cargas de espátula. Lo mejor para óleo / heavy body.",
+    batchHelpGrams:
+      "Gramos — pesá cada bolita en una balanza digital chica. Repetible, y sirve para óleo.",
+    batchHelpFluid:
+      "ml / gotas — para medios fluidos (acrílico fluido, tinta, acuarela). No práctico para la pasta del óleo — ahí usá partes o gramos.",
     part: "parte",
     parts: "partes",
     partsLabel: "Partes",

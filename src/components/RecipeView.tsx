@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { HelpCircle, X, AlertTriangle } from "lucide-react";
+import { HelpCircle, X, AlertTriangle, Info } from "lucide-react";
 import { recipePercentages, percentLabel, type Recipe } from "@/lib/mixer";
 import { rgbToHex, valueScore } from "@/lib/color";
 import { cn } from "@/lib/utils";
@@ -207,32 +207,55 @@ function BatchControl() {
   const { t } = useT();
   const amount = useBatchAmount();
   const unit = useBatchUnit();
+  const [showHelp, setShowHelp] = useState(false);
   return (
-    <div className="flex items-center gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground">
-      <span className="font-medium">{t("recipe.batch")}</span>
-      <input
-        type="number"
-        min={0}
-        step="any"
-        value={amount || ""}
-        onChange={(e) => setBatchAmount(parseFloat(e.target.value))}
-        placeholder="0"
-        title={t("recipe.batchHint")}
-        className="h-7 w-16 rounded-md border border-input bg-background px-2 text-xs tabular-nums"
-      />
-      <select
-        value={unit}
-        onChange={(e) => setBatchUnit(e.target.value as BatchUnit)}
-        className="h-7 rounded-md bg-secondary/60 px-1.5 text-xs"
-      >
-        <option value="ml">{t("recipe.unitMl")}</option>
-        <option value="g">{t("recipe.unitG")}</option>
-        <option value="drops">{t("recipe.unitDrops")}</option>
-      </select>
-      {amount > 0 && (
-        <span className="text-[11px] text-muted-foreground/80">
-          {t("recipe.batchNote")}
-        </span>
+    <div className="space-y-2 border-t border-border/60 pt-3">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span className="font-medium">{t("recipe.batch")}</span>
+        <input
+          type="number"
+          min={0}
+          step="any"
+          value={amount || ""}
+          onChange={(e) => setBatchAmount(parseFloat(e.target.value))}
+          placeholder="0"
+          title={t("recipe.batchHint")}
+          className="h-7 w-16 rounded-md border border-input bg-background px-2 text-xs tabular-nums"
+        />
+        <select
+          value={unit}
+          onChange={(e) => setBatchUnit(e.target.value as BatchUnit)}
+          className="h-7 rounded-md bg-secondary/60 px-1.5 text-xs"
+        >
+          <option value="ml">{t("recipe.unitMl")}</option>
+          <option value="g">{t("recipe.unitG")}</option>
+          <option value="drops">{t("recipe.unitDrops")}</option>
+        </select>
+        <button
+          onClick={() => setShowHelp((s) => !s)}
+          title={t("recipe.batchHelpTitle")}
+          aria-label={t("recipe.batchHelpTitle")}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <Info className="h-3.5 w-3.5" />
+        </button>
+        {amount > 0 && (
+          <span className="text-[11px] text-muted-foreground/80">
+            {t("recipe.batchNote")}
+          </span>
+        )}
+      </div>
+      {showHelp && (
+        <div className="rounded-md border border-border bg-secondary/30 p-2.5 text-[11px] leading-relaxed text-muted-foreground">
+          <p className="mb-1 font-medium text-foreground">
+            {t("recipe.batchHelpTitle")}
+          </p>
+          <ul className="list-disc space-y-1 pl-4">
+            <li>{t("recipe.batchHelpParts")}</li>
+            <li>{t("recipe.batchHelpGrams")}</li>
+            <li>{t("recipe.batchHelpFluid")}</li>
+          </ul>
+        </div>
       )}
     </div>
   );

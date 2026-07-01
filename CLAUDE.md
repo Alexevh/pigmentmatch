@@ -333,6 +333,31 @@ src/
   (SDK + rules + offline), Mongo speaks raw TCP the browser can't. Strings under
   i18n `cloud.*`. **Default: OFF** (and no config) → app stays 100% local.
 
+### Added in 1.1.0
+- **Recipe amounts** (`useRecipeAmount` + `BatchControl`/`QtyLabel` in
+  `RecipeView`): optional "Make [n] ml/g/drops" splits the recipe by proportion;
+  info note on how to measure (parts=beads, g=scale, ml/drops=fluid media).
+- **Save to Logbook** (`SaveRecipeModal`, button in full `RecipeView` when a
+  `target` is passed): pre-fills a logbook entry (color, recipe text, notes) into
+  a chosen/new project.
+- **Reachability + suggestion** (`suggestPigment`/`reachEstimate` in mixer;
+  `ResultPanel`): when match < 90, an amber note suggests the one library pigment
+  that best closes the gap.
+- **Limited-palette planner** (`planPalette` in mixer; Extract): "What tubes do I
+  need?" → greedy min set covering the extracted colors; "Use these tubes" →
+  `addPaletteWith` creates + activates a palette.
+- **Color harmonies** (`buildHarmonies` in color.ts; `HarmoniesView` in
+  `ResultPanel`): complement / analogous± / triadic±, each with a recipe modal.
+- **Undertone** (see limitations note) — per-pigment 2nd color, classic+km2.
+- **`km2` engine** (opacity → scattering; see limitations note).
+- **Vitest suite** (`src/lib/*.test.ts`, `npm test`).
+- **Onboarding** (`useOnboarding` + `Onboarding`, mounted in App; replay from
+  Help): first-run stepper, persisted.
+- **Palette share** (`lib/paletteShare.ts` + `SharePaletteModal` +
+  `SharedPaletteImport`): palette encoded in the URL hash (base64url), copy link
+  + lazy `qrcode` QR (small palettes only); opening `#pal=...` offers import.
+- **Mobile tabs**: `TabsList` is a horizontally-scrollable single row.
+
 `App.tsx` filters to `enabledPigments` then applies calibration → these
 `effectivePigments` feed Match/Image/Extract/Coach. Palette & Calibrate see the
 full list.

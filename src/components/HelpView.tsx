@@ -33,6 +33,22 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.1.0",
+        date: "2026",
+        changes: [
+          "Recipe amounts: an optional “Make [amount]” control turns the proportions into real quantities (ml / g / drops), with a note on how to measure each.",
+          "Save to Logbook: one click on a recipe saves the mix (color, recipe text, match) as a Logbook entry in a project you pick or create.",
+          "Reachability: when your palette can't reach a color, a note suggests the single pigment to add that would get closest.",
+          "Palette planner (Extract): “What tubes do I need?” finds the smallest set of pigments that can mix a whole painting — with a button to turn them into a palette.",
+          "Color harmonies: complement, analogous and triadic colors for any target, each with its own recipe.",
+          "Undertone: give a pigment a second color (the thin/tinted hue) for more accurate tints and glazes; pick it or sample it from a photo.",
+          "New optional mixing engine “2-const” that uses each pigment's opacity (opaque tubes take over a mix more than transparent ones).",
+          "First-run intro tour (re-openable from Help) and a scrollable tab bar on phones.",
+          "Share a palette by link or QR — the whole palette travels in the link, no account needed; opening it offers to import.",
+          "Under the hood: an automated test suite guards the color/mixing engine.",
+        ],
+      },
+      {
         version: "1.0.4",
         date: "2026",
         changes: [
@@ -132,6 +148,22 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.1.0",
+        date: "2026",
+        changes: [
+          "Cantidades de receta: un control opcional “Preparar [cantidad]” convierte las proporciones en cantidades reales (ml / g / gotas), con una nota de cómo medir cada una.",
+          "Guardar en Bitácora: un clic en la receta guarda la mezcla (color, receta, match) como entrada de un proyecto que elegís o creás.",
+          "Alcanzabilidad: cuando tu paleta no llega a un color, una nota sugiere el pigmento que más te acercaría si lo agregás.",
+          "Planificador de paleta (Extraer): “¿Qué tubos necesito?” encuentra el conjunto mínimo de pigmentos para mezclar todo un cuadro — con un botón para volverlo una paleta.",
+          "Armonías de color: complementario, análogos y tríadas de cualquier color, cada uno con su receta.",
+          "Subtono (undertone): dale a un pigmento un segundo color (el tono fino/en tinte) para tintes y veladuras más precisos; elegilo o tomalo de una foto.",
+          "Nuevo motor de mezcla opcional “2-const” que usa la opacidad de cada pigmento (los opacos dominan la mezcla más que los transparentes).",
+          "Tour de intro en la primera vez (reabrible desde Ayuda) y barra de pestañas scrolleable en el teléfono.",
+          "Compartí una paleta por link o QR — la paleta entera viaja en el link, sin cuenta; al abrirlo te ofrece importarla.",
+          "Por dentro: una suite de tests automatizados que protege el motor de color/mezcla.",
+        ],
+      },
       {
         version: "1.0.4",
         date: "2026",

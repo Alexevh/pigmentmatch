@@ -27,7 +27,13 @@ local unless you choose otherwise.
   recipe (shown as **parts** or **percentages**, your choice), a match score, a
   painter's analysis, and six intuitive variations (warmer/cooler,
   lighter/darker, more/less saturated) — each with a **"How to mix it"** link
-  showing the base mix plus the tweak needed to reach that variation.
+  showing the base mix plus the tweak needed to reach that variation. Optionally
+  turn the recipe into **real amounts** (ml / g / drops), **save it to the
+  Logbook** in one click, and see **color harmonies** (complement / analogous /
+  triadic) with their own recipes. When the palette can't reach a color it
+  **suggests the pigment to add**. Mixing engines: **Classic** (default),
+  **Spectral**, and an optional **2-const** that uses each pigment's opacity;
+  plus an optional Fibonacci **golden-ratio** artistic pass.
 - **Image** — upload a photo or master painting and click to sample any color,
   with **+/- zoom + drag-to-pan** inside a fixed box and a magnifier loupe for a
   precise pick. Every photo input (Image, Mix, Coach, Compare, Logbook, IMG Lab)
@@ -39,9 +45,11 @@ local unless you choose otherwise.
   (MAXIM deblur / denoise / low-light), and **Download** to save the result.
   All AI runs locally (UpscalerJS + TensorFlow.js, lazy-loaded) — flagged
   experimental and resource-heavy.
-- **Extract** — pull the 8 / 12 / 20 dominant colors from a painting (k-means
-  in Lab space), arranged light → dark, each with its own recipe, description,
-  and a relationship hint ("close to #3 — add a touch of Ultramarine").
+- **Extract** — pull the 4 / 8 / 12 / 20 dominant colors from a painting (k-means
+  in Lab space), each with its own recipe, description, and a relationship hint
+  ("close to #3 — add a touch of Ultramarine"). **"What tubes do I need?"** then
+  finds the smallest set of pigments that can mix the whole painting, and can
+  turn them into a palette in one click.
 - **Coach** — give the app your target and the mix currently on your palette;
   it tells you what to do next in painter language ("too dark — lift the value
   with white", "a bit too saturated — knock it back with Raw Umber").
@@ -70,9 +78,11 @@ local unless you choose otherwise.
   tinting strength. Off by default; flip one toggle and every recipe in the app
   uses the model tuned to your tubes.
 - **Palette** — create, edit, save and switch palettes; **import/export** any
-  palette as JSON for backup or sharing. Each pigment has a color, opacity,
-  temperature, and tinting strength. Ships with a traditional 8-pigment oil
-  palette (plus Winsor & Newton and Corfix presets).
+  palette as JSON, or **share it by link / QR** (the whole palette rides in the
+  link — no account, and opening it offers to import). Each pigment has a color,
+  an optional **undertone** (the thin/tinted hue, for accurate glazes/tints),
+  opacity, temperature, and tinting strength. Ships with a traditional 8-pigment
+  oil palette (plus Winsor & Newton and Corfix presets).
 - **Settings** — language, active palette, recipe defaults, your Gemini API key,
   and **optional cloud sync**. Cloud sync is fully opt-in and **bring-your-own
   Firebase**: paste your own free Firebase project's config (the in-app guide and

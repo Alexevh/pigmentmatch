@@ -285,6 +285,7 @@ export default function App() {
                   palettes={api.palettes}
                   activeId={api.activeId}
                   onSelectPalette={api.setActiveId}
+                  onCreatePalette={api.addPaletteWith}
                 />
               </CardContent>
             </Card>

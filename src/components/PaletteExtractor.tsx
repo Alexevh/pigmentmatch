@@ -50,12 +50,15 @@ export function PaletteExtractor({
   palettes,
   activeId,
   onSelectPalette,
+  onCreatePalette,
 }: {
   pigments: Pigment[];
   onPick: (rgb: RGB) => void;
   palettes?: { id: string; name: string }[];
   activeId?: string;
   onSelectPalette?: (id: string) => void;
+  // Create + activate a palette from an explicit pigment list (planner tubes).
+  onCreatePalette?: (name: string, pigments: Pigment[]) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -469,6 +472,22 @@ export function PaletteExtractor({
                   </span>
                 ))}
               </div>
+              {onCreatePalette && (
+                <div className="border-t border-border/60 pt-3">
+                  <Button
+                    variant="accent"
+                    size="sm"
+                    onClick={() =>
+                      onCreatePalette(t("plan.newPaletteName"), plan.pigments)
+                    }
+                  >
+                    <FlaskConical className="h-4 w-4" /> {t("plan.use")}
+                  </Button>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    {t("plan.useHint")}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

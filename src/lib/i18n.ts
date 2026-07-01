@@ -351,6 +351,10 @@ const en: Dict = {
     hint: "The smallest set of pigments that can mix these colors.",
     result: "These {n} tubes can mix your palette:",
     partial: "Best effort — some colors are still out of reach.",
+    use: "Use these tubes",
+    useHint:
+      "Creates a palette with these pigments and makes it active, so the recipes recompute with them.",
+    newPaletteName: "Planned palette",
   },
   recipeHelp: {
     button: "What do these options do?",
@@ -1006,6 +1010,10 @@ const es: Dict = {
     hint: "El conjunto mínimo de pigmentos que puede mezclar estos colores.",
     result: "Con estos {n} tubos podés mezclar tu paleta:",
     partial: "Lo más cerca posible — algunos colores quedan fuera de alcance.",
+    use: "Usar estos tubos",
+    useHint:
+      "Crea una paleta con estos pigmentos y la activa, así las recetas se recalculan con ellos.",
+    newPaletteName: "Paleta planificada",
   },
   recipeHelp: {
     button: "¿Qué hacen estas opciones?",

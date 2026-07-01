@@ -80,6 +80,23 @@ export function usePalettes() {
     setActiveId(fresh.id);
   }, []);
 
+  // Create a palette from an explicit pigment list (e.g. the limited-palette
+  // planner's suggested tubes) and make it active so recipes recompute with it.
+  const addPaletteWith = useCallback((name: string, pigments: Pigment[]) => {
+    const fresh: Palette = {
+      id: newId("pal"),
+      name,
+      pigments: pigments.map((p) => ({
+        ...p,
+        id: newId(),
+        rgb: { ...p.rgb },
+        enabled: true,
+      })),
+    };
+    setPalettes((prev) => [...prev, fresh]);
+    setActiveId(fresh.id);
+  }, []);
+
   const renameActive = useCallback(
     (name: string) => updateActive((p) => ({ ...p, name })),
     [updateActive]
@@ -108,6 +125,7 @@ export function usePalettes() {
     removePigment,
     addPalette,
     addPreset,
+    addPaletteWith,
     renameActive,
     deleteActive,
     resetActive,

@@ -49,8 +49,8 @@ export function useCalibration(paletteId: string, pigments: Pigment[]) {
     saveObservations(paletteId, []);
   };
 
-  const calibrate = () => {
-    const fit = fitCalibration(observations, pigments);
+  const calibrate = (fitColor = false) => {
+    const fit = fitCalibration(observations, pigments, { fitColor });
     setCalibration(fit);
     saveCalibration(paletteId, fit);
   };

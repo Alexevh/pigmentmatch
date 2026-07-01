@@ -93,7 +93,8 @@ src/
                     isEnabled()
     mixer.ts        subtractive mixing + recipe generator (the heart)
     coach.ts        directional mixing advice from Lab deltas
-    calibration.ts  fit pigment tinting strengths to the painter's real mixes
+    calibration.ts  fit pigment tinting strengths (and optionally masstone/
+                    undertone colors, bounded ±60/chan) to the painter's real mixes
     extract.ts      k-means dominant-color extraction (Lab) + relationship hints.
                     PaletteExtractor adds an optional Color map (posterize the
                     image to the palette) and drag-to-select an area to extract
@@ -283,7 +284,11 @@ src/
   Coach; reuses ImageSampler, coach(), analysisSentence.)
 - **Calibrate (optional):** record "I mixed these parts → got this color"
   observations, fit each pigment's tinting strength (coordinate descent), and
-  toggle the calibrated model on globally. Off by default; per-palette.
+  toggle the calibrated model on globally. Off by default; per-palette. Optional
+  **"also fit color"** checkbox (`fitCalibration(..., {fitColor})`) additionally
+  nudges each used pigment's masstone (and undertone) — bounded ±60/channel of
+  the original — stored as `rgbById`/`undertoneById` in the Calibration and
+  applied by `applyCalibration`.
 - **Logbook (Bitácora):** a painter's notebook of color mixes grouped into
   **projects**. Each **project** also has two photos shown above its colors: an
   original **reference** and the **finished painting** (`LogProject.reference` /
@@ -396,8 +401,9 @@ full list.
 
 ## Known limitations / roadmap
 
-- Pigment data is estimated, not measured (see Conventions). Calibration only
-  fits **tinting strength**, not masstone color.
+- Pigment data is estimated, not measured (see Conventions). Calibration fits
+  **tinting strength** by default, and optionally masstone/undertone color
+  (bounded, opt-in "also fit color").
 - No real blue in the Corfix kit beyond phthalo/turquoise + Payne's Gray, so
   mid-blues match poorly there (expected).
 - The **spectral** engine (spectral.js, opt-in) is single-constant K-M
@@ -434,7 +440,7 @@ full list.
     Corfix) and availability/license is unconfirmed. Could power a real
     two-constant engine for a Gamblin-Conservation-Colors preset if obtained.
   - Further spectral search tuning (e.g. multi-start refine).
-  - Calibrate more than strength (masstone / K&S).
+  - Calibrate K&S / spectral (masstone + undertone color is done — opt-in).
   - Palette import/export (JSON) for backup/sharing across devices.
   - artistpigments.org has measured spectral curves + undertone tinting strips
     but is view-only (no reusable data license) — reference only, or ask the

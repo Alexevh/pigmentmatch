@@ -49,6 +49,7 @@ export function CalibrateView({
   const [parts, setParts] = useState<Record<string, string>>({});
   const [observed, setObserved] = useState<RGB>({ r: 150, g: 120, b: 100 });
   const [sampling, setSampling] = useState(false);
+  const [fitColor, setFitColor] = useState(false);
 
   const validObs = cal.observations.filter((o) =>
     o.items.some((i) => i.weight > 0)
@@ -261,9 +262,19 @@ export function CalibrateView({
             </ul>
           )}
 
+          <label className="flex items-start gap-2 text-xs text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={fitColor}
+              onChange={(e) => setFitColor(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-accent"
+            />
+            <span>{t("calibrate.fitColor")}</span>
+          </label>
+
           <Button
             variant="accent"
-            onClick={cal.calibrate}
+            onClick={() => cal.calibrate(fitColor)}
             disabled={validObs.length === 0}
             className="w-full"
           >

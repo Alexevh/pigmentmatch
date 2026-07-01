@@ -663,6 +663,8 @@ const en: Dict = {
     modelAway: "model is ΔE {de} away",
     calibrate: "Calibrate",
     recalibrate: "Re-calibrate",
+    fitColor:
+      "Also fit color (masstone / undertone), not just tinting strength — nudges each pigment's color toward your real tubes. Needs a few good observations.",
     fromN: "from {n} {word}",
     obsSingular: "observation",
     obsPlural: "observations",
@@ -1373,6 +1375,8 @@ const es: Dict = {
     modelAway: "el modelo está a ΔE {de}",
     calibrate: "Calibrar",
     recalibrate: "Recalibrar",
+    fitColor:
+      "Ajustar también el color (masstone / subtono), no solo la fuerza tintórea — corre el color de cada pigmento hacia tus tubos reales. Necesita unas cuantas observaciones buenas.",
     fromN: "desde {n} {word}",
     obsSingular: "observación",
     obsPlural: "observaciones",

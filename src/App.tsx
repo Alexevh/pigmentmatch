@@ -22,7 +22,8 @@ import { configureCloud } from "@/hooks/useCloudSync";
 import { applyCalibration } from "@/lib/calibration";
 import { isEnabled } from "@/lib/pigments";
 import { useT, setLang, type Lang } from "@/lib/i18n";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { ResponsiveTabs, type TabItem } from "@/components/ResponsiveTabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ColorInput } from "@/components/ColorInput";
 import { AnalysisView } from "@/components/AnalysisView";
@@ -168,38 +169,24 @@ export default function App() {
 
       <main className="mx-auto max-w-6xl px-5 py-6">
         <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="match">
-              <Pipette className="h-4 w-4" /> {t("tabs.match")}
-            </TabsTrigger>
-            <TabsTrigger value="image">
-              <ImageIcon className="h-4 w-4" /> {t("tabs.image")}
-            </TabsTrigger>
-            <TabsTrigger value="extract">
-              <Grid2x2 className="h-4 w-4" /> {t("tabs.extract")}
-            </TabsTrigger>
-            <TabsTrigger value="coach">
-              <GraduationCap className="h-4 w-4" /> {t("tabs.coach")}
-            </TabsTrigger>
-            <TabsTrigger value="compare">
-              <GitCompare className="h-4 w-4" /> {t("tabs.compare")}
-            </TabsTrigger>
-            <TabsTrigger value="mix">
-              <Beaker className="h-4 w-4" /> {t("tabs.mix")}
-            </TabsTrigger>
-            <TabsTrigger value="logbook">
-              <NotebookPen className="h-4 w-4" /> {t("tabs.logbook")}
-            </TabsTrigger>
-            <TabsTrigger value="imglab">
-              <Wand2 className="h-4 w-4" /> {t("tabs.imglab")}
-            </TabsTrigger>
-            <TabsTrigger value="calibrate">
-              <FlaskConical className="h-4 w-4" /> {t("tabs.calibrate")}
-            </TabsTrigger>
-            <TabsTrigger value="palette">
-              <Palette className="h-4 w-4" /> {t("tabs.palette")}
-            </TabsTrigger>
-          </TabsList>
+          <ResponsiveTabs
+            tabs={
+              [
+                { value: "match", label: t("tabs.match"), icon: Pipette },
+                { value: "image", label: t("tabs.image"), icon: ImageIcon },
+                { value: "extract", label: t("tabs.extract"), icon: Grid2x2 },
+                { value: "coach", label: t("tabs.coach"), icon: GraduationCap },
+                { value: "compare", label: t("tabs.compare"), icon: GitCompare },
+                { value: "mix", label: t("tabs.mix"), icon: Beaker },
+                { value: "logbook", label: t("tabs.logbook"), icon: NotebookPen },
+                { value: "imglab", label: t("tabs.imglab"), icon: Wand2 },
+                { value: "calibrate", label: t("tabs.calibrate"), icon: FlaskConical },
+                { value: "palette", label: t("tabs.palette"), icon: Palette },
+              ] satisfies TabItem[]
+            }
+            value={tab}
+            onChange={setTab}
+          />
 
           {/* Match: manual color input */}
           <TabsContent value="match" className="space-y-4">

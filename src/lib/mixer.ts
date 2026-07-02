@@ -441,13 +441,17 @@ function reduceWeights(
   maxColors: number | null = null,
   valuePriority = false
 ): number[] {
+  const de2000 = (rgb: RGB) => deltaE2000(rgbToLab(rgb), targetLab);
   const err = (rgb: RGB) =>
-    valuePriority
-      ? valueError(rgbToLab(rgb), targetLab)
-      : deltaE2000(rgbToLab(rgb), targetLab);
+    valuePriority ? valueError(rgbToLab(rgb), targetLab) : de2000(rgb);
 
   let weights = cand.weights.slice();
   const ceiling = err(cand.rgb) + tolerance;
+  // Value-priority guard: even while chasing the value, don't drop a pigment if
+  // it wrecks the actual color. Without this, an out-of-reach (e.g. very dark)
+  // target collapses to a single neutral because dropping the hue pigments gets
+  // "closer" in lightness — the mix ends up grey instead of the right hue.
+  const colorGuard = de2000(cand.rgb) + tolerance;
 
   for (;;) {
     const active = weights
@@ -457,22 +461,25 @@ function reduceWeights(
     const overCap = maxColors != null && active.length > maxColors;
 
     // find the single removal that costs the least extra error
-    let bestRemoval: { weights: number[]; e: number } | null = null;
+    let bestRemoval: { weights: number[]; e: number; dE: number } | null = null;
     for (const { i } of active) {
       const trial = weights.slice();
       trial[i] = 0;
       const sum = trial.reduce((a, b) => a + b, 0);
       if (sum <= 0) continue;
       const norm = trial.map((x) => x / sum);
-      const e = err(mix(norm));
+      const rgb = mix(norm);
+      const e = err(rgb);
       if (!bestRemoval || e < bestRemoval.e) {
-        bestRemoval = { weights: norm, e };
+        bestRemoval = { weights: norm, e, dE: valuePriority ? de2000(rgb) : e };
       }
     }
     if (!bestRemoval) break;
 
-    // Drop if it's "free" (within tolerance) or we're still over the cap.
-    if (overCap || bestRemoval.e <= ceiling) {
+    // Drop if it's forced (over the cap), or "free" within tolerance — and,
+    // under value-priority, only if it also keeps the real color within guard.
+    const withinColor = !valuePriority || bestRemoval.dE <= colorGuard;
+    if (overCap || (bestRemoval.e <= ceiling && withinColor)) {
       weights = bestRemoval.weights;
     } else {
       break;

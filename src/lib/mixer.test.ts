@@ -108,6 +108,21 @@ describe("mixer", () => {
     expect(Number.isFinite(d)).toBe(true);
   });
 
+  it("value-first doesn't collapse an out-of-reach dark target to one neutral", () => {
+    const black = P("Black", { r: 50, g: 50, b: 50 }, { strength: 0.9 });
+    const redp = P("Redp", { r: 200, g: 30, b: 40 });
+    const pal = [white, black, redp];
+    const dark: RGB = { r: 40, g: 22, b: 20 }; // darker than every pigment
+    const vp = generateRecipe(dark, pal, "simple", "classic", {
+      valuePriority: true,
+    });
+    // must keep a hue pigment, not drop to 100% of the dark neutral
+    expect(vp.items.length).toBeGreaterThan(1);
+    // and stay within the color guard of the best plain mix
+    const plain = generateRecipe(dark, pal, "simple", "classic");
+    expect(vp.deltaE).toBeLessThanOrEqual(plain.deltaE + 2.0001);
+  });
+
   it("an empty palette gives match 0", () => {
     const r = generateRecipe({ r: 10, g: 20, b: 30 }, []);
     expect(r.match).toBe(0);

@@ -33,6 +33,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.1.2",
+        date: "2026",
+        changes: [
+          "Fix: “Value-first” no longer collapses a color that's darker (or lighter) than every pigment in the palette into a single flat neutral — it now keeps the hue while still favoring the value.",
+        ],
+      },
+      {
         version: "1.1.1",
         date: "2026",
         changes: [
@@ -158,6 +165,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.1.2",
+        date: "2026",
+        changes: [
+          "Fix: “Priorizar valor” ya no colapsa un color más oscuro (o más claro) que todos los pigmentos de la paleta a un neutro plano — ahora mantiene el matiz sin dejar de cuidar el valor.",
+        ],
+      },
       {
         version: "1.1.1",
         date: "2026",

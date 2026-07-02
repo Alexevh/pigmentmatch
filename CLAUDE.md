@@ -399,6 +399,20 @@ full list.
   (read off the physical tube) so we can at least fix their `opacity` without
   needing Lab. Corfix (19 tubes) is all estimates — not yet refined.
 
+  **v1.1.3 masstone correction (important):** the earlier "measured Lab"
+  values for the DARK / TRANSPARENT pigments were actually read from thin
+  drawdowns / tints, so they were stored far too LIGHT (e.g. Ivory Black
+  `#353636` L22, French Ultramarine `#2E2E6C` L22, Burnt Sienna `#7C3E37` L34).
+  Because K-M can't mix a color darker than its darkest component, dark targets
+  (a painter empirically hit `#190B0A` L4 with sienna+ultramarine+white) were
+  unreachable and recipes collapsed to a light neutral / weird complementaries.
+  Fixed by darkening the masstones of the dark/transparent tubes to realistic
+  THICK-masstone values across all three presets (blacks, umbers, sienna,
+  ultramarine/dioxazine, alizarin/quinacridone, viridian, payne's, phthalos).
+  Bright/opaque tubes (cadmiums, yellows, ochre, whites, cerulean) were left
+  alone. Verified: `#190B0A` now match 93 (Ivory Black+Alizarin) and mid/light
+  tones unchanged (e.g. `#927073` still match 99). Still informed estimates.
+
 ## Known limitations / roadmap
 
 - Pigment data is estimated, not measured (see Conventions). Calibration fits

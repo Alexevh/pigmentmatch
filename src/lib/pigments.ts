@@ -47,7 +47,7 @@ export const DEFAULT_PIGMENTS: Pigment[] = [
   {
     id: "raw-umber",
     name: "Raw Umber",
-    rgb: { r: 89, g: 70, b: 48 },
+    rgb: { r: 52, g: 42, b: 30 },
     opacity: 0.7,
     temperature: "cool",
     strength: 0.75,
@@ -55,7 +55,7 @@ export const DEFAULT_PIGMENTS: Pigment[] = [
   {
     id: "burnt-umber",
     name: "Burnt Umber",
-    rgb: { r: 79, g: 49, b: 33 },
+    rgb: { r: 48, g: 31, b: 22 },
     opacity: 0.75,
     temperature: "warm",
     strength: 0.8,
@@ -79,7 +79,7 @@ export const DEFAULT_PIGMENTS: Pigment[] = [
   {
     id: "alizarin-crimson",
     name: "Alizarin Crimson",
-    rgb: { r: 120, g: 24, b: 36 },
+    rgb: { r: 74, g: 16, b: 28 },
     opacity: 0.4,
     temperature: "cool",
     strength: 0.9,
@@ -87,7 +87,7 @@ export const DEFAULT_PIGMENTS: Pigment[] = [
   {
     id: "ultramarine-blue",
     name: "Ultramarine Blue",
-    rgb: { r: 33, g: 38, b: 99 },
+    rgb: { r: 24, g: 24, b: 64 },
     opacity: 0.5,
     temperature: "warm",
     strength: 0.95,
@@ -118,10 +118,10 @@ export function makeDefaultPalette(): Palette {
 export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   // whites / blacks / earths
   { id: "wn-titanium-white", name: "Titanium White", rgb: { r: 248, g: 244, b: 234 }, opacity: 1, temperature: "cool", strength: 0.55 }, // PW6; neutralized from measured cream (#F5EDD7) — keeps a slight oil warmth; Opaque
-  { id: "wn-ivory-black", name: "Ivory Black", rgb: { r: 53, g: 54, b: 54 }, opacity: 0.9, temperature: "warm", strength: 0.9 }, // PBk9; masstone from measured Lab (Griffin chart sample, reads grey); Opaque
-  { id: "wn-raw-umber", name: "Raw Umber", rgb: { r: 69, g: 64, b: 60 }, opacity: 0.35, temperature: "cool", strength: 0.75 }, // PBk11/PBr7; masstone from measured Lab (Griffin line); Transparent
-  { id: "wn-burnt-umber", name: "Burnt Umber", rgb: { r: 68, g: 58, b: 54 }, opacity: 0.35, temperature: "warm", strength: 0.8 }, // PBr7; masstone from measured Lab (Griffin line); Transparent
-  { id: "wn-burnt-sienna", name: "Burnt Sienna", rgb: { r: 124, g: 62, b: 55 }, opacity: 0.35, temperature: "warm", strength: 0.75 }, // PR101; masstone from measured Lab (Griffin line); Transparent
+  { id: "wn-ivory-black", name: "Ivory Black", rgb: { r: 26, g: 26, b: 25 }, opacity: 0.9, temperature: "warm", strength: 0.9 }, // PBk9; near-black masstone (Griffin sample read as a grey tint — corrected to thick masstone); Opaque
+  { id: "wn-raw-umber", name: "Raw Umber", rgb: { r: 44, g: 40, b: 35 }, opacity: 0.35, temperature: "cool", strength: 0.75 }, // PBk11/PBr7; dark masstone (thick), Transparent
+  { id: "wn-burnt-umber", name: "Burnt Umber", rgb: { r: 46, g: 34, b: 28 }, opacity: 0.35, temperature: "warm", strength: 0.8 }, // PBr7; dark warm-brown masstone (thick), Transparent
+  { id: "wn-burnt-sienna", name: "Burnt Sienna", rgb: { r: 78, g: 38, b: 30 }, opacity: 0.35, temperature: "warm", strength: 0.75 }, // PR101; dark red-brown masstone (thick), Transparent
   { id: "wn-yellow-ochre", name: "Yellow Ochre", rgb: { r: 170, g: 110, b: 47 }, opacity: 0.85, temperature: "warm", strength: 0.7 }, // PY43; masstone from measured Lab (Griffin line); Opaque
   { id: "wn-terra-rosa", name: "Terra Rosa", rgb: { r: 150, g: 77, b: 62 }, opacity: 0.8, temperature: "warm", strength: 0.7 }, // PR101
   { id: "wn-venetian-red", name: "Venetian Red", rgb: { r: 126, g: 52, b: 42 }, opacity: 0.8, temperature: "warm", strength: 0.75 }, // PR101
@@ -134,17 +134,17 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   // reds / pinks / violets
   { id: "wn-cadmium-red", name: "Cadmium Red", rgb: { r: 196, g: 44, b: 36 }, opacity: 0.9, temperature: "warm", strength: 0.85 }, // PR108
   { id: "wn-cadmium-red-deep-hue", name: "Cadmium Red Deep Hue", rgb: { r: 161, g: 28, b: 42 }, opacity: 0.85, temperature: "warm", strength: 0.8 }, // hue
-  { id: "wn-permanent-alizarin-crimson", name: "Permanent Alizarin Crimson", rgb: { r: 175, g: 0, b: 38 }, opacity: 0.3, temperature: "cool", strength: 0.85 }, // PR177; masstone from measured Lab (Griffin line, gamut-clipped); Transparent
+  { id: "wn-permanent-alizarin-crimson", name: "Permanent Alizarin Crimson", rgb: { r: 78, g: 10, b: 30 }, opacity: 0.3, temperature: "cool", strength: 0.85 }, // PR177; dark maroon masstone (thick); Transparent
   { id: "wn-permanent-rose", name: "Permanent Rose", rgb: { r: 206, g: 42, b: 98 }, opacity: 0.6, temperature: "cool", strength: 0.85 }, // PV19
-  { id: "wn-quinacridone-deep-pink", name: "Quinacridone Deep Pink", rgb: { r: 176, g: 22, b: 92 }, opacity: 0.55, temperature: "cool", strength: 0.9 }, // PV19
+  { id: "wn-quinacridone-deep-pink", name: "Quinacridone Deep Pink", rgb: { r: 96, g: 16, b: 58 }, opacity: 0.55, temperature: "cool", strength: 0.9 }, // PV19; dark masstone (thick)
   { id: "wn-pale-rose-blush", name: "Pale Rose Blush", rgb: { r: 224, g: 134, b: 125 }, opacity: 0.9, temperature: "warm", strength: 0.4 }, // PV19/PW4/PY42; masstone from measured Lab — Griffin-line fallback (Artists' not measured), approx
   { id: "wn-cobalt-violet", name: "Cobalt Violet", rgb: { r: 123, g: 73, b: 140 }, opacity: 0.6, temperature: "cool", strength: 0.4 }, // PV14
-  { id: "wn-dioxazine-blue", name: "Dioxazine Blue", rgb: { r: 54, g: 32, b: 84 }, opacity: 0.5, temperature: "cool", strength: 0.95 }, // PV23
+  { id: "wn-dioxazine-blue", name: "Dioxazine Blue", rgb: { r: 32, g: 20, b: 52 }, opacity: 0.5, temperature: "cool", strength: 0.95 }, // PV23; dark violet masstone (thick)
   // blues / greens
-  { id: "wn-french-ultramarine", name: "French Ultramarine", rgb: { r: 46, g: 46, b: 108 }, opacity: 0.3, temperature: "warm", strength: 0.95 }, // PB29; masstone from measured Lab (Griffin line); Transparent
+  { id: "wn-french-ultramarine", name: "French Ultramarine", rgb: { r: 28, g: 26, b: 64 }, opacity: 0.3, temperature: "warm", strength: 0.95 }, // PB29; dark blue masstone (thick); Transparent
   { id: "wn-cerulean-blue", name: "Cerulean Blue", rgb: { r: 44, g: 117, b: 170 }, opacity: 0.85, temperature: "cool", strength: 0.6 }, // PB35
-  { id: "wn-viridian-green", name: "Viridian Green", rgb: { r: 16, g: 98, b: 80 }, opacity: 0.55, temperature: "cool", strength: 0.6 }, // PG18
-  { id: "wn-paynes-gray", name: "Payne's Gray", rgb: { r: 51, g: 53, b: 56 }, opacity: 0.85, temperature: "cool", strength: 0.85 }, // PB29/PBk6; masstone from measured Lab (Griffin line); Opaque
+  { id: "wn-viridian-green", name: "Viridian Green", rgb: { r: 10, g: 58, b: 48 }, opacity: 0.55, temperature: "cool", strength: 0.6 }, // PG18; dark green masstone (thick)
+  { id: "wn-paynes-gray", name: "Payne's Gray", rgb: { r: 28, g: 32, b: 38 }, opacity: 0.85, temperature: "cool", strength: 0.85 }, // PB29/PBk6; very dark blue-grey masstone (thick); Opaque
 ];
 
 export function makeWinsorNewtonPalette(): Palette {
@@ -173,8 +173,8 @@ export const CORFIX_PIGMENTS: Pigment[] = [
     id: "cx-raw-umber",
     name: "Raw Umber",
     // A hue made of yellows + red oxide + black, so it reads olive/green
-    // rather than the red-black of a genuine PBr7 raw umber.
-    rgb: { r: 82, g: 79, b: 48 },
+    // rather than the red-black of a genuine PBr7 raw umber. Dark masstone.
+    rgb: { r: 52, g: 50, b: 30 },
     opacity: 0.7,
     temperature: "neutral",
     strength: 0.75,
@@ -192,7 +192,7 @@ export const CORFIX_PIGMENTS: Pigment[] = [
     id: "cx-burnt-umber",
     name: "Burnt Umber",
     // "burnt" = redder and darker than the olive raw umber sibling
-    rgb: { r: 74, g: 51, b: 33 },
+    rgb: { r: 48, g: 33, b: 22 },
     opacity: 0.72,
     temperature: "warm",
     strength: 0.8,
@@ -201,7 +201,7 @@ export const CORFIX_PIGMENTS: Pigment[] = [
     id: "cx-van-dyke-brown",
     name: "Van Dyke Brown",
     // deep dark brown: red oxide heavily darkened by carbon black
-    rgb: { r: 54, g: 40, b: 32 },
+    rgb: { r: 38, g: 28, b: 22 },
     opacity: 0.6,
     temperature: "neutral",
     strength: 0.85,
@@ -209,8 +209,8 @@ export const CORFIX_PIGMENTS: Pigment[] = [
   {
     id: "cx-burnt-sienna",
     name: "Burnt Sienna",
-    // single-pigment red iron oxide: clean, transparent warm red-brown
-    rgb: { r: 130, g: 61, b: 38 },
+    // single-pigment red iron oxide: clean, transparent warm red-brown (dark masstone)
+    rgb: { r: 82, g: 40, b: 26 },
     opacity: 0.5,
     temperature: "warm",
     strength: 0.75,
@@ -220,7 +220,7 @@ export const CORFIX_PIGMENTS: Pigment[] = [
     name: "Payne's Gray",
     // very dark blue-grey; carbon black + blue. Medium opacity (the chart's
     // half-painted swatch flags it as semi-transparent).
-    rgb: { r: 42, g: 50, b: 62 },
+    rgb: { r: 26, g: 31, b: 40 },
     opacity: 0.5,
     temperature: "cool",
     strength: 0.85,
@@ -246,8 +246,8 @@ export const CORFIX_PIGMENTS: Pigment[] = [
   {
     id: "cx-emerald-green",
     name: "Emerald Green",
-    // phthalo green: deep cool blue-green, very high tinting strength
-    rgb: { r: 10, g: 95, b: 80 },
+    // phthalo green: deep cool blue-green, very high tinting strength (very dark masstone)
+    rgb: { r: 8, g: 54, b: 45 },
     opacity: 0.5,
     temperature: "cool",
     strength: 0.97,
@@ -264,8 +264,8 @@ export const CORFIX_PIGMENTS: Pigment[] = [
   {
     id: "cx-turquoise-blue",
     name: "Turquoise Blue",
-    // two phthalos (blue + green): vivid deep cyan, very high tinting strength
-    rgb: { r: 14, g: 112, b: 134 },
+    // two phthalos (blue + green): vivid deep cyan, very high tinting strength (dark masstone)
+    rgb: { r: 10, g: 66, b: 80 },
     opacity: 0.5,
     temperature: "cool",
     strength: 0.95,
@@ -327,8 +327,8 @@ export const CORFIX_PIGMENTS: Pigment[] = [
   {
     id: "cx-carmine",
     name: "Carmine",
-    // deep cool crimson (bluish reds PR57 + PR63), semi-transparent
-    rgb: { r: 158, g: 26, b: 54 },
+    // deep cool crimson (bluish reds PR57 + PR63), semi-transparent (dark masstone)
+    rgb: { r: 100, g: 20, b: 42 },
     opacity: 0.5,
     temperature: "cool",
     strength: 0.85,

@@ -33,6 +33,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.1.3",
+        date: "2026",
+        changes: [
+          "Much better dark colors: the built-in palettes stored their dark, transparent pigments (blacks, umbers, sienna, ultramarine, alizarin, viridian, Payne's…) far too light — like tints instead of the thick masstone. They're now corrected, so deep browns/darks are reachable and recipes stop collapsing to grey or odd complementaries. Bright/opaque tubes (cadmiums, yellows, ochre, whites) are unchanged. (Your own saved palettes aren't touched — reset or re-add a preset to get the new values, or set a pigment's color yourself.)",
+        ],
+      },
+      {
         version: "1.1.2",
         date: "2026",
         changes: [
@@ -165,6 +172,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.1.3",
+        date: "2026",
+        changes: [
+          "Colores oscuros mucho mejores: las paletas incluidas guardaban sus pigmentos oscuros y transparentes (negros, umbers, siena, ultramar, alizarina, viridian, Payne's…) demasiado claros — como tintes en vez del masstone grueso. Ahora están corregidos, así los marrones/oscuros profundos son alcanzables y las recetas dejan de colapsar a gris o complementarios raros. Los tubos brillantes/opacos (cadmios, amarillos, ocre, blancos) no cambian. (Tus paletas ya guardadas no se tocan — reseteá o re-agregá un preset para tener los nuevos valores, o fijá el color de un pigmento vos mismo.)",
+        ],
+      },
       {
         version: "1.1.2",
         date: "2026",

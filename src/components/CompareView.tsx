@@ -189,6 +189,30 @@ function loadImage(file: Blob): Promise<HTMLImageElement> {
   });
 }
 
+// Small "replace this image" button with its own hidden file input.
+function ReplaceButton({ onFile }: { onFile: (f: Blob) => void }) {
+  const { t } = useT();
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <>
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onFile(f);
+          e.target.value = "";
+        }}
+      />
+      <Button variant="outline" size="sm" onClick={() => ref.current?.click()}>
+        <Upload className="h-3.5 w-3.5" /> {t("compare.replace")}
+      </Button>
+    </>
+  );
+}
+
 function outputSize(corners: Pt[], natW: number, natH: number) {
   const px = corners.map((c) => ({ x: c.x * natW, y: c.y * natH }));
   const d = (a: Pt, b: Pt) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -250,6 +274,19 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
     }
   }, [wipSlot.blob]);
 
+  const replaceRef = (f: Blob) => {
+    refSlot.save(f);
+    loadImage(f).then(setRefImg);
+    setRefCorners(DEFAULT_CORNERS);
+    setAnalyzed(null);
+  };
+  const replaceWip = (f: Blob) => {
+    wipSlot.save(f);
+    loadImage(f).then(setWipImg);
+    setWipCorners(DEFAULT_CORNERS);
+    setAnalyzed(null);
+  };
+
   const analyze = () => {
     if (!refImg || !wipImg) return;
     const size = outputSize(refCorners, refImg.naturalWidth, refImg.naturalHeight);
@@ -280,12 +317,18 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
       {(!refImg || !wipImg) && (
         <div className="grid gap-4 sm:grid-cols-2">
           {refImg ? (
-            <img src={refImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
+            <div className="space-y-2">
+              <img src={refImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
+              <ReplaceButton onFile={replaceRef} />
+            </div>
           ) : (
             <Dropzone label={t("compare.uploadRef")} onFile={(f) => { refSlot.save(f); loadImage(f).then(setRefImg); }} />
           )}
           {wipImg ? (
-            <img src={wipImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
+            <div className="space-y-2">
+              <img src={wipImg.src} className="h-48 w-full rounded-lg border border-border object-contain" alt="" />
+              <ReplaceButton onFile={replaceWip} />
+            </div>
           ) : (
             <Dropzone label={t("compare.uploadWip")} onFile={(f) => { wipSlot.save(f); loadImage(f).then(setWipImg); }} />
           )}
@@ -303,10 +346,12 @@ export function CompareView({ pigments }: { pigments: Pigment[] }) {
               <div className="space-y-1">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("compare.reference")}</p>
                 <CornerAligner img={refImg} corners={refCorners} onChange={(c) => { setRefCorners(c); setAnalyzed(null); }} />
+                <ReplaceButton onFile={replaceRef} />
               </div>
               <div className="space-y-1">
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("compare.yourPainting")}</p>
                 <CornerAligner img={wipImg} corners={wipCorners} onChange={(c) => { setWipCorners(c); setAnalyzed(null); }} />
+                <ReplaceButton onFile={replaceWip} />
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">

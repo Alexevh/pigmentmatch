@@ -148,7 +148,10 @@ src/
       off, click to pick; optional sample brush — radius 0 = 1px (default), >0
       averages a (2r+1)² block). All image EDITING moved to the IMG Lab tab.
     ImgLabView (IMG Lab tab: dedicated image-processing page using imagefx.ts —
-      sectioned cards for Adjustments (sliders, live, no deps), AI enhance
+      sectioned cards for Adjustments (sliders, live, no deps), Stencil (line-art
+      via `stencilImage`: grayscale→blur→Sobel→threshold, live toggle + Detail
+      slider, built from the adjusted pixels so Contrast feeds it, no deps),
+      AI enhance
       (ESRGAN slim/medium/thick super-resolution, lazy-loaded), and an optional
       **Cloud AI — Gemini "Nano Banana"** (bring-your-own API key in
       localStorage, called from the browser via `cloudEnhance` in imagefx.ts —

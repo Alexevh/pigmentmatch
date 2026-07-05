@@ -11,12 +11,14 @@ import {
   SlidersHorizontal,
   Sparkles,
   Cloud,
+  PenTool,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import {
   DEFAULT_ADJUST,
   adjustActive,
   computeAdjusted,
+  stencilImage,
   upscaleImage,
   cloudEnhance,
   MAX_AI_OUTPUT,
@@ -40,6 +42,8 @@ export function ImgLabView() {
   const [hasImage, setHasImage] = useState(false);
   const [showCam, setShowCam] = useState(false);
   const [adjust, setAdjust] = useState<Adjust>(DEFAULT_ADJUST);
+  const [stencil, setStencil] = useState(false);
+  const [stencilDetail, setStencilDetail] = useState(55);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -70,6 +74,7 @@ export function ImgLabView() {
     setZoom(1);
     setPan({ x: 0, y: 0 });
     setAdjust(DEFAULT_ADJUST);
+    setStencil(false);
   }, []);
 
   const drawFile = useCallback(
@@ -92,11 +97,22 @@ export function ImgLabView() {
     if (!canvas || !base) return;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
-    const out = computeAdjusted(base, adjust);
+    // Adjustments always run first; the stencil (if on) is built from that, so
+    // e.g. more contrast → cleaner lines.
+    const adjusted = computeAdjusted(base, adjust);
+    let out = adjusted;
+    if (stencil) {
+      const adjData = new ImageData(
+        new Uint8ClampedArray(adjusted),
+        base.width,
+        base.height
+      );
+      out = stencilImage(adjData, stencilDetail);
+    }
     const result = ctx.createImageData(base.width, base.height);
     result.data.set(out);
     ctx.putImageData(result, 0, 0);
-  }, [adjust]);
+  }, [adjust, stencil, stencilDetail]);
 
   useEffect(() => {
     if (!hasImage) return;
@@ -354,6 +370,46 @@ export function ImgLabView() {
               >
                 <RotateCcw className="h-3.5 w-3.5" /> {t("image.reset")}
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Stencil / line art */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <PenTool className="h-4 w-4 text-accent" />
+                {t("imglab.stencilTitle")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                {t("imglab.stencilDesc")}
+              </p>
+              <button
+                onClick={() => setStencil((s) => !s)}
+                className={
+                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
+                  (stencil
+                    ? "bg-accent text-accent-foreground"
+                    : "bg-secondary/60 text-muted-foreground hover:text-foreground")
+                }
+              >
+                {t("imglab.stencilToggle")}
+              </button>
+              {stencil && (
+                <div className="flex items-center gap-3 pt-1">
+                  <span className="w-16 shrink-0 text-xs text-muted-foreground">
+                    {t("imglab.stencilDetail")}
+                  </span>
+                  <Slider
+                    value={stencilDetail}
+                    min={0}
+                    max={100}
+                    step={1}
+                    onChange={setStencilDetail}
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 

@@ -95,6 +95,53 @@ export function computeAdjusted(
   return sharpen > 0 ? sharpenImage(px, w, h, sharpen / 100) : px;
 }
 
+// Turn an image into a "stencil" / line drawing: black outlines on white, no
+// color or shading. Grayscale → light blur (denoise) → Sobel edge magnitude →
+// threshold. `detail` (0..100) controls how many edges survive (higher = more
+// lines). No dependencies — pure canvas math.
+export function stencilImage(base: ImageData, detail = 55): Uint8ClampedArray {
+  const { width: w, height: h, data } = base;
+  const n = w * h;
+  const gray = new Float32Array(n);
+  for (let i = 0, p = 0; i < data.length; i += 4, p++)
+    gray[p] = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+
+  // 3x3 box blur to reduce speckle before edge detection
+  const g = new Float32Array(n);
+  const at = (x: number, y: number) =>
+    gray[(y < 0 ? 0 : y >= h ? h - 1 : y) * w + (x < 0 ? 0 : x >= w ? w - 1 : x)];
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      let s = 0;
+      for (let ky = -1; ky <= 1; ky++)
+        for (let kx = -1; kx <= 1; kx++) s += at(x + kx, y + ky);
+      g[y * w + x] = s / 9;
+    }
+  }
+  const bat = (x: number, y: number) =>
+    g[(y < 0 ? 0 : y >= h ? h - 1 : y) * w + (x < 0 ? 0 : x >= w ? w - 1 : x)];
+
+  // higher detail → lower threshold → more edges kept
+  const threshold = 140 - Math.max(0, Math.min(100, detail)) * 1.25;
+  const out = new Uint8ClampedArray(data.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const gx =
+        -bat(x - 1, y - 1) - 2 * bat(x - 1, y) - bat(x - 1, y + 1) +
+        bat(x + 1, y - 1) + 2 * bat(x + 1, y) + bat(x + 1, y + 1);
+      const gy =
+        -bat(x - 1, y - 1) - 2 * bat(x, y - 1) - bat(x + 1, y - 1) +
+        bat(x - 1, y + 1) + 2 * bat(x, y + 1) + bat(x + 1, y + 1);
+      const mag = Math.sqrt(gx * gx + gy * gy);
+      const v = mag > threshold ? 0 : 255; // black edge on white
+      const o = (y * w + x) * 4;
+      out[o] = out[o + 1] = out[o + 2] = v;
+      out[o + 3] = 255;
+    }
+  }
+  return out;
+}
+
 // --- AI (lazy-loaded) ---
 
 // Bound the upscaled OUTPUT so a single GPU texture doesn't overflow.

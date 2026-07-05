@@ -143,6 +143,11 @@ const en: Dict = {
     adjustTitle: "Adjustments",
     adjustDesc:
       "Local, predictable tweaks (no AI). Best for color / white balance, exposure and sharpness.",
+    stencilTitle: "Stencil (line art)",
+    stencilDesc:
+      "Turn the photo into a clean line drawing — black outlines, no color or shading (edge detection, no AI). Great to trace or transfer. Tune the detail, then Download. Tip: bump Contrast above for cleaner lines.",
+    stencilToggle: "Stencil",
+    stencilDetail: "Detail",
     aiExperimental: "AI is experimental",
     aiWarning:
       "The AI features run entirely on your computer (no server), so they use a lot of CPU/GPU and memory. They can be slow, may shift colors, and can fail on modest devices — if that happens, reload the page or try a smaller image.",
@@ -856,6 +861,11 @@ const es: Dict = {
     adjustTitle: "Ajustes",
     adjustDesc:
       "Retoques locales y predecibles (sin IA). Ideales para color / balance de blancos, exposición y nitidez.",
+    stencilTitle: "Stencil (línea)",
+    stencilDesc:
+      "Convierte la foto en un dibujo de líneas limpio — contornos negros, sin color ni sombras (detección de bordes, sin IA). Ideal para calcar o transferir. Ajustá el detalle y descargá. Tip: subí el Contraste de arriba para líneas más limpias.",
+    stencilToggle: "Stencil",
+    stencilDetail: "Detalle",
     aiExperimental: "La IA es experimental",
     aiWarning:
       "Las funciones de IA corren enteramente en tu computadora (sin servidor), así que usan mucha CPU/GPU y memoria. Pueden ser lentas, alterar colores y fallar en equipos modestos — si pasa, recargá la página o probá una imagen más chica.",

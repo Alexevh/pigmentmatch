@@ -33,6 +33,14 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.1.4",
+        date: "2026",
+        changes: [
+          "IMG Lab: new “Stencil (line art)” option — turns a photo into a clean black-line drawing (no color or shading) you can trace or transfer, with a Detail slider. Runs locally (edge detection, no AI); Download saves it.",
+          "Compare: you can now replace an already-uploaded reference or WIP image without starting over.",
+        ],
+      },
+      {
         version: "1.1.3",
         date: "2026",
         changes: [
@@ -172,6 +180,14 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.1.4",
+        date: "2026",
+        changes: [
+          "IMG Lab: nueva opción “Stencil (línea)” — convierte una foto en un dibujo de líneas negras limpio (sin color ni sombras) para calcar o transferir, con un control de Detalle. Corre local (detección de bordes, sin IA); Descargar lo guarda.",
+          "Comparar: ahora podés reemplazar una imagen (referencia o pintura) ya subida sin empezar de nuevo.",
+        ],
+      },
       {
         version: "1.1.3",
         date: "2026",

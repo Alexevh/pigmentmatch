@@ -97,9 +97,17 @@ export function computeAdjusted(
 
 // Turn an image into a "stencil" / line drawing: black outlines on white, no
 // color or shading. Grayscale → light blur (denoise) → Sobel edge magnitude →
-// threshold. `detail` (0..100) controls how many edges survive (higher = more
-// lines). No dependencies — pure canvas math.
-export function stencilImage(base: ImageData, detail = 55): Uint8ClampedArray {
+// soft threshold (anti-aliased). No dependencies — pure canvas math.
+//
+// `detail` (0..100): edge sensitivity — higher keeps more/weaker edges.
+// `weight` (~0.3..5, continuous): stroke weight — how thick/dark the lines
+//   render. It scales the threshold (lower → thicker & darker) with an
+//   anti-aliased ramp, so any in-between value gives an in-between stroke.
+export function stencilImage(
+  base: ImageData,
+  detail = 55,
+  weight = 1
+): Uint8ClampedArray {
   const { width: w, height: h, data } = base;
   const n = w * h;
   const gray = new Float32Array(n);
@@ -121,8 +129,12 @@ export function stencilImage(base: ImageData, detail = 55): Uint8ClampedArray {
   const bat = (x: number, y: number) =>
     g[(y < 0 ? 0 : y >= h ? h - 1 : y) * w + (x < 0 ? 0 : x >= w ? w - 1 : x)];
 
-  // higher detail → lower threshold → more edges kept
-  const threshold = 140 - Math.max(0, Math.min(100, detail)) * 1.25;
+  const wgt = Math.max(0.2, weight);
+  // Soft threshold band: pixels below (t - band) are white, above t are full
+  // black, linear (anti-aliased) between → smooth strokes at any weight.
+  const t = (140 - Math.max(0, Math.min(100, detail)) * 1.25) / wgt;
+  const band = 14 + 10 * wgt;
+
   const out = new Uint8ClampedArray(data.length);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -133,7 +145,10 @@ export function stencilImage(base: ImageData, detail = 55): Uint8ClampedArray {
         -bat(x - 1, y - 1) - 2 * bat(x, y - 1) - bat(x + 1, y - 1) +
         bat(x - 1, y + 1) + 2 * bat(x, y + 1) + bat(x + 1, y + 1);
       const mag = Math.sqrt(gx * gx + gy * gy);
-      const v = mag > threshold ? 0 : 255; // black edge on white
+      // coverage 0 (white) .. 1 (black)
+      let a = (mag - (t - band)) / band;
+      a = a < 0 ? 0 : a > 1 ? 1 : a;
+      const v = Math.round(255 * (1 - a));
       const o = (y * w + x) * 4;
       out[o] = out[o + 1] = out[o + 2] = v;
       out[o + 3] = 255;

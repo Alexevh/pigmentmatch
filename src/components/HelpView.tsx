@@ -33,6 +33,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.1.5",
+        date: "2026",
+        changes: [
+          "Stencil: added an editable line-weight control (a number you type, continuous fine → bold, anti-aliased) so you can dial the exact stroke thickness.",
+        ],
+      },
+      {
         version: "1.1.4",
         date: "2026",
         changes: [
@@ -180,6 +187,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.1.5",
+        date: "2026",
+        changes: [
+          "Stencil: se agregó un control de grosor de línea editable (un número que tipeás, continuo fino → grueso, con anti-aliasing) para regular el trazo exacto.",
+        ],
+      },
       {
         version: "1.1.4",
         date: "2026",

@@ -44,6 +44,7 @@ export function ImgLabView() {
   const [adjust, setAdjust] = useState<Adjust>(DEFAULT_ADJUST);
   const [stencil, setStencil] = useState(false);
   const [stencilDetail, setStencilDetail] = useState(55);
+  const [stencilWeight, setStencilWeight] = useState(1);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -107,12 +108,12 @@ export function ImgLabView() {
         base.width,
         base.height
       );
-      out = stencilImage(adjData, stencilDetail);
+      out = stencilImage(adjData, stencilDetail, stencilWeight);
     }
     const result = ctx.createImageData(base.width, base.height);
     result.data.set(out);
     ctx.putImageData(result, 0, 0);
-  }, [adjust, stencil, stencilDetail]);
+  }, [adjust, stencil, stencilDetail, stencilWeight]);
 
   useEffect(() => {
     if (!hasImage) return;
@@ -397,18 +398,42 @@ export function ImgLabView() {
                 {t("imglab.stencilToggle")}
               </button>
               {stencil && (
-                <div className="flex items-center gap-3 pt-1">
-                  <span className="w-16 shrink-0 text-xs text-muted-foreground">
-                    {t("imglab.stencilDetail")}
-                  </span>
-                  <Slider
-                    value={stencilDetail}
-                    min={0}
-                    max={100}
-                    step={1}
-                    onChange={setStencilDetail}
-                  />
-                </div>
+                <>
+                  <div className="flex items-center gap-3 pt-1">
+                    <span className="w-16 shrink-0 text-xs text-muted-foreground">
+                      {t("imglab.stencilDetail")}
+                    </span>
+                    <Slider
+                      value={stencilDetail}
+                      min={0}
+                      max={100}
+                      step={1}
+                      onChange={setStencilDetail}
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="w-16 shrink-0 text-xs text-muted-foreground">
+                      {t("imglab.stencilThickness")}
+                    </span>
+                    <Input
+                      type="number"
+                      min={0.3}
+                      max={5}
+                      step={0.1}
+                      value={stencilWeight}
+                      onChange={(e) => {
+                        const v = parseFloat(e.target.value);
+                        setStencilWeight(
+                          Number.isFinite(v) ? Math.min(5, Math.max(0.3, v)) : 1
+                        );
+                      }}
+                      className="h-8 w-20"
+                    />
+                    <span className="text-[11px] text-muted-foreground">
+                      {t("imglab.stencilThicknessHint")}
+                    </span>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>

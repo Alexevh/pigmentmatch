@@ -130,7 +130,7 @@ export const WINSOR_NEWTON_PIGMENTS: Pigment[] = [
   { id: "wn-venetian-red", name: "Venetian Red", rgb: { r: 126, g: 52, b: 42 }, opacity: 0.8, temperature: "warm", strength: 0.75 }, // PR101
   // yellows
   { id: "wn-naples-yellow", name: "Naples Yellow", rgb: { r: 243, g: 222, b: 150 }, opacity: 0.85, temperature: "warm", strength: 0.6 }, // hue
-  { id: "wn-winsor-yellow", name: "Winsor Yellow", rgb: { r: 255, g: 205, b: 0 }, opacity: 0.5, temperature: "warm", strength: 0.8 }, // PY154; masstone from measured Lab (Griffin line); Transparent
+  { id: "wn-winsor-yellow", name: "Winsor Yellow", rgb: { r: 215, g: 164, b: 10 }, opacity: 0.5, temperature: "warm", strength: 0.8 }, // PY154; masstone from the painter's real white-balanced swatch (#D7A40A) — darker/less bright than the prior #FFCD00 Lab estimate (that was a thin drawdown); Transparent
   // reds / pinks / violets
   { id: "wn-cadmium-red", name: "Cadmium Red", rgb: { r: 196, g: 44, b: 36 }, opacity: 0.9, temperature: "warm", strength: 0.85 }, // PR108
   { id: "wn-permanent-alizarin-crimson", name: "Permanent Alizarin Crimson", rgb: { r: 78, g: 10, b: 30 }, opacity: 0.3, temperature: "cool", strength: 0.85 }, // PR177; dark maroon masstone (thick); Transparent

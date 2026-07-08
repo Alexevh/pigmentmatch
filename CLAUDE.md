@@ -88,9 +88,11 @@ src/
                     value/color diff maps, histogram, scorecard
     color.ts        hex/rgb/hsl/Lab conversions, deltaE (CIE76) + deltaE2000, matchScore,
                     analyzeColor (painter analysis), buildVariations
-    pigments.ts     Pigment type; DEFAULT (Traditional Oil 8), WINSOR_NEWTON (25),
-                    CORFIX (19); makeX palettes; PALETTE_PRESETS; libraryPigments();
-                    isEnabled()
+    pigments.ts     Pigment type; DEFAULT (Traditional Oil 8), WINSOR_NEWTON
+                    Artists' (17 — one painter's actual kit + Titanium White),
+                    WINTON (15 — W&N student line, ids wnw-, estimates to refine
+                    from swatches), CORFIX (19); makeX palettes; PALETTE_PRESETS;
+                    libraryPigments(); isEnabled()
     mixer.ts        subtractive mixing + recipe generator (the heart)
     scene.ts        Scene/Zone mode (additive): buildSceneProfile (Otsu split →
                     light/shadow Lab means + warm/cool temps + polarity + key),

@@ -551,6 +551,14 @@ const en: Dict = {
     brush: "Brush",
     brushTitle:
       "Sample area: 0 = one pixel (default). Higher averages a square so a click on a detailed area gives one representative color.",
+    wb: "White balance",
+    wbPicking: "Click a white/gray card",
+    wbHint:
+      "Correct your phone's color cast: put a white or gray card in the same photo under the same light, click it here, then pick your color. Every pick is neutralized against it.",
+    wbActive: "WB on",
+    wbActiveHint:
+      "Picked colors are corrected against your reference card. Uploading a new photo resets it.",
+    wbClear: "Clear white-balance reference",
     compareTitle: "Compare with your swatch",
     compareHint:
       "Upload a photo of your painted swatch and click it to compare with the target color above.",
@@ -1314,6 +1322,14 @@ const es: Dict = {
     brush: "Pincel",
     brushTitle:
       "Área de muestreo: 0 = un píxel (por defecto). Más alto promedia un cuadrado, así un clic en una zona con detalle da un color representativo.",
+    wb: "Balance de blancos",
+    wbPicking: "Hacé clic en una tarjeta blanca/gris",
+    wbHint:
+      "Corregí el tinte de color de tu teléfono: poné una tarjeta blanca o gris en la misma foto y con la misma luz, hacé clic en ella acá y después tomá tu color. Cada muestra se neutraliza contra ella.",
+    wbActive: "BdB activo",
+    wbActiveHint:
+      "Los colores tomados se corrigen contra tu tarjeta de referencia. Subir una foto nueva lo reinicia.",
+    wbClear: "Quitar la referencia de balance de blancos",
     compareTitle: "Comparar con tu swatch",
     compareHint:
       "Subí una foto de tu swatch pintado y hacé clic para compararlo con el color objetivo de arriba.",

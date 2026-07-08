@@ -152,7 +152,12 @@ src/
     ImageSampler (sampling only: upload/camera, in-box +/- zoom 1-10x with
       drag-to-pan via CSS transform + eyedropper cursor, magnifier loupe default
       off, click to pick; optional sample brush — radius 0 = 1px (default), >0
-      averages a (2r+1)² block). All image EDITING moved to the IMG Lab tab.
+      averages a (2r+1)² block; optional **white-balance reference** (opt-in):
+      click a white/gray card in the same photo to capture its raw color, then
+      every pick is neutralized via `whiteBalance` (color.ts: von Kries
+      per-channel gain in linear light, luminance-preserving, gains clamped) to
+      cancel the phone camera's auto color cast — reset on a new photo, off by
+      default = old behavior). All image EDITING moved to the IMG Lab tab.
     ImgLabView (IMG Lab tab: dedicated image-processing page using imagefx.ts —
       sectioned cards for Adjustments (sliders, live, no deps), Stencil (line-art
       via `stencilImage`: grayscale→blur→Sobel→threshold, live toggle + Detail

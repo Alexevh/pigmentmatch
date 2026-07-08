@@ -11,6 +11,7 @@ import {
   hslToRgb,
   buildHarmonies,
   clamp255,
+  whiteBalance,
 } from "@/lib/color";
 
 describe("color", () => {
@@ -74,5 +75,28 @@ describe("color", () => {
     expect(clamp255(-5)).toBe(0);
     expect(clamp255(300)).toBe(255);
     expect(clamp255(128)).toBe(128);
+  });
+
+  it("whiteBalance: a neutral reference leaves colors ~unchanged", () => {
+    const c = { r: 180, g: 120, b: 60 };
+    const out = whiteBalance(c, { r: 200, g: 200, b: 200 });
+    expect(Math.abs(out.r - c.r)).toBeLessThanOrEqual(2);
+    expect(Math.abs(out.g - c.g)).toBeLessThanOrEqual(2);
+    expect(Math.abs(out.b - c.b)).toBeLessThanOrEqual(2);
+  });
+
+  it("whiteBalance: a warm (yellowish) cast on the card cools the sample", () => {
+    // Card photographed too warm: red/green high, blue low. Correcting should
+    // pull blue up and red down relative to green (remove the yellow cast).
+    const gray = { r: 128, g: 128, b: 128 };
+    const warmRef = { r: 210, g: 200, b: 150 }; // yellow-cast "white" card
+    const out = whiteBalance(gray, warmRef);
+    expect(out.b).toBeGreaterThan(gray.b); // blue restored
+    expect(out.r).toBeLessThan(gray.r); // red pulled back
+  });
+
+  it("whiteBalance: a too-dark reference is ignored (returns input)", () => {
+    const c = { r: 100, g: 100, b: 100 };
+    expect(whiteBalance(c, { r: 0, g: 0, b: 0 })).toEqual(c);
   });
 });

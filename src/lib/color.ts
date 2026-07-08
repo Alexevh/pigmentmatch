@@ -466,3 +466,39 @@ export function buildHarmonies(rgb: RGB): Harmony[] {
 export function isLight(rgb: RGB): boolean {
   return rgbToLab(rgb).L > 60;
 }
+
+// White-balance a sampled color against a reference patch the painter knows is
+// neutral (a white or gray card in the SAME photo, under the SAME light). Phone
+// cameras apply an auto white-balance cast to the whole frame; we model that
+// cast as a per-channel gain (von Kries, in linear light) and remove it. We
+// preserve the reference's own brightness (target = its linear-channel mean) so
+// we neutralize the COLOR cast without touching exposure. With a perfectly
+// neutral reference the gains are ~1 and the color is returned essentially
+// unchanged. Gains are clamped to a sane range so a bad/too-dark reference can't
+// blow the color up. Pure, deterministic; used by ImageSampler (opt-in).
+const srgbToLin = (c: number) => {
+  const s = c / 255;
+  return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+};
+const linToSrgb = (v: number) =>
+  clamp255(
+    (v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055) * 255
+  );
+
+export function whiteBalance(rgb: RGB, ref: RGB): RGB {
+  const rw = srgbToLin(ref.r);
+  const gw = srgbToLin(ref.g);
+  const bw = srgbToLin(ref.b);
+  const gray = (rw + gw + bw) / 3;
+  const eps = 1e-4;
+  if (gray < eps || rw < eps || gw < eps || bw < eps) return rgb; // too dark to trust
+  const gc = (w: number) => Math.max(0.25, Math.min(4, gray / w));
+  const gr = gc(rw);
+  const gg = gc(gw);
+  const gb = gc(bw);
+  return {
+    r: linToSrgb(srgbToLin(rgb.r) * gr),
+    g: linToSrgb(srgbToLin(rgb.g) * gg),
+    b: linToSrgb(srgbToLin(rgb.b) * gb),
+  };
+}

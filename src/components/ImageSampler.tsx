@@ -1,6 +1,15 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Upload, Search, SearchX, Camera, Plus, Minus } from "lucide-react";
-import { rgbToHex, type RGB } from "@/lib/color";
+import {
+  Upload,
+  Search,
+  SearchX,
+  Camera,
+  Plus,
+  Minus,
+  Pipette,
+  X,
+} from "lucide-react";
+import { rgbToHex, whiteBalance, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { useActiveImage } from "@/hooks/useActiveImage";
 import { Button } from "@/components/ui/button";
@@ -87,6 +96,19 @@ export function ImageSampler({
     null
   );
 
+  // Optional white-balance reference (opt-in). Phone cameras cast the whole
+  // frame; if the painter includes a white/gray card in the SAME shot, clicking
+  // it in "set reference" mode captures its raw color, and every subsequent
+  // pick is neutralized against it (see whiteBalance). Off by default → the
+  // sampler behaves exactly as before.
+  const [wbPick, setWbPick] = useState(false); // next click sets the reference
+  const [wbRef, setWbRef] = useState<RGB | null>(null);
+  const correct = useCallback(
+    (rgb: RGB | null): RGB | null =>
+      rgb && wbRef ? whiteBalance(rgb, wbRef) : rgb,
+    [wbRef]
+  );
+
   const drawFile = useCallback(
     (file: Blob, persist = false) => {
       const url = URL.createObjectURL(file);
@@ -104,6 +126,8 @@ export function ImageSampler({
         setHasImage(true);
         setZoom(1);
         setPan({ x: 0, y: 0 });
+        setWbRef(null); // a new photo has its own cast — drop the old reference
+        setWbPick(false);
         onImage?.(img);
         URL.revokeObjectURL(url);
       };
@@ -254,7 +278,10 @@ export function ImageSampler({
 
     const c = coordsAt(e);
     if (!c) return;
-    setHover(sampleAt(c.x, c.y));
+    // While picking the reference, show the raw color under the cursor; once a
+    // reference is set, hover previews the corrected color.
+    const raw = sampleAt(c.x, c.y);
+    setHover(wbPick ? raw : correct(raw));
     setBrushPos(sampleR > 0 ? { x: e.clientX, y: e.clientY } : null);
     if (probe) setProbePos({ x: e.clientX, y: e.clientY });
     if (loupeOn) {
@@ -326,7 +353,16 @@ export function ImageSampler({
               const c = coordsAt(e);
               if (!c) return;
               const rgb = sampleAt(c.x, c.y);
-              if (rgb) onSample(rgb);
+              if (!rgb) return;
+              if (wbPick) {
+                // Capture the neutral reference (raw pixels) and switch to
+                // correcting mode — this click does NOT emit a sampled color.
+                setWbRef(rgb);
+                setWbPick(false);
+                return;
+              }
+              const out = correct(rgb) ?? rgb;
+              onSample(out);
               const cv = canvasRef.current;
               if (cv) onSamplePos?.(c.x / cv.width, c.y / cv.height);
             }}
@@ -431,6 +467,44 @@ export function ImageSampler({
               {sampleR === 0 ? "1px" : `${sampleR * 2 + 1}`}
             </span>
           </div>
+          {/* White-balance reference (opt-in): neutralize the phone's color
+              cast against a white/gray card in the same photo. */}
+          {wbRef ? (
+            <div className="flex items-center gap-1.5">
+              <span
+                className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-xs text-emerald-300"
+                title={t("image.wbActiveHint")}
+              >
+                <span
+                  className="h-3.5 w-3.5 rounded-full border border-white/60"
+                  style={{ backgroundColor: rgbToHex(wbRef) }}
+                />
+                {t("image.wbActive")}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => {
+                  setWbRef(null);
+                  setWbPick(false);
+                }}
+                title={t("image.wbClear")}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant={wbPick ? "accent" : "outline"}
+              size="sm"
+              onClick={() => setWbPick((v) => !v)}
+              title={t("image.wbHint")}
+            >
+              <Pipette className="h-4 w-4" />{" "}
+              {wbPick ? t("image.wbPicking") : t("image.wb")}
+            </Button>
+          )}
           {hover && (
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span

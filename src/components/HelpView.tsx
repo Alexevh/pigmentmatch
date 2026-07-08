@@ -33,6 +33,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.2.1",
+        date: "2026",
+        changes: [
+          "Sampling: optional white-balance reference. Phone cameras cast a color tint over the whole photo, so a sampled color is never quite right. Now you can put a white or gray card next to your subject in the same shot, click “White balance” and then the card, and every color you pick is corrected against it — cancelling most of the camera's tint. Off by default; resets when you upload a new photo. Works in Image, Mix, Coach and Calibrate.",
+        ],
+      },
+      {
         version: "1.2.0",
         date: "2026",
         changes: [
@@ -183,6 +190,10 @@ const HELP: Record<"en" | "es", HelpContent> = {
         q: "Can I use my real paints?",
         a: "Yes — edit the palette to match your tubes (color, opacity, strength), or calibrate it from mixes you've actually made.",
       },
+      {
+        q: "The color I sample from a phone photo looks off. Why, and can I fix it?",
+        a: "Phone cameras auto-adjust white balance and exposure, tinting the whole photo, so there's no single “true” RGB for a paint in a snapshot. The fix: include a white or gray card next to your subject in the same shot and under the same light, then use the “White balance” button in the sampler — click the card first, and every color you pick is corrected against it. It won't be lab-accurate, but it removes most of the camera's cast. For matching, what matters most is relative color (lighter/darker, warmer/cooler) — that survives the camera well.",
+      },
     ],
   },
   es: {
@@ -194,6 +205,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.2.1",
+        date: "2026",
+        changes: [
+          "Muestreo: referencia de balance de blancos opcional. La cámara del teléfono le mete un tinte de color a toda la foto, así que el color muestreado nunca sale del todo bien. Ahora podés poner una tarjeta blanca o gris al lado del objeto en la misma toma, tocar “Balance de blancos” y después la tarjeta, y cada color que tomes se corrige contra ella — cancelando gran parte del tinte de la cámara. Apagado por defecto; se reinicia al subir una foto nueva. Funciona en Imagen, Mezcla, Coach y Calibrar.",
+        ],
+      },
       {
         version: "1.2.0",
         date: "2026",
@@ -344,6 +362,10 @@ const HELP: Record<"en" | "es", HelpContent> = {
       {
         q: "¿Puedo usar mis pinturas reales?",
         a: "Sí — editá la paleta para que coincida con tus tubos (color, opacidad, fuerza), o calibrala con mezclas que hayas hecho de verdad.",
+      },
+      {
+        q: "El color que muestreo de una foto del celular sale distinto. ¿Por qué, y cómo lo arreglo?",
+        a: "Las cámaras de teléfono ajustan solas el balance de blancos y la exposición, y le meten un tinte a toda la foto, así que no existe un RGB “verdadero” único para una pintura en una foto. La solución: poné una tarjeta blanca o gris al lado del objeto en la misma toma y con la misma luz, y usá el botón “Balance de blancos” del muestreador — hacé clic primero en la tarjeta, y cada color que tomes se corrige contra ella. No va a ser exacto de laboratorio, pero saca gran parte del tinte de la cámara. Para igualar, lo que más importa es el color relativo (más claro/oscuro, más cálido/frío) — eso sobrevive bien a la cámara.",
       },
     ],
   },

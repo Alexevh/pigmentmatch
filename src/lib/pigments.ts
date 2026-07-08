@@ -161,7 +161,7 @@ export const WINTON_PIGMENTS: Pigment[] = [
   // whites / blacks / earths
   { id: "wnw-titanium-white", name: "Titanium White", rgb: { r: 248, g: 244, b: 234 }, opacity: 1, temperature: "cool", strength: 0.55 },
   { id: "wnw-ivory-black", name: "Ivory Black", rgb: { r: 26, g: 26, b: 25 }, opacity: 0.9, temperature: "warm", strength: 0.9 },
-  { id: "wnw-raw-umber", name: "Raw Umber", rgb: { r: 44, g: 40, b: 35 }, opacity: 0.35, temperature: "cool", strength: 0.75 },
+  { id: "wnw-raw-umber", name: "Raw Umber", rgb: { r: 33, g: 32, b: 31 }, opacity: 0.35, temperature: "cool", strength: 0.75 }, // masstone from the painter's real white-balanced swatch (#21201F) — darker/more neutral than the prior estimate
   { id: "wnw-burnt-sienna", name: "Burnt Sienna", rgb: { r: 78, g: 38, b: 30 }, opacity: 0.35, temperature: "warm", strength: 0.75 },
   { id: "wnw-yellow-ochre", name: "Yellow Ochre", rgb: { r: 170, g: 110, b: 47 }, opacity: 0.85, temperature: "warm", strength: 0.7 },
   // yellows

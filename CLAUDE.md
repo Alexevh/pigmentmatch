@@ -92,6 +92,12 @@ src/
                     CORFIX (19); makeX palettes; PALETTE_PRESETS; libraryPigments();
                     isEnabled()
     mixer.ts        subtractive mixing + recipe generator (the heart)
+    scene.ts        Scene/Zone mode (additive): buildSceneProfile (Otsu split →
+                    light/shadow Lab means + warm/cool temps + polarity + key),
+                    analyzeZone (family light/halftone/shadow, chromaRel), and
+                    sceneAdvice (warm-light⇒cool-shadow relational nudge → an
+                    adjusted target color + a palette pigment to add + tips).
+                    Pure Lab math; see SCENE_MODE_SPEC.md
     coach.ts        directional mixing advice from Lab deltas
     calibration.ts  fit pigment tinting strengths (and optionally masstone/
                     undertone colors, bounded ±60/chan) to the painter's real mixes
@@ -161,6 +167,10 @@ src/
       its global einsum overflows the WebGL texture limit regardless of input,
       so it can't run in the browser),
     PaletteExtractor,
+    SceneView (Scene tab: upload a reference + drag a zone box; shows the scene
+      profile (light/shadow temp + polarity + key, with a "flip light" override),
+      the zone analysis, and sceneAdvice with the measured vs scene-adjusted
+      recipes side by side. Persists to slot scene.reference. Uses scene.ts),
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel,
     SwatchCompare (Image tab: upload a photo of your swatch → match %, ΔL,
       Coach advice vs the target; reuses ImageSampler + coach), ui/
@@ -178,7 +188,7 @@ src/
     CloudStatusButton (header badge for active cloud sync: shows only when sync
       is enabled + signed in; color = state via useCloudSync.status (green ready
       / blue syncing+connecting / red error|offline); click forces cloudBackupNow)
-  App.tsx           tabs: Match · Image · Extract · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette
+  App.tsx           tabs: Match · Image · Extract · Scene · Coach · Compare · Mix · Logbook · IMG Lab · Calibrate · Palette
                     (Settings + Help are header icon buttons next to the language
                     toggle, not tabs — they set `tab` to render their TabsContent,
                     which shows by value even without a TabsList trigger; the
@@ -340,6 +350,16 @@ src/
   separate chunk). Why Firebase and not Mongo: Firestore is built for direct browser use
   (SDK + rules + offline), Mongo speaks raw TCP the browser can't. Strings under
   i18n `cloud.*`. **Default: OFF** (and no config) → app stays 100% local.
+
+### Added in 1.2.0
+- **Scene / Zone mode** (`scene.ts` + `SceneView`, new `scene` tab; fully
+  additive): analyze a dragged region relative to a whole-scene profile
+  (light/shadow temperature via Otsu split) and give context-aware, relational
+  advice (warm light ⇒ cool shadows) — an adjusted target color + a palette
+  pigment to add + tips, with the measured vs scene-adjusted recipes side by
+  side. Persists to the `scene.reference` image slot; strings under i18n
+  `scene.*`; spec in `SCENE_MODE_SPEC.md`. Guidance, not truth (light polarity is
+  user-overridable). See `scene.test.ts`.
 
 ### Added in 1.1.0
 - **Recipe amounts** (`useRecipeAmount` + `BatchControl`/`QtyLabel` in

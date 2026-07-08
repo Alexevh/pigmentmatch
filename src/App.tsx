@@ -10,6 +10,7 @@ import {
   Beaker,
   NotebookPen,
   Wand2,
+  Aperture,
   HelpCircle,
   Cog,
 } from "lucide-react";
@@ -34,6 +35,7 @@ import { SwatchCompare } from "@/components/SwatchCompare";
 import { Swatch } from "@/components/Swatch";
 import { ImageSampler } from "@/components/ImageSampler";
 import { PaletteExtractor } from "@/components/PaletteExtractor";
+import { SceneView } from "@/components/SceneView";
 import { PaletteManager } from "@/components/PaletteManager";
 import { CoachView } from "@/components/CoachView";
 import { CalibrateView } from "@/components/CalibrateView";
@@ -189,6 +191,7 @@ export default function App() {
                 { value: "match", label: t("tabs.match"), icon: Pipette },
                 { value: "image", label: t("tabs.image"), icon: ImageIcon },
                 { value: "extract", label: t("tabs.extract"), icon: Grid2x2 },
+                { value: "scene", label: t("tabs.scene"), icon: Aperture },
                 { value: "coach", label: t("tabs.coach"), icon: GraduationCap },
                 { value: "compare", label: t("tabs.compare"), icon: GitCompare },
                 { value: "mix", label: t("tabs.mix"), icon: Beaker },
@@ -294,6 +297,18 @@ export default function App() {
                   onSelectPalette={api.setActiveId}
                   onCreatePalette={api.addPaletteWith}
                 />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Scene: analyze a zone within the whole scene (light/shadow temp) */}
+          <TabsContent value="scene">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("scene.title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SceneView pigments={effectivePigments} />
               </CardContent>
             </Card>
           </TabsContent>

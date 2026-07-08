@@ -21,7 +21,8 @@ export type ImageSlot =
   | "mix.paint"
   | "extract.source"
   | "coach.sample"
-  | "calibrate.sample";
+  | "calibrate.sample"
+  | "scene.reference";
 
 interface ImageRecord {
   slot: string;

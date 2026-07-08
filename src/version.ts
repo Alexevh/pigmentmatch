@@ -1,2 +1,2 @@
 // App version, shown in the header and the Help tab's release notes.
-export const APP_VERSION = "1.1.5";
+export const APP_VERSION = "1.2.0";

@@ -362,7 +362,7 @@ export interface Variation {
   hex: string;
 }
 
-function labToRgb({ L, a, b }: Lab): RGB {
+export function labToRgb({ L, a, b }: Lab): RGB {
   const fy = (L + 16) / 116;
   const fx = fy + a / 500;
   const fz = fy - b / 200;

@@ -33,6 +33,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.2.0",
+        date: "2026",
+        changes: [
+          "New Scene tab — a painter's assistant, not just a colorimeter. Upload a reference and drag a box over a zone; it reads the scene's light-vs-shadow temperature and tells you how to make that zone read right in context (e.g. “this shadow reads warm for a warm-light scene — add ~3% Ultramarine to cool it”). Shows the measured mix and a scene-adjusted mix side by side. Local, no AI; a “flip light” override for when the photo misleads.",
+        ],
+      },
+      {
         version: "1.1.5",
         date: "2026",
         changes: [
@@ -187,6 +194,13 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.2.0",
+        date: "2026",
+        changes: [
+          "Nueva pestaña Escena — un asistente para pintores, no solo un colorímetro. Subí una referencia y arrastrá un recuadro sobre una zona; lee la temperatura de luces vs sombras de la escena y te dice cómo hacer que esa zona lea bien en contexto (ej. “esta sombra se lee cálida para una escena de luz cálida — agregá ~3% de Ultramar para enfriarla”). Muestra la mezcla medida y la ajustada a la escena lado a lado. Local, sin IA; con un “invertir luz” por si la foto engaña.",
+        ],
+      },
       {
         version: "1.1.5",
         date: "2026",

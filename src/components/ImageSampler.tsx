@@ -103,6 +103,10 @@ export function ImageSampler({
   // sampler behaves exactly as before.
   const [wbPick, setWbPick] = useState(false); // next click sets the reference
   const [wbRef, setWbRef] = useState<RGB | null>(null);
+  // Raw (uncorrected) RGB of the last real pick, so setting/clearing the
+  // reference can re-emit that same color corrected — the swatch updates
+  // immediately instead of waiting for the next click.
+  const lastRawRef = useRef<RGB | null>(null);
   const correct = useCallback(
     (rgb: RGB | null): RGB | null =>
       rgb && wbRef ? whiteBalance(rgb, wbRef) : rgb,
@@ -128,6 +132,7 @@ export function ImageSampler({
         setPan({ x: 0, y: 0 });
         setWbRef(null); // a new photo has its own cast — drop the old reference
         setWbPick(false);
+        lastRawRef.current = null;
         onImage?.(img);
         URL.revokeObjectURL(url);
       };
@@ -356,11 +361,16 @@ export function ImageSampler({
               if (!rgb) return;
               if (wbPick) {
                 // Capture the neutral reference (raw pixels) and switch to
-                // correcting mode — this click does NOT emit a sampled color.
+                // correcting mode. This click doesn't pick a NEW color, but it
+                // re-corrects the LAST picked color against the new reference so
+                // the swatch updates right away.
                 setWbRef(rgb);
                 setWbPick(false);
+                if (lastRawRef.current)
+                  onSample(whiteBalance(lastRawRef.current, rgb));
                 return;
               }
+              lastRawRef.current = rgb; // remember the raw pick
               const out = correct(rgb) ?? rgb;
               onSample(out);
               const cv = canvasRef.current;
@@ -488,6 +498,8 @@ export function ImageSampler({
                 onClick={() => {
                   setWbRef(null);
                   setWbPick(false);
+                  // Revert the swatch to the uncorrected color.
+                  if (lastRawRef.current) onSample(lastRawRef.current);
                 }}
                 title={t("image.wbClear")}
               >

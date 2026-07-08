@@ -187,6 +187,24 @@ export function makeWintonPalette(): Palette {
   };
 }
 
+// Winsor & Newton Mixed — both W&N lines combined in one palette (Artists' +
+// Winton), for a painter who owns and mixes across both. Shared tube names are
+// suffixed with their line so recipes never show two ambiguous "Titanium White"
+// entries; ids are already distinct (wn-/wnw-). Values are the same as each
+// source line (refine Winton from swatches later).
+export function makeWnMixedPalette(): Palette {
+  const tag = (ps: Pigment[], suffix: string): Pigment[] =>
+    ps.map((p) => ({ ...p, name: `${p.name} (${suffix})`, rgb: { ...p.rgb } }));
+  return {
+    id: "wn-mixed",
+    name: "Winsor & Newton Mixed",
+    pigments: [
+      ...tag(WINSOR_NEWTON_PIGMENTS, "Artists'"),
+      ...tag(WINTON_PIGMENTS, "Winton"),
+    ],
+  };
+}
+
 // Corfix (Brazilian brand, German high-permanence pigments). Built tube by
 // tube from the painter's actual kit. Several Corfix colors are multi-pigment
 // "hue" mixes, so their masstones can differ noticeably from a single-pigment
@@ -380,6 +398,9 @@ export const PALETTE_PRESETS: {
   id: string;
   name: string;
   make: () => Palette;
+  // When true, this preset's tubes are NOT added to the cherry-pick library
+  // (used for combined presets whose tubes already appear via their sources).
+  libraryHidden?: boolean;
 }[] = [
   { id: "traditional", name: "Traditional Oil (8)", make: makeDefaultPalette },
   {
@@ -392,6 +413,12 @@ export const PALETTE_PRESETS: {
     name: "Winsor & Newton Winton (15)",
     make: makeWintonPalette,
   },
+  {
+    id: "wn-mixed",
+    name: "Winsor & Newton Mixed (32)",
+    make: makeWnMixedPalette,
+    libraryHidden: true,
+  },
   { id: "corfix", name: "Corfix", make: makeCorfixPalette },
 ];
 
@@ -400,6 +427,7 @@ export const PALETTE_PRESETS: {
 export function libraryPigments(): { preset: string; pigment: Pigment }[] {
   const out: { preset: string; pigment: Pigment }[] = [];
   for (const preset of PALETTE_PRESETS) {
+    if (preset.libraryHidden) continue;
     for (const p of preset.make().pigments) {
       out.push({ preset: preset.name, pigment: { ...p, rgb: { ...p.rgb } } });
     }

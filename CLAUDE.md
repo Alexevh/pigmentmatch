@@ -91,8 +91,10 @@ src/
     pigments.ts     Pigment type; DEFAULT (Traditional Oil 8), WINSOR_NEWTON
                     Artists' (17 — one painter's actual kit + Titanium White),
                     WINTON (15 — W&N student line, ids wnw-, estimates to refine
-                    from swatches), CORFIX (19); makeX palettes; PALETTE_PRESETS;
-                    libraryPigments(); isEnabled()
+                    from swatches), WN_MIXED (32 — both W&N lines combined, names
+                    line-suffixed, libraryHidden so it doesn't duplicate the
+                    library), CORFIX (19); makeX palettes; PALETTE_PRESETS (entries
+                    can set libraryHidden); libraryPigments(); isEnabled()
     mixer.ts        subtractive mixing + recipe generator (the heart)
     scene.ts        Scene/Zone mode (additive): buildSceneProfile (Otsu split →
                     light/shadow Lab means + warm/cool temps + polarity + key),

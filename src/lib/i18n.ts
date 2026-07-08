@@ -558,6 +558,9 @@ const en: Dict = {
     wbActive: "WB on",
     wbActiveHint:
       "Picked colors are corrected against your reference card. Uploading a new photo resets it.",
+    wbKeepValue: "Keep value",
+    wbKeepValueHint:
+      "Correct only the color cast and keep the sampled color's own lightness (value). Off = full correction, which can also brighten/darken the color.",
     wbClear: "Clear white-balance reference",
     compareTitle: "Compare with your swatch",
     compareHint:
@@ -1329,6 +1332,9 @@ const es: Dict = {
     wbActive: "BdB activo",
     wbActiveHint:
       "Los colores tomados se corrigen contra tu tarjeta de referencia. Subir una foto nueva lo reinicia.",
+    wbKeepValue: "Conservar valor",
+    wbKeepValueHint:
+      "Corrige solo el tinte de color y mantiene la luminosidad (valor) del color muestreado. Apagado = corrección completa, que también puede aclarar/oscurecer el color.",
     wbClear: "Quitar la referencia de balance de blancos",
     compareTitle: "Comparar con tu swatch",
     compareHint:

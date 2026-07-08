@@ -485,7 +485,13 @@ const linToSrgb = (v: number) =>
     (v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055) * 255
   );
 
-export function whiteBalance(rgb: RGB, ref: RGB): RGB {
+// preserveL: keep the sampled color's own lightness (L*) and correct only the
+// color cast (a*/b*). The camera's white-balance error (color) and exposure
+// error (brightness) are separate problems; von Kries gains can push a channel
+// toward clipping and visibly brighten a warm color. With preserveL the value
+// is left untouched — more conservative, and value is judged separately when
+// painting. Off by default → identical to the plain correction.
+export function whiteBalance(rgb: RGB, ref: RGB, preserveL = false): RGB {
   const rw = srgbToLin(ref.r);
   const gw = srgbToLin(ref.g);
   const bw = srgbToLin(ref.b);
@@ -496,9 +502,13 @@ export function whiteBalance(rgb: RGB, ref: RGB): RGB {
   const gr = gc(rw);
   const gg = gc(gw);
   const gb = gc(bw);
-  return {
+  const out = {
     r: linToSrgb(srgbToLin(rgb.r) * gr),
     g: linToSrgb(srgbToLin(rgb.g) * gg),
     b: linToSrgb(srgbToLin(rgb.b) * gb),
   };
+  if (!preserveL) return out;
+  const src = rgbToLab(rgb);
+  const corr = rgbToLab(out);
+  return labToRgb({ L: src.L, a: corr.a, b: corr.b });
 }

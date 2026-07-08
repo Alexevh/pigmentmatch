@@ -99,4 +99,17 @@ describe("color", () => {
     const c = { r: 100, g: 100, b: 100 };
     expect(whiteBalance(c, { r: 0, g: 0, b: 0 })).toEqual(c);
   });
+
+  it("whiteBalance preserveL: keeps the sample's own lightness", () => {
+    const c = { r: 200, g: 190, b: 40 }; // a yellow
+    const warmRef = { r: 210, g: 200, b: 150 };
+    const plain = whiteBalance(c, warmRef, false);
+    const kept = whiteBalance(c, warmRef, true);
+    const L0 = rgbToLab(c).L;
+    const Lkept = rgbToLab(kept).L;
+    const Lplain = rgbToLab(plain).L;
+    // preserveL should track the input L* tightly; plain may drift more.
+    expect(Math.abs(Lkept - L0)).toBeLessThan(1.5);
+    expect(Math.abs(Lkept - L0)).toBeLessThanOrEqual(Math.abs(Lplain - L0) + 0.01);
+  });
 });

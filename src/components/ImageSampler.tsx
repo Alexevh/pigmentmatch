@@ -103,14 +103,17 @@ export function ImageSampler({
   // sampler behaves exactly as before.
   const [wbPick, setWbPick] = useState(false); // next click sets the reference
   const [wbRef, setWbRef] = useState<RGB | null>(null);
+  // Optional: correct only the color cast and keep the sampled color's own
+  // lightness (off by default → full correction, exactly as before).
+  const [wbKeepValue, setWbKeepValue] = useState(false);
   // Raw (uncorrected) RGB of the last real pick, so setting/clearing the
-  // reference can re-emit that same color corrected — the swatch updates
-  // immediately instead of waiting for the next click.
+  // reference (or toggling keep-value) can re-emit that same color corrected —
+  // the swatch updates immediately instead of waiting for the next click.
   const lastRawRef = useRef<RGB | null>(null);
   const correct = useCallback(
     (rgb: RGB | null): RGB | null =>
-      rgb && wbRef ? whiteBalance(rgb, wbRef) : rgb,
-    [wbRef]
+      rgb && wbRef ? whiteBalance(rgb, wbRef, wbKeepValue) : rgb,
+    [wbRef, wbKeepValue]
   );
 
   const drawFile = useCallback(
@@ -367,7 +370,7 @@ export function ImageSampler({
                 setWbRef(rgb);
                 setWbPick(false);
                 if (lastRawRef.current)
-                  onSample(whiteBalance(lastRawRef.current, rgb));
+                  onSample(whiteBalance(lastRawRef.current, rgb, wbKeepValue));
                 return;
               }
               lastRawRef.current = rgb; // remember the raw pick
@@ -491,6 +494,21 @@ export function ImageSampler({
                 />
                 {t("image.wbActive")}
               </span>
+              <Button
+                variant={wbKeepValue ? "accent" : "outline"}
+                size="sm"
+                className="h-7"
+                onClick={() => {
+                  const next = !wbKeepValue;
+                  setWbKeepValue(next);
+                  // Re-emit the last pick with the new setting.
+                  if (lastRawRef.current && wbRef)
+                    onSample(whiteBalance(lastRawRef.current, wbRef, next));
+                }}
+                title={t("image.wbKeepValueHint")}
+              >
+                {t("image.wbKeepValue")}
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"

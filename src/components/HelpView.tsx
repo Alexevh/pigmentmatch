@@ -36,7 +36,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
         version: "1.2.1",
         date: "2026",
         changes: [
-          "Sampling: optional white-balance reference. Phone cameras cast a color tint over the whole photo, so a sampled color is never quite right. Now you can put a white or gray card next to your subject in the same shot, click “White balance” and then the card, and every color you pick is corrected against it — cancelling most of the camera's tint. Off by default; resets when you upload a new photo. Works in Image, Mix, Coach and Calibrate.",
+          "Sampling: optional white-balance reference. Phone cameras cast a color tint over the whole photo, so a sampled color is never quite right. Now you can put a white or gray card (plain printer paper works) next to your subject in the same shot, click “White balance” and then the card, and every color you pick is corrected against it — cancelling most of the camera's tint. An optional “Keep value” toggle corrects only the color and leaves the lightness untouched (useful when the full correction brightens a color too much). Off by default; resets when you upload a new photo. Works in Image, Mix, Coach and Calibrate.",
         ],
       },
       {
@@ -209,7 +209,7 @@ const HELP: Record<"en" | "es", HelpContent> = {
         version: "1.2.1",
         date: "2026",
         changes: [
-          "Muestreo: referencia de balance de blancos opcional. La cámara del teléfono le mete un tinte de color a toda la foto, así que el color muestreado nunca sale del todo bien. Ahora podés poner una tarjeta blanca o gris al lado del objeto en la misma toma, tocar “Balance de blancos” y después la tarjeta, y cada color que tomes se corrige contra ella — cancelando gran parte del tinte de la cámara. Apagado por defecto; se reinicia al subir una foto nueva. Funciona en Imagen, Mezcla, Coach y Calibrar.",
+          "Muestreo: referencia de balance de blancos opcional. La cámara del teléfono le mete un tinte de color a toda la foto, así que el color muestreado nunca sale del todo bien. Ahora podés poner una tarjeta blanca o gris (sirve una hoja A4 de impresora) al lado del objeto en la misma toma, tocar “Balance de blancos” y después la tarjeta, y cada color que tomes se corrige contra ella — cancelando gran parte del tinte de la cámara. Un botón opcional “Conservar valor” corrige solo el color y deja la luminosidad intacta (útil cuando la corrección completa aclara demasiado un color). Apagado por defecto; se reinicia al subir una foto nueva. Funciona en Imagen, Mezcla, Coach y Calibrar.",
         ],
       },
       {

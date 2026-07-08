@@ -155,9 +155,11 @@ src/
       averages a (2r+1)² block; optional **white-balance reference** (opt-in):
       click a white/gray card in the same photo to capture its raw color, then
       every pick is neutralized via `whiteBalance` (color.ts: von Kries
-      per-channel gain in linear light, luminance-preserving, gains clamped) to
-      cancel the phone camera's auto color cast — reset on a new photo, off by
-      default = old behavior). All image EDITING moved to the IMG Lab tab.
+      per-channel gain in linear light, gains clamped) to cancel the phone
+      camera's auto color cast — reset on a new photo, off by default = old
+      behavior. Optional "Keep value" toggle (`whiteBalance(...,preserveL)`)
+      corrects only the a*/b* cast and keeps the sample's own L*. All image
+      EDITING moved to the IMG Lab tab.
     ImgLabView (IMG Lab tab: dedicated image-processing page using imagefx.ts —
       sectioned cards for Adjustments (sliders, live, no deps), Stencil (line-art
       via `stencilImage`: grayscale→blur→Sobel→threshold, live toggle + Detail

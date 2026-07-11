@@ -130,10 +130,14 @@ export function stencilImage(
     g[(y < 0 ? 0 : y >= h ? h - 1 : y) * w + (x < 0 ? 0 : x >= w ? w - 1 : x)];
 
   const wgt = Math.max(0.2, weight);
-  // Soft threshold band: pixels below (t - band) are white, above t are full
+  // Soft threshold band: pixels below `lo` are white, above `t` are full
   // black, linear (anti-aliased) between → smooth strokes at any weight.
+  // `lo` is clamped at 0: with a heavy weight + high detail, t - band goes
+  // negative and a zero-gradient (featureless) pixel would land mid-ramp,
+  // painting flat areas near-black instead of leaving them white.
   const t = (140 - Math.max(0, Math.min(100, detail)) * 1.25) / wgt;
   const band = 14 + 10 * wgt;
+  const lo = Math.max(0, t - band);
 
   const out = new Uint8ClampedArray(data.length);
   for (let y = 0; y < h; y++) {
@@ -146,7 +150,7 @@ export function stencilImage(
         bat(x - 1, y + 1) + 2 * bat(x, y + 1) + bat(x + 1, y + 1);
       const mag = Math.sqrt(gx * gx + gy * gy);
       // coverage 0 (white) .. 1 (black)
-      let a = (mag - (t - band)) / band;
+      let a = (mag - lo) / Math.max(1e-6, t - lo);
       a = a < 0 ? 0 : a > 1 ? 1 : a;
       const v = Math.round(255 * (1 - a));
       const o = (y * w + x) * 4;

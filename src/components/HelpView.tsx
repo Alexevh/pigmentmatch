@@ -33,6 +33,22 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.3.0",
+        date: "2026",
+        changes: [
+          "Calibration chart: print a grid, paint each patch with your real tubes, photograph it and the app reads EVERY patch in one pass — observations for the whole palette (masstones + tints with white), auto white-balanced against the blank paper patch. In the Calibrate tab.",
+          "Color string: every recipe now comes with its premixed light→shadow value scale — each lighter step adds your white, each darker step your darkest pigment, with proportions per step.",
+          "Value study (notan): in Extract, the image reduced to 3-5 value planes with the mixing recipe for each plane's average color.",
+          "Coach now tells you HOW MUCH: “add ~0.4 ml of Ultramarine to your 20 ml puddle”, with the predicted match after the addition.",
+          "Gamut map: when a match is poor, see WHY — your pigments on the hue/chroma plane, the reachable territory, and the target in or out of it.",
+          "Guided calibration: the Calibrate tab suggests the most informative next mixes (tints with white, key pairs) — click one to prefill it.",
+          "Sampling: “Average” mode — click several spots, get the running mean plus how much the takes disagree (camera noise made visible).",
+          "Simultaneous contrast (Image tab): the sampled color inside its real surround vs on white/grey — the same color reads differently, now you can see it.",
+          "Tube substitute (Palette): ran out mid-painting? See how to mix a stand-in from your remaining tubes, plus the closest single tube to buy.",
+          "Also: pick a color from anywhere on your screen (Match, Chromium browsers), palette export/import now carries its calibration, Extract can invert the selection (exclude the background), and Compare remembers your corner alignment for the session.",
+        ],
+      },
+      {
         version: "1.2.1",
         date: "2026",
         changes: [
@@ -205,6 +221,22 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.3.0",
+        date: "2026",
+        changes: [
+          "Carta de calibración: imprimí una grilla, pintá cada parcela con tus tubos reales, fotografiala y la app lee TODAS las parcelas de una pasada — observaciones para toda la paleta (masstones + tintes con blanco), con balance de blancos automático contra la parcela de papel. En la pestaña Calibrar.",
+          "Escala de valor (color string): cada receta ahora viene con su escala luz→sombra premezclada — cada paso más claro agrega tu blanco, cada paso más oscuro tu pigmento más oscuro, con proporciones por paso.",
+          "Estudio de valores (notan): en Extraer, la imagen reducida a 3-5 planos de valor con la receta de mezcla del color promedio de cada plano.",
+          "El Coach ahora te dice CUÁNTO: “agregá ~0.4 ml de Ultramar a tu montón de 20 ml”, con el match previsto después del agregado.",
+          "Mapa de gamut: cuando un match da bajo, mirá POR QUÉ — tus pigmentos en el plano matiz/croma, el territorio alcanzable y el objetivo adentro o afuera.",
+          "Calibración guiada: la pestaña Calibrar sugiere las próximas mezclas más informativas (tintes con blanco, pares clave) — clic en una y se precarga.",
+          "Muestreo: modo “Promediar” — hacé clic en varios puntos y obtené la media acumulada más cuánto difieren las tomas (el ruido de la cámara, visible).",
+          "Contraste simultáneo (pestaña Imagen): el color muestreado dentro de su entorno real vs sobre blanco/gris — el mismo color se lee distinto, ahora lo podés ver.",
+          "Sustituto de tubo (Paleta): ¿se te acabó a mitad de cuadro? Mirá cómo mezclar un reemplazo con los tubos que te quedan, más el tubo único más parecido para comprar.",
+          "Además: tomá un color de cualquier parte de tu pantalla (Match, navegadores Chromium), el export/import de paletas ahora lleva su calibración, Extraer puede invertir la selección (excluir el fondo) y Comparar recuerda tu alineación de esquinas durante la sesión.",
+        ],
+      },
       {
         version: "1.2.1",
         date: "2026",

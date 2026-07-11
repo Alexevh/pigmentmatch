@@ -1,7 +1,22 @@
 import { useEffect, useState } from "react";
+import { Pipette } from "lucide-react";
 import { hexToRgb, rgbToHex, clamp255, type RGB } from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+// Browser EyeDropper API (Chromium): pick a color from ANYWHERE on screen —
+// another window, a reference PDF, a video frame. Progressive enhancement:
+// the button only renders where the API exists (Firefox/Safari lack it).
+interface EyeDropperResult {
+  sRGBHex: string;
+}
+interface EyeDropperCtor {
+  new (): { open: () => Promise<EyeDropperResult> };
+}
+const EYEDROPPER: EyeDropperCtor | undefined = (
+  window as unknown as { EyeDropper?: EyeDropperCtor }
+).EyeDropper;
 
 function Channel({
   label,
@@ -80,6 +95,24 @@ export function ColorInput({
             className="font-mono uppercase"
           />
         </label>
+        {EYEDROPPER && (
+          <Button
+            variant="outline"
+            className="h-10"
+            title={t("match.eyedropperHint")}
+            onClick={async () => {
+              try {
+                const res = await new EYEDROPPER().open();
+                const parsed = hexToRgb(res.sRGBHex);
+                if (parsed) onChange(parsed);
+              } catch {
+                // user pressed Esc — not an error
+              }
+            }}
+          >
+            <Pipette className="h-4 w-4" /> {t("match.eyedropper")}
+          </Button>
+        )}
       </div>
 
       <div className="flex gap-2">

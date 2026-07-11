@@ -4,6 +4,7 @@ import {
   generateRecipe,
   recipePercentages,
   reachEstimate,
+  suggestPigment,
 } from "@/lib/mixer";
 import { matchScore, deltaE2000, rgbToLab, type RGB } from "@/lib/color";
 import type { Pigment } from "@/lib/pigments";
@@ -121,6 +122,15 @@ describe("mixer", () => {
     // and stay within the color guard of the best plain mix
     const plain = generateRecipe(dark, pal, "simple", "classic");
     expect(vp.deltaE).toBeLessThanOrEqual(plain.deltaE + 2.0001);
+  });
+
+  it("suggestPigment never suggests a tube the palette already has, even line-suffixed", () => {
+    // The W&N Mixed preset suffixes shared names with their line — a palette
+    // holding "White (Artists')" already HAS the library's plain "White".
+    const suffixed = pigs.map((p) => ({ ...p, name: `${p.name} (Artists')` }));
+    const library = [...pigs.map((p) => ({ ...p, id: `lib-${p.id}` }))];
+    const s = suggestPigment(target, suffixed, library, 30);
+    expect(s).toBeNull(); // every candidate is already in the palette
   });
 
   it("an empty palette gives match 0", () => {

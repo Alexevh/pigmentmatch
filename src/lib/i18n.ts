@@ -322,11 +322,71 @@ const en: Dict = {
     sameValue: "values match closely",
     deltaLabel: "ΔL {n}",
   },
+  chart: {
+    title: "Calibration chart",
+    intro:
+      "Calibrate the whole palette in one pass: download the chart, paint each patch with the labeled tube (thick, opaque coats), photograph the sheet flat under even light, upload the photo, align the bold border's corners, and read it. Every patch becomes an observation — masstones plus 1:3 tints with white — auto white-balanced against the blank paper patch.",
+    download: "Download chart (PDF)",
+    uploadPhoto: "Upload photo of the painted chart",
+    replacePhoto: "Replace photo",
+    alignHint:
+      "Drag the four handles onto the corners of the chart's bold border.",
+    read: "Read the chart",
+    preview: "Read patches ({n} observations)",
+    dupNote:
+      "{n} of these repeat mixes you had already recorded — adding them again just gives those mixes extra weight.",
+    addObs: "Add {n} observations",
+    added: "Observations added",
+    next: "Now press Calibrate below (optionally with “also fit color”) to fit the palette.",
+    pdfTitle: "Pigment Match — Calibration chart",
+    pdfIntro:
+      "Paint each patch with the tube named under it (tints: mix 1 part pigment + 3 parts white). Use thick, opaque paint and stay inside the boxes. Leave the PAPER patch blank. Photograph the whole sheet flat, under even daylight, avoiding glare.",
+    pdfPaper: "PAPER — leave blank",
+  },
+  contrast: {
+    title: "Simultaneous contrast",
+    inPlace: "In its surround",
+    onWhite: "On white",
+    onGray: "On grey",
+    note:
+      "All three center squares are the SAME sampled color — the surround changes how it reads. If a numerically correct mix looks wrong in your painting, judge it against its neighbors, never on the white palette.",
+  },
+  gamut: {
+    show: "See why (gamut map)",
+    hide: "Hide gamut map",
+    legend:
+      "Your pigments on the hue/chroma plane (a*/b*): mixes can only land inside the shaded territory. The crosshair is the target; a hollow ring is the suggested tube that would extend the territory toward it. Value (light/dark) is not shown here.",
+    axisWarm: "red / warm →",
+    axisYellow: "yellow ↑",
+    axisGreen: "← green",
+    axisBlue: "blue ↓",
+  },
+  valueStudy: {
+    title: "Value study (notan)",
+    intro:
+      "The image reduced to its big value masses — how a painting is actually started. Pick how many planes, then click a plane for the mix that hits its average color with your palette.",
+    empty: "Upload an image in the extractor above to build the value study.",
+    planes: "Planes",
+    recipeFor: "Mix for this plane (values L* {lo}–{hi})",
+  },
+  strings: {
+    title: "Color string (value scale)",
+    intro:
+      "The premixed light→shadow scale of this mix: each lighter step adds your palette's white to the base mix, each darker step adds its darkest pigment. Click a step for its proportions.",
+    baseDot: "Base mix",
+    baseStep: "The base mix itself — the recipe above.",
+    addStep: "Base mix + {percent}% {name} (of the total).",
+    tip: "Numbers on the swatches are the value (L*). Premix these puddles before the session and you'll never chase a value mid-stroke.",
+    none: "Add at least two available pigments (ideally including a white) to build a value string.",
+  },
   match: {
     targetColor: "Target color",
     sampleFromImage: "Sample from image",
     sampledColor: "Sampled color",
     picker: "Picker",
+    eyedropper: "Screen",
+    eyedropperHint:
+      "Pick a color from anywhere on your screen — another window, a reference image, a paused video. Esc cancels.",
   },
   recipe: {
     title: "Mixing recipe",
@@ -551,6 +611,13 @@ const en: Dict = {
     brush: "Brush",
     brushTitle:
       "Sample area: 0 = one pixel (default). Higher averages a square so a click on a detailed area gives one representative color.",
+    avg: "Average",
+    avgHint:
+      "Average several picks: each click adds a take and the result is the running mean — much more reliable than a single click on a noisy phone photo. Click 3-5 spots on the same swatch.",
+    avgCount: "{n}× · ±{d} ΔE",
+    avgSpreadHint:
+      "Number of takes and how much they disagree (worst-case ΔE from the mean). A big spread means the photo is noisy — take more picks or use a bigger brush.",
+    avgClear: "Clear takes",
     wb: "White balance",
     wbPicking: "Click a white/gray card",
     wbHint:
@@ -611,6 +678,9 @@ const en: Dict = {
     colorN: "Color #{n}",
     mapView: "Color map",
     wholeImage: "Whole image",
+    invert: "Invert",
+    invertHint:
+      "Extract from everything EXCEPT the dragged box — e.g. box the background to leave it out.",
     selectHint:
       "Tip: drag a box on the image to extract colors from just that area.",
     and: "and",
@@ -629,6 +699,13 @@ const en: Dict = {
     yourMix: "Your current mix",
     sampleFromPhoto: "Sample from photo",
     enterManually: "Enter manually",
+    quantTitle: "How much, exactly?",
+    quantBatch: "My puddle is about",
+    quantAdvice:
+      "Add ~{amount} ml of {name} to your {batch} ml puddle (≈{percent}% of the final mix).",
+    quantResult: "Predicted result: match goes {before}% → {match}%.",
+    quantNote:
+      "An estimate — your puddle's real tinting strength is unknown. Add in 2-3 steps and re-sample; strong pigments (phthalos, dioxazine) go a long way.",
     footer:
       "Add color in tiny steps and re-sample — chasing a target is always a few small corrections, not one big one.",
     headlineThere: "You're there — the difference is barely perceptible.",
@@ -659,6 +736,16 @@ const en: Dict = {
   },
   palette: {
     title: "Pigment palette",
+    subTitle: "Tube substitute",
+    subIntro:
+      "Ran out of a tube mid-painting? Pick it and see how to approximate it by mixing your remaining tubes — plus the closest single tube in the library, as a shopping suggestion.",
+    subPick: "Pick the tube you ran out of…",
+    subMix: "Mix it from your other tubes",
+    subMixPoor:
+      "That mix is a rough stand-in — this pigment is hard to reach with the rest of your palette.",
+    subNoMix: "No other available tubes to mix from.",
+    subBuy: "Closest single tube (library)",
+    subMatch: "match {match}%",
     masstoneTitle: "Set each pigment's real color",
     masstoneNote:
       "Recipes are built from each pigment's base color (its masstone), so accuracy starts here. The bundled values are informed estimates — for the best results set each tube's true color: paint a pure swatch, photograph it in good light, sample it in the Image tab and copy that HEX onto the pigment (or click its color square). Do the same whenever you add or create a paint. Calibration only fits tinting strength, not color — the masstone lives here.",
@@ -707,6 +794,11 @@ const en: Dict = {
     after: "after:",
     active: "Active everywhere",
     ready: "Ready — toggle on to use",
+    suggestTitle: "Suggested next mixes",
+    suggestHint:
+      "The most informative mixes to record next — tints with white reveal each pigment's real strength, pairs pin down how they interact. Click one to prefill the parts, then mix it, photograph it and record the color.",
+    suggestTint: "A 1:3 tint with white — best reveals this pigment's tinting strength.",
+    suggestPair: "A 1:1 pair — pins down how these two interact in a mix.",
     recordTitle: "Record a mix you made",
     recordHint:
       "Enter the parts you used of each pigment, then set the real color you got (type it or sample a photo of your swatch).",
@@ -1097,11 +1189,71 @@ const es: Dict = {
     sameValue: "los valores coinciden",
     deltaLabel: "ΔL {n}",
   },
+  chart: {
+    title: "Carta de calibración",
+    intro:
+      "Calibrá toda la paleta de una pasada: descargá la carta, pintá cada parcela con el tubo que indica (capas gruesas y opacas), fotografiá la hoja plana con luz pareja, subí la foto, alineá las esquinas del borde grueso y leela. Cada parcela se convierte en una observación — masstones más tintes 1:3 con blanco — con balance de blancos automático contra la parcela de papel en blanco.",
+    download: "Descargar carta (PDF)",
+    uploadPhoto: "Subir foto de la carta pintada",
+    replacePhoto: "Reemplazar foto",
+    alignHint:
+      "Arrastrá las cuatro manijas hasta las esquinas del borde grueso de la carta.",
+    read: "Leer la carta",
+    preview: "Parcelas leídas ({n} observaciones)",
+    dupNote:
+      "{n} de estas repiten mezclas que ya habías registrado — agregarlas de nuevo solo les da más peso a esas mezclas.",
+    addObs: "Agregar {n} observaciones",
+    added: "Observaciones agregadas",
+    next: "Ahora tocá Calibrar abajo (opcionalmente con “ajustar también el color”) para ajustar la paleta.",
+    pdfTitle: "Pigment Match — Carta de calibración",
+    pdfIntro:
+      "Pintá cada parcela con el tubo que la etiqueta indica (tintes: mezclá 1 parte de pigmento + 3 partes de blanco). Usá pintura gruesa y opaca y quedate dentro de los recuadros. Dejá la parcela PAPEL sin pintar. Fotografiá la hoja entera plana, con luz de día pareja y sin brillos.",
+    pdfPaper: "PAPEL — dejar en blanco",
+  },
+  contrast: {
+    title: "Contraste simultáneo",
+    inPlace: "En su entorno",
+    onWhite: "Sobre blanco",
+    onGray: "Sobre gris",
+    note:
+      "Los tres cuadrados centrales son EL MISMO color muestreado — el entorno cambia cómo se lee. Si una mezcla numéricamente correcta se ve mal en tu cuadro, juzgala contra sus vecinos, nunca sobre la paleta blanca.",
+  },
+  gamut: {
+    show: "Ver por qué (mapa de gamut)",
+    hide: "Ocultar mapa de gamut",
+    legend:
+      "Tus pigmentos en el plano matiz/croma (a*/b*): las mezclas solo pueden caer dentro del territorio sombreado. La cruz es el objetivo; el anillo hueco es el tubo sugerido que extendería el territorio hacia él. El valor (claro/oscuro) no se muestra acá.",
+    axisWarm: "rojo / cálido →",
+    axisYellow: "amarillo ↑",
+    axisGreen: "← verde",
+    axisBlue: "azul ↓",
+  },
+  valueStudy: {
+    title: "Estudio de valores (notan)",
+    intro:
+      "La imagen reducida a sus grandes masas de valor — como se empieza un cuadro de verdad. Elegí cuántos planos, y hacé clic en un plano para ver la mezcla que da su color promedio con tu paleta.",
+    empty: "Subí una imagen en el extractor de arriba para armar el estudio de valores.",
+    planes: "Planos",
+    recipeFor: "Mezcla para este plano (valores L* {lo}–{hi})",
+  },
+  strings: {
+    title: "Escala de valor (color string)",
+    intro:
+      "La escala luz→sombra premezclada de esta mezcla: cada paso más claro agrega el blanco de tu paleta a la mezcla base, cada paso más oscuro agrega su pigmento más oscuro. Hacé clic en un paso para ver sus proporciones.",
+    baseDot: "Mezcla base",
+    baseStep: "La mezcla base — la receta de arriba.",
+    addStep: "Mezcla base + {percent}% de {name} (del total).",
+    tip: "Los números en los swatches son el valor (L*). Premezclá estos montoncitos antes de la sesión y no vas a perseguir un valor a mitad de pincelada.",
+    none: "Agregá al menos dos pigmentos disponibles (idealmente con un blanco) para armar la escala.",
+  },
   match: {
     targetColor: "Color objetivo",
     sampleFromImage: "Muestrear de imagen",
     sampledColor: "Color muestreado",
     picker: "Selector",
+    eyedropper: "Pantalla",
+    eyedropperHint:
+      "Tomá un color de cualquier parte de tu pantalla — otra ventana, una imagen de referencia, un video pausado. Esc cancela.",
   },
   recipe: {
     title: "Receta de mezcla",
@@ -1325,6 +1477,13 @@ const es: Dict = {
     brush: "Pincel",
     brushTitle:
       "Área de muestreo: 0 = un píxel (por defecto). Más alto promedia un cuadrado, así un clic en una zona con detalle da un color representativo.",
+    avg: "Promediar",
+    avgHint:
+      "Promediá varias tomas: cada clic agrega una toma y el resultado es la media acumulada — mucho más confiable que un solo clic en una foto de celular con ruido. Hacé clic en 3-5 puntos del mismo swatch.",
+    avgCount: "{n}× · ±{d} ΔE",
+    avgSpreadHint:
+      "Cantidad de tomas y cuánto difieren entre sí (peor ΔE contra la media). Una dispersión grande significa foto con ruido — tomá más muestras o usá un pincel más grande.",
+    avgClear: "Limpiar tomas",
     wb: "Balance de blancos",
     wbPicking: "Hacé clic en una tarjeta blanca/gris",
     wbHint:
@@ -1385,6 +1544,9 @@ const es: Dict = {
     colorN: "Color #{n}",
     mapView: "Mapa de color",
     wholeImage: "Toda la imagen",
+    invert: "Invertir",
+    invertHint:
+      "Extrae de todo MENOS el recuadro dibujado — p. ej. encuadrá el fondo para dejarlo afuera.",
     selectHint:
       "Tip: arrastrá un recuadro sobre la imagen para extraer colores solo de esa zona.",
     and: "y",
@@ -1403,6 +1565,13 @@ const es: Dict = {
     yourMix: "Tu mezcla actual",
     sampleFromPhoto: "Muestrear de foto",
     enterManually: "Ingresar a mano",
+    quantTitle: "¿Cuánto exactamente?",
+    quantBatch: "Mi montón es de unos",
+    quantAdvice:
+      "Agregá ~{amount} ml de {name} a tu montón de {batch} ml (≈{percent}% de la mezcla final).",
+    quantResult: "Resultado previsto: el match pasa de {before}% → {match}%.",
+    quantNote:
+      "Es una estimación — la fuerza tintórea real de tu montón no se conoce. Agregá en 2-3 pasos y volvé a muestrear; los pigmentos fuertes (ftalos, dioxazina) rinden muchísimo.",
     footer:
       "Agregá color de a poquito y volvé a muestrear — igualar un color son siempre varias correcciones chicas, nunca una grande.",
     headlineThere: "Llegaste — la diferencia es casi imperceptible.",
@@ -1433,6 +1602,16 @@ const es: Dict = {
   },
   palette: {
     title: "Paleta de pigmentos",
+    subTitle: "Sustituto de tubo",
+    subIntro:
+      "¿Se te acabó un tubo a mitad de cuadro? Elegilo y mirá cómo aproximarlo mezclando los tubos que te quedan — más el tubo único más parecido de la librería, como sugerencia de compra.",
+    subPick: "Elegí el tubo que se te acabó…",
+    subMix: "Mezclalo con tus otros tubos",
+    subMixPoor:
+      "Esa mezcla es una aproximación gruesa — este pigmento es difícil de alcanzar con el resto de tu paleta.",
+    subNoMix: "No hay otros tubos disponibles para mezclar.",
+    subBuy: "Tubo único más parecido (librería)",
+    subMatch: "match {match}%",
     masstoneTitle: "Fijá el color real de cada pigmento",
     masstoneNote:
       "Las recetas se construyen a partir del color base (el masstone) de cada pigmento, así que la precisión empieza acá. Los valores que vienen cargados son estimaciones informadas — para el mejor resultado, fijá el color real de cada tubo: pintá un swatch puro, fotografialo con buena luz, muestrealo en la pestaña Imagen y copiá ese HEX en el pigmento (o hacé clic en su cuadrado de color). Hacé lo mismo cada vez que agregues o crees una pintura. La calibración solo ajusta la fuerza tintórea, no el color — el masstone se define acá.",
@@ -1482,6 +1661,11 @@ const es: Dict = {
     after: "después:",
     active: "Activo en todo",
     ready: "Listo — activá el toggle para usarlo",
+    suggestTitle: "Próximas mezclas sugeridas",
+    suggestHint:
+      "Las mezclas más informativas para registrar ahora — los tintes con blanco revelan la fuerza real de cada pigmento, los pares fijan cómo interactúan. Hacé clic en una para precargar las partes; después mezclala, fotografiala y registrá el color.",
+    suggestTint: "Un tinte 1:3 con blanco — es lo que mejor revela la fuerza tintórea de este pigmento.",
+    suggestPair: "Un par 1:1 — fija cómo interactúan estos dos en una mezcla.",
     recordTitle: "Registrá una mezcla que hiciste",
     recordHint:
       "Ingresá las partes que usaste de cada pigmento y fijá el color real que obtuviste (escribilo o muestrealo de una foto del swatch).",
@@ -1607,7 +1791,10 @@ export function translate(
   let s = lookup(DICTS[lang], key) ?? lookup(en, key) ?? key;
   if (params) {
     for (const [k, v] of Object.entries(params)) {
-      s = s.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+      // Function replacement so `$` sequences in a VALUE (a user-typed palette
+      // or project name containing "$&", "$'"…) are inserted literally instead
+      // of being expanded as replacement patterns.
+      s = s.replace(new RegExp(`\\{${k}\\}`, "g"), () => String(v));
     }
   }
   return s;

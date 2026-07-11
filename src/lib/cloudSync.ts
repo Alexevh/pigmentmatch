@@ -224,29 +224,36 @@ export async function cloudListImages(
 }
 
 // Upload one slot's image (or delete its cloud doc if the slot is now empty).
+// The result tells the caller what actually happened so the per-device sync
+// ledger can be kept truthful: the pushed updatedAt, "deleted" (cloud copy
+// removed because the slot is empty locally), or null (SKIPPED — nothing was
+// uploaded, e.g. the image is too large; the ledger must NOT record it as
+// synced, or the next reconcile would mistake it for a remote deletion and
+// destroy the local image).
 export async function cloudPushImage(
   config: FirebaseConfig,
   uid: string,
   slot: string
-): Promise<void> {
+): Promise<number | "deleted" | null> {
   const f = await fb(config);
   const rec = await getImageRecord(slot);
   if (!rec) {
     // Cleared locally — remove the cloud copy too.
     await f.deleteDoc(f.doc(f.db, ...IMG_PATH(uid, slot)));
-    return;
+    return "deleted";
   }
   const dataURL = await imageToDataURL(slot);
-  if (!dataURL) return;
+  if (!dataURL) return null;
   if (dataURL.length > IMG_MAX_CHARS) {
     // Too big for a single doc even after downscaling — keep it local only.
     console.warn(`[cloud] image "${slot}" too large to sync (${dataURL.length} chars)`);
-    return;
+    return null;
   }
   await f.setDoc(f.doc(f.db, ...IMG_PATH(uid, slot)), {
     data: dataURL,
     updatedAt: rec.updatedAt,
   });
+  return rec.updatedAt;
 }
 
 // Download one slot's image into the local store, stamped with the cloud time.

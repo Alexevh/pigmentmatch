@@ -150,6 +150,7 @@ function installDetectors() {
   window.addEventListener("online", () => {
     if (!live.enabled || !config || !live.user) return;
     flushPush(); // re-upload and clear the error → back to ready
+    if (dirtySlots.size) flushImages(); // retry image pushes that failed offline
   });
 }
 
@@ -199,13 +200,28 @@ async function flushImages() {
   dirtySlots.clear();
   live.status = "syncing";
   emit();
+  const state = readImgState();
   try {
-    for (const slot of slots) await cloudPushImage(config, live.user.uid, slot);
+    // Record each push in the ledger so a later reconcile on THIS device can
+    // recognize a remote deletion (and so a deletion pushed from here doesn't
+    // resurrect on the device that last uploaded the image).
+    while (slots.length) {
+      const slot = slots[0];
+      const pushed = await cloudPushImage(config, live.user.uid, slot);
+      if (typeof pushed === "number") state[slot] = pushed;
+      else if (pushed === "deleted") delete state[slot];
+      slots.shift();
+    }
     live.status = "ready";
     live.error = null;
     emit();
   } catch (e) {
+    // Keep the failed slot and any not yet attempted dirty so a later flush
+    // (next change, tab-hide, or coming back online) retries them.
+    for (const s of slots) dirtySlots.add(s);
     onError(e);
+  } finally {
+    writeImgState(state);
   }
 }
 
@@ -260,12 +276,17 @@ async function reconcileImages(uid: string) {
     applyingImages = false;
   }
 
-  // Push: local newer/new (and still present after the delete pass).
+  // Push: local newer/new (and still present after the delete pass). Only a
+  // push that actually stored the image is recorded in the ledger — a skipped
+  // push (e.g. image too large to sync) must stay unrecorded, otherwise the
+  // next reconcile would read "synced before + gone from the cloud" as a
+  // remote deletion and destroy the local image.
   const local2 = await listImages();
   for (const { slot, updatedAt } of local2) {
     if (updatedAt > (cloudMap.get(slot) ?? 0)) {
-      await cloudPushImage(config, uid, slot);
-      state[slot] = updatedAt;
+      const pushed = await cloudPushImage(config, uid, slot);
+      if (typeof pushed === "number") state[slot] = pushed;
+      else if (pushed === "deleted") delete state[slot];
     }
   }
   writeImgState(state);
@@ -341,11 +362,24 @@ async function initialSync() {
     }
     if (info.updatedAt && info.updatedAt !== readStr(LAST_KEY)) {
       // Cloud moved ahead — apply it, remember it, then reload so all stores
-      // re-read the fresh local data.
+      // re-read the fresh local data. `applying` is released in a finally so a
+      // failed restore can't leave auto-push suppressed for the whole session,
+      // and we only reload on success — reloading after a failed restore would
+      // re-enter this branch on every open (an infinite reload loop when the
+      // cloud doc is corrupt/empty).
       applying = true;
-      const ok = await cloudRestore(config, uid);
-      if (ok && info.updatedAt) setLastApplied(info.updatedAt);
-      window.location.reload();
+      let ok = false;
+      try {
+        ok = await cloudRestore(config, uid);
+      } finally {
+        applying = false;
+      }
+      if (ok) {
+        setLastApplied(info.updatedAt);
+        window.location.reload();
+        return;
+      }
+      onError(new Error("cloud backup could not be applied"));
       return;
     }
     // Already current.
@@ -448,8 +482,14 @@ export async function cloudRestoreNow(): Promise<boolean> {
   const info = await cloudInfo(config, live.user.uid);
   if (!info.exists) return false;
   applying = true;
-  const ok = await cloudRestore(config, live.user.uid);
-  if (ok && info.updatedAt) setLastApplied(info.updatedAt);
+  let ok = false;
+  try {
+    ok = await cloudRestore(config, live.user.uid);
+  } finally {
+    applying = false;
+  }
+  if (!ok) return false; // nothing was applied — don't reload
+  if (info.updatedAt) setLastApplied(info.updatedAt);
   window.location.reload();
   return true;
 }

@@ -13,8 +13,9 @@ export interface Pt {
 // ---------- Homography (projective transform) ----------
 
 // Solve a 3x3 homography H mapping src[i] -> dst[i] for 4 correspondences.
-// Returns [h0..h7] with implicit h8 = 1.
-export function solveHomography(src: Pt[], dst: Pt[]): number[] {
+// Returns [h0..h7] with implicit h8 = 1, or null when the correspondences are
+// degenerate (coincident/collinear corners) and no perspective quad exists.
+export function solveHomography(src: Pt[], dst: Pt[]): number[] | null {
   const A: number[][] = [];
   const b: number[] = [];
   for (let i = 0; i < 4; i++) {
@@ -25,11 +26,29 @@ export function solveHomography(src: Pt[], dst: Pt[]): number[] {
     A.push([0, 0, 0, xs, ys, 1, -xs * yd, -ys * yd]);
     b.push(yd);
   }
-  return solveLinear(A, b);
+  const H = solveLinear(A, b);
+  if (!H) return null;
+  // A solvable system can still yield a DEGENERATE mapping (coincident or
+  // collinear destination corners): the projective denominator w vanishes at a
+  // corner and the warp blows up inside the quad. Verify the mapping really
+  // reproduces the four correspondences with a healthy w.
+  for (let i = 0; i < 4; i++) {
+    const { x, y } = src[i];
+    const w = H[6] * x + H[7] * y + 1;
+    if (Math.abs(w) < 1e-6) return null;
+    const mx = (H[0] * x + H[1] * y + H[2]) / w;
+    const my = (H[3] * x + H[4] * y + H[5]) / w;
+    const tol = 1e-3 * (1 + Math.abs(dst[i].x) + Math.abs(dst[i].y));
+    if (Math.abs(mx - dst[i].x) > tol || Math.abs(my - dst[i].y) > tol)
+      return null;
+  }
+  return H;
 }
 
-// Gaussian elimination with partial pivoting for an n x n system.
-function solveLinear(A: number[][], b: number[]): number[] {
+// Gaussian elimination with partial pivoting for an n x n system. Returns null
+// on a rank-deficient system (a near-zero pivot) instead of dividing by a fake
+// epsilon — a degenerate warp must be detected, not rendered as garbage.
+function solveLinear(A: number[][], b: number[]): number[] | null {
   const n = b.length;
   const M = A.map((row, i) => [...row, b[i]]);
   for (let col = 0; col < n; col++) {
@@ -38,14 +57,15 @@ function solveLinear(A: number[][], b: number[]): number[] {
       if (Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r;
     }
     [M[col], M[piv]] = [M[piv], M[col]];
-    const d = M[col][col] || 1e-9;
+    const d = M[col][col];
+    if (Math.abs(d) < 1e-8) return null;
     for (let r = 0; r < n; r++) {
       if (r === col) continue;
       const f = M[r][col] / d;
       for (let c = col; c <= n; c++) M[r][c] -= f * M[col][c];
     }
   }
-  return M.map((row, i) => row[n] / (row[i] || 1e-9));
+  return M.map((row, i) => row[n] / row[i]);
 }
 
 function applyH(H: number[], x: number, y: number): Pt {
@@ -111,8 +131,18 @@ export function warpImage(
     { x: outW, y: outH },
     { x: 0, y: outH },
   ];
-  // map output-rect coords -> source-photo coords
-  const H = solveHomography(rectPts, dstPts);
+  // map output-rect coords -> source-photo coords. If the user dragged the
+  // corners into a degenerate shape (two coincident / three collinear), no
+  // perspective quad exists — fall back to the full image instead of rendering
+  // a garbage smear that every downstream metric would silently analyze.
+  const H =
+    solveHomography(rectPts, dstPts) ??
+    solveHomography(rectPts, [
+      { x: 0, y: 0 },
+      { x: src.width, y: 0 },
+      { x: src.width, y: src.height },
+      { x: 0, y: src.height },
+    ])!;
   const out = new ImageData(outW, outH);
   const px: number[] = [0, 0, 0, 0];
   for (let v = 0; v < outH; v++) {

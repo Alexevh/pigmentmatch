@@ -78,6 +78,9 @@ export function rgbToHsl({ r, g, b }: RGB): HSL {
 }
 
 export function hslToRgb({ h, s, l }: HSL): RGB {
+  // Normalize the hue so out-of-range inputs (h = -30, h = 390) wrap around
+  // instead of silently falling into the wrong sextant branch below.
+  h = ((h % 360) + 360) % 360;
   s /= 100;
   l /= 100;
   const c = (1 - Math.abs(2 * l - 1)) * s;
@@ -253,6 +256,9 @@ export interface PainterAnalysis {
   temperature: Temperature;
   saturation: SaturationLevel;
   hue: HueTendency;
+  // For near-neutrals (hue === "Neutral"): the direction the grey leans, when
+  // it leans at all — "a grey with a slight reddish tendency".
+  tendency?: HueTendency;
   sentence: string;
 }
 
@@ -275,30 +281,45 @@ function hueTemperature(h: number): Temperature {
 }
 
 export function analyzeColor(rgb: RGB): PainterAnalysis {
-  const { h, s, l } = rgbToHsl(rgb);
+  const { h } = rgbToHsl(rgb);
   const lab = rgbToLab(rgb);
+  // Saturation/neutrality use Lab chroma (C* = √(a²+b²)), NOT HSL saturation:
+  // HSL S explodes near white/black (a 1-unit tint at L≈100 reads as S=100),
+  // so near-neutrals were misdescribed as "highly saturated". Chroma measures
+  // perceived colorfulness directly.
+  const chroma = Math.hypot(lab.a, lab.b);
 
   const value: ValueLevel =
     lab.L >= 66 ? "Light" : lab.L >= 33 ? "Medium" : "Dark";
 
   let saturation: SaturationLevel;
-  if (s < 8) saturation = "Very low";
-  else if (s < 25) saturation = "Low";
-  else if (s < 55) saturation = "Medium";
+  if (chroma < 7) saturation = "Very low";
+  else if (chroma < 22) saturation = "Low";
+  else if (chroma < 45) saturation = "Medium";
   else saturation = "High";
 
-  // Below this saturation the color reads as a grey/neutral; hue is only a tendency.
-  const isNeutral = s < 12;
+  // Below this chroma the color reads as a grey/neutral; hue is only a tendency.
+  const isNeutral = chroma < 10;
   const hue: HueTendency = isNeutral ? "Neutral" : hueTendency(h);
   const temperature: Temperature = isNeutral
     ? // even greys lean warm/cool via their hue
-      s < 4
+      chroma < 3
       ? "Neutral"
       : hueTemperature(h)
     : hueTemperature(h);
+  // The direction a leaning grey leans toward ("with a slight reddish tendency").
+  const tendency: HueTendency | undefined =
+    isNeutral && chroma >= 3 ? hueTendency(h) : undefined;
 
-  const sentence = buildSentence({ value, temperature, saturation, hue, l, s });
-  return { value, temperature, saturation, hue, sentence };
+  const sentence = buildSentence({
+    value,
+    temperature,
+    saturation,
+    hue,
+    neutral: isNeutral,
+    tendency,
+  });
+  return { value, temperature, saturation, hue, tendency, sentence };
 }
 
 function buildSentence(p: {
@@ -306,8 +327,8 @@ function buildSentence(p: {
   temperature: Temperature;
   saturation: SaturationLevel;
   hue: HueTendency;
-  l: number;
-  s: number;
+  neutral: boolean;
+  tendency?: HueTendency;
 }): string {
   const valueWord =
     p.value === "Light" ? "light" : p.value === "Dark" ? "dark" : "mid-value";
@@ -322,8 +343,7 @@ function buildSentence(p: {
       : "highly saturated";
 
   // Core noun: greys when nearly neutral, otherwise a colored term.
-  const neutral = p.s < 12;
-  const noun = neutral
+  const noun = p.neutral
     ? p.value === "Light"
       ? "light grey"
       : p.value === "Dark"
@@ -336,10 +356,9 @@ function buildSentence(p: {
       ? "neutral in temperature"
       : `slightly ${p.temperature.toLowerCase()}`;
 
-  const tendency =
-    neutral && p.hue !== "Neutral"
-      ? ` with a slight ${p.hue.toLowerCase()} tendency`
-      : "";
+  const tendency = p.tendency
+    ? ` with a slight ${p.tendency.toLowerCase()} tendency`
+    : "";
 
   return `A ${satWord} ${noun}, ${tempPhrase}${tendency}.`;
 }

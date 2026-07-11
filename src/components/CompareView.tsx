@@ -78,8 +78,9 @@ function CanvasView({
   );
 }
 
-// Image with four draggable corner handles for de-keystoning.
-function CornerAligner({
+// Image with four draggable corner handles for de-keystoning. Exported for
+// reuse by the calibration chart reader (same align-then-warp flow).
+export function CornerAligner({
   img,
   corners,
   onChange,
@@ -184,7 +185,12 @@ function loadImage(file: Blob): Promise<HTMLImageElement> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload = () => resolve(img);
+    img.onload = () => {
+      // The decoded image stays usable after the URL is revoked; releasing it
+      // avoids leaking one blob URL per uploaded/replaced photo.
+      URL.revokeObjectURL(url);
+      resolve(img);
+    };
     img.src = url;
   });
 }
@@ -234,12 +240,41 @@ interface Analyzed {
 
 type View = "overlay" | "value" | "color" | "region" | "palette" | "score";
 
+// Corner positions survive tab switches / reloads within the session, so a
+// careful alignment isn't lost by peeking at another tab. sessionStorage on
+// purpose: corners belong to this sitting, not to the synced app state.
+const CORNER_KEYS = {
+  ref: "pigmentmatch.compare.refCorners",
+  wip: "pigmentmatch.compare.wipCorners",
+} as const;
+function loadCorners(key: string): Pt[] | null {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(key) || "null");
+    return Array.isArray(v) && v.length === 4 ? (v as Pt[]) : null;
+  } catch {
+    return null;
+  }
+}
+function saveCorners(key: string, corners: Pt[]) {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(corners));
+  } catch {
+    // ignore
+  }
+}
+
 export function CompareView({ pigments }: { pigments: Pigment[] }) {
   const { lang, t } = useT();
   const [refImg, setRefImg] = useState<HTMLImageElement | null>(null);
   const [wipImg, setWipImg] = useState<HTMLImageElement | null>(null);
-  const [refCorners, setRefCorners] = useState<Pt[]>(DEFAULT_CORNERS);
-  const [wipCorners, setWipCorners] = useState<Pt[]>(DEFAULT_CORNERS);
+  const [refCorners, setRefCorners] = useState<Pt[]>(
+    () => loadCorners(CORNER_KEYS.ref) ?? DEFAULT_CORNERS
+  );
+  const [wipCorners, setWipCorners] = useState<Pt[]>(
+    () => loadCorners(CORNER_KEYS.wip) ?? DEFAULT_CORNERS
+  );
+  useEffect(() => saveCorners(CORNER_KEYS.ref, refCorners), [refCorners]);
+  useEffect(() => saveCorners(CORNER_KEYS.wip, wipCorners), [wipCorners]);
   const [analyzed, setAnalyzed] = useState<Analyzed | null>(null);
   const [view, setView] = useState<View>("overlay");
   const [normalize, setNormalize] = useState(false);

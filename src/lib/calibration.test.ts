@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   fitCalibration,
   applyCalibration,
+  averageError,
   type Observation,
 } from "@/lib/calibration";
 import type { Pigment } from "@/lib/pigments";
@@ -50,5 +51,30 @@ describe("calibration", () => {
     const out = applyCalibration(pigs, cal);
     expect(out[0].strength).toBe(cal.strengthById["white"]);
     expect(out[1].rgb).toEqual(cal.rgbById!["red"]);
+  });
+
+  it("ignores observations that reference pigments missing from the palette", () => {
+    // This observation used a tube ("blue") that was later deleted from the
+    // palette. If it were fitted anyway (the missing pigment maps to weight 0),
+    // it would be treated as pure red against a red+blue color and corrupt
+    // red's fitted strength.
+    const orphan: Observation = {
+      id: "o3",
+      items: [
+        { pigmentId: "blue", weight: 1 },
+        { pigmentId: "red", weight: 1 },
+      ],
+      observed: { r: 90, g: 20, b: 120 },
+    };
+    expect(averageError([orphan], pigs)).toBe(0); // filtered out → no data
+    const cal = fitCalibration([orphan], pigs);
+    // With no usable observation the fit keeps the original strengths.
+    expect(cal.strengthById["white"]).toBe(0.9);
+    expect(cal.strengthById["red"]).toBe(0.8);
+    // …and a mixed batch fits only from the intact observations.
+    const mixed = fitCalibration([...obs, orphan], pigs);
+    const clean = fitCalibration(obs, pigs);
+    expect(mixed.strengthById).toEqual(clean.strengthById);
+    expect(mixed.avgError).toBeCloseTo(clean.avgError, 10);
   });
 });

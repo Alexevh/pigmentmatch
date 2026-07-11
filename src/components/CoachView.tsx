@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   ArrowUpDown,
   Droplets,
   Thermometer,
   Check,
   GraduationCap,
+  Beaker,
 } from "lucide-react";
-import { rgbToHex, type RGB } from "@/lib/color";
-import { coach, type TipKind } from "@/lib/coach";
+import { rgbToHex, matchScore, type RGB } from "@/lib/color";
+import { coach, quantifyAdjustment, type TipKind } from "@/lib/coach";
 import { useT } from "@/lib/i18n";
 import type { Pigment } from "@/lib/pigments";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ColorInput } from "./ColorInput";
 import { ImageSampler } from "./ImageSampler";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const TIP_ICON: Record<TipKind, typeof Droplets> = {
   value: ArrowUpDown,
@@ -42,8 +44,17 @@ export function CoachView({
   // The current mixture on the painter's palette — starts as a neutral grey.
   const [current, setCurrent] = useState<RGB>({ r: 170, g: 170, b: 165 });
   const [sampling, setSampling] = useState(false);
+  // Batch size for the quantified advice ("add X ml to your Y ml puddle").
+  const [batchMl, setBatchMl] = useState(20);
 
   const result = coach(target, current, pigments, lang);
+  const quant = useMemo(
+    () => quantifyAdjustment(target, current, pigments),
+    [target, current, pigments]
+  );
+  // Adding to an EXISTING puddle: if the final mix is fraction f new pigment,
+  // the added quantity is batch · f / (1 − f).
+  const addMl = quant ? (batchMl * quant.fraction) / (1 - quant.fraction) : 0;
 
   return (
     <div className="space-y-4">
@@ -136,6 +147,51 @@ export function CoachView({
               );
             })}
           </ol>
+
+          {quant && (
+            <div className="space-y-2 rounded-lg border border-accent/30 bg-accent/5 p-3">
+              <p className="flex items-center gap-2 text-sm font-medium text-accent">
+                <Beaker className="h-4 w-4 shrink-0" /> {t("coach.quantTitle")}
+              </p>
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span>{t("coach.quantBatch")}</span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={1000}
+                  value={batchMl}
+                  onChange={(e) =>
+                    setBatchMl(
+                      Math.max(1, Math.min(1000, Number(e.target.value) || 1))
+                    )
+                  }
+                  className="h-8 w-20 text-center"
+                />
+                <span>ml</span>
+              </div>
+              <p className="text-sm leading-relaxed text-foreground/90">
+                {t("coach.quantAdvice", {
+                  amount: addMl < 0.1 ? "<0.1" : addMl.toFixed(1),
+                  name: quant.pigment.name,
+                  percent: Math.round(quant.fraction * 100),
+                  batch: batchMl,
+                })}
+              </p>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span
+                  className="h-5 w-5 rounded border border-border/60"
+                  style={{ backgroundColor: rgbToHex(quant.predicted) }}
+                />
+                {t("coach.quantResult", {
+                  match: matchScore(quant.after),
+                  before: matchScore(quant.before),
+                })}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {t("coach.quantNote")}
+              </p>
+            </div>
+          )}
 
           <p className="border-t border-border/60 pt-3 text-xs text-muted-foreground">
             {t("coach.footer")}

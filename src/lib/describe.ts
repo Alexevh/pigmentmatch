@@ -39,10 +39,18 @@ export function analysisSentence(rgb: RGB, lang: Lang): string {
       ? t("analysis.neutralTemp")
       : `${t("analysis.slightly")} ${t(`analysis.${a.temperature}`).toLowerCase()}`;
 
+  // A leaning grey gets "with a slight reddish tendency" (analysis.tendency);
+  // the leading space is part of the param since the template is {temp}{tendency}.
+  const tendency = a.tendency
+    ? ` ${t("analysis.tendency", {
+        hue: t(`analysis.${a.tendency}`).toLowerCase(),
+      })}`
+    : "";
+
   return t("analysis.sentence", {
     sat: t(SAT_KEY[a.saturation]),
     noun,
     temp,
-    tendency: "",
+    tendency,
   });
 }

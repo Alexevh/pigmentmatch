@@ -73,11 +73,13 @@ export function usePalettes() {
     setActiveId(fresh.id);
   }, []);
 
-  // Add a palette from a known preset (e.g. a Winsor & Newton kit).
-  const addPreset = useCallback((make: () => Palette) => {
+  // Add a palette from a known preset (e.g. a Winsor & Newton kit). Returns
+  // the new palette's id so callers (e.g. import) can attach per-palette data.
+  const addPreset = useCallback((make: () => Palette): string => {
     const fresh: Palette = { ...make(), id: newId("pal") };
     setPalettes((prev) => [...prev, fresh]);
     setActiveId(fresh.id);
+    return fresh.id;
   }, []);
 
   // Create a palette from an explicit pigment list (e.g. the limited-palette

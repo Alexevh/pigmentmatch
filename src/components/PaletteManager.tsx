@@ -21,6 +21,14 @@ import {
   type Temperature,
 } from "@/lib/pigments";
 import type { usePalettes } from "@/hooks/usePalettes";
+import {
+  loadObservations,
+  loadCalibration,
+  saveObservations,
+  saveCalibration,
+} from "@/lib/storage";
+import type { Calibration, Observation } from "@/lib/calibration";
+import { newId } from "@/lib/pigments";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +36,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { ImageSampler } from "./ImageSampler";
 import { SharePaletteModal } from "./SharePaletteModal";
+import { SubstituteFinder } from "./SubstituteFinder";
 import { cn } from "@/lib/utils";
 
 type PaletteApi = ReturnType<typeof usePalettes>;
@@ -81,6 +90,51 @@ function normalizePalette(obj: unknown): Palette | null {
     name: typeof o.name === "string" ? o.name : "Imported palette",
     pigments,
   };
+}
+
+// Validate imported calibration observations: keep only well-formed entries
+// whose pigment ids all exist in the imported palette.
+function normalizeObservations(raw: unknown, pal: Palette): Observation[] {
+  if (!Array.isArray(raw)) return [];
+  const ids = new Set(pal.pigments.map((p) => p.id));
+  const out: Observation[] = [];
+  for (const o of raw) {
+    const obs = o as Record<string, unknown>;
+    const items = obs.items;
+    const observed = obs.observed as Record<string, unknown> | undefined;
+    if (!Array.isArray(items) || !observed || typeof observed !== "object")
+      continue;
+    const okItems = items.every(
+      (i) =>
+        i &&
+        typeof (i as Record<string, unknown>).pigmentId === "string" &&
+        typeof (i as Record<string, unknown>).weight === "number" &&
+        ids.has((i as Record<string, unknown>).pigmentId as string)
+    );
+    if (!okItems) continue;
+    const num = (v: unknown) =>
+      typeof v === "number" && isFinite(v) ? clamp255(v) : null;
+    const r = num(observed.r);
+    const g = num(observed.g);
+    const b = num(observed.b);
+    if (r == null || g == null || b == null) continue;
+    out.push({
+      id: newId("obs"),
+      items: items as Observation["items"],
+      observed: { r, g, b },
+    });
+  }
+  return out;
+}
+
+// Loosely validate an imported fitted calibration (its shapes are all plain
+// records; anything malformed → skipped, the observations alone still import).
+function normalizeCalibration(raw: unknown): Calibration | null {
+  if (!raw || typeof raw !== "object") return null;
+  const c = raw as Record<string, unknown>;
+  if (!c.strengthById || typeof c.strengthById !== "object") return null;
+  if (typeof c.avgError !== "number") return null;
+  return c as unknown as Calibration;
 }
 
 function PigmentRow({
@@ -300,8 +354,16 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
   if (!active) return null;
 
   const exportActive = () => {
+    // Include the palette's calibration data (observations + fitted model) so
+    // a backup restores the full working state, not just the tubes. Both are
+    // optional on import — old exports (pigments only) keep working.
     const json = JSON.stringify(
-      { name: active.name, pigments: active.pigments },
+      {
+        name: active.name,
+        pigments: active.pigments,
+        observations: loadObservations(active.id),
+        calibration: loadCalibration(active.id),
+      },
       null,
       2
     );
@@ -319,9 +381,19 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const pal = normalizePalette(JSON.parse(String(reader.result)));
+        const parsed = JSON.parse(String(reader.result)) as Record<
+          string,
+          unknown
+        >;
+        const pal = normalizePalette(parsed);
         if (!pal) throw new Error("invalid");
-        addPreset(() => pal);
+        const newPaletteId = addPreset(() => pal);
+        // Restore the calibration data, if the export carried it. Pigment ids
+        // are preserved by normalizePalette, so observation items still match.
+        const obs = normalizeObservations(parsed.observations, pal);
+        if (obs.length) saveObservations(newPaletteId, obs);
+        const cal = normalizeCalibration(parsed.calibration);
+        if (cal) saveCalibration(newPaletteId, cal);
       } catch {
         alert(t("palette.importError"));
       }
@@ -479,6 +551,8 @@ export function PaletteManager({ api }: { api: PaletteApi }) {
           }}
         />
       )}
+
+      <SubstituteFinder pigments={active.pigments} />
     </div>
   );
 }

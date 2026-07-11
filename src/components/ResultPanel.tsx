@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import { generateRecipe, suggestPigment } from "@/lib/mixer";
@@ -18,6 +18,8 @@ import { RecipeView } from "./RecipeView";
 import { AnalysisView } from "./AnalysisView";
 import { VariationsView } from "./VariationsView";
 import { HarmoniesView } from "./HarmoniesView";
+import { ColorStringView } from "./ColorStringView";
+import { GamutMap } from "./GamutMap";
 import { PaletteChipSelect } from "./PaletteChipSelect";
 
 // Shared results for a target color: big swatch, mix recipe, painter analysis
@@ -57,6 +59,7 @@ export function ResultPanel({
   const maxColors = useMaxColors();
   const valuePriority = useValuePriority();
   const goldenRatio = useGoldenRatio();
+  const [showGamut, setShowGamut] = useState(false);
   const recipe = useMemo(
     () =>
       generateRecipe(rgb, pigments, mode, engine, {
@@ -125,21 +128,36 @@ export function ResultPanel({
       <CardContent className="space-y-3">
         <RecipeView recipe={recipe} target={rgb} paletteName={activeName} />
         {recipe.match < REACH_THRESHOLD && (
-          <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-muted-foreground">
-            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
-            <div>
-              <p>{t("reach.warn")}</p>
-              {suggestion ? (
-                <p className="mt-0.5">
-                  {t("reach.suggest", {
-                    name: suggestion.pigment.name,
-                    match: suggestion.match,
-                  })}
-                </p>
-              ) : (
-                <p className="mt-0.5">{t("reach.noSuggest")}</p>
-              )}
+          <div className="space-y-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-muted-foreground">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-400" />
+              <div className="flex-1">
+                <p>{t("reach.warn")}</p>
+                {suggestion ? (
+                  <p className="mt-0.5">
+                    {t("reach.suggest", {
+                      name: suggestion.pigment.name,
+                      match: suggestion.match,
+                    })}
+                  </p>
+                ) : (
+                  <p className="mt-0.5">{t("reach.noSuggest")}</p>
+                )}
+                <button
+                  onClick={() => setShowGamut((v) => !v)}
+                  className="mt-1 text-amber-400 hover:underline"
+                >
+                  {showGamut ? t("gamut.hide") : t("gamut.show")}
+                </button>
+              </div>
             </div>
+            {showGamut && (
+              <GamutMap
+                pigments={pigments}
+                target={rgb}
+                suggestion={suggestion?.pigment ?? null}
+              />
+            )}
           </div>
         )}
       </CardContent>
@@ -171,11 +189,23 @@ export function ResultPanel({
     </Card>
   );
 
+  const strings = (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("strings.title")}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ColorStringView rgb={rgb} pigments={pigments} />
+      </CardContent>
+    </Card>
+  );
+
   if (stack) {
     return (
       <div className="space-y-4">
         {!hideSwatch && swatch}
         {recipeCard}
+        {strings}
         {variations}
         {harmonies}
         {!hideAnalysis && analysis}
@@ -191,6 +221,7 @@ export function ResultPanel({
       </div>
       <div className="space-y-4">
         {recipeCard}
+        {strings}
         {variations}
         {harmonies}
       </div>

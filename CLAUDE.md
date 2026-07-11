@@ -362,6 +362,43 @@ src/
   (SDK + rules + offline), Mongo speaks raw TCP the browser can't. Strings under
   i18n `cloud.*`. **Default: OFF** (and no config) → app stays 100% local.
 
+### Added in 1.3.0
+- **Calibration chart** (`chart.ts` geometry + `chartPdf.ts` jsPDF generator +
+  `CalibrationChartCard` in Calibrate): print a patch grid (paper cell + every
+  enabled pigment's masstone + 1:3 tints with the palette's white), paint it,
+  photograph it, align the bold border's corners (reuses Compare's exported
+  `CornerAligner` + `warpImage`), and every patch becomes an observation —
+  white-balanced against the blank paper cell. Geometry (cellPaintRect/
+  chartAspect) is shared by generator and reader so they can't disagree. See
+  `chart.test.ts`.
+- **Color strings** (`strings.ts` + `ColorStringView` card in ResultPanel):
+  light→shadow value scale of the base mix; steps ADD white / darkest pigment
+  and are predicted via the new exported `predictMix(pigments, weights,
+  engine)` in mixer.ts. `strings.test.ts`.
+- **Value study / notan** (`valuePlanes` 1D L* k-means in extract.ts +
+  `ValueStudyView` under Extract): 3-5 value planes + recipe per plane's mean.
+- **Quantified coach** (`quantifyAdjustment` in coach.ts + card in CoachView):
+  best single-pigment addition to the current puddle (puddle modeled as a
+  pseudo-pigment under classic K-M) with ml amounts for a batch size.
+- **Gamut map** (`GamutMap`, toggled inside ResultPanel's reach warning):
+  pigments + convex hull on the a*/b* plane, target crosshair, suggested tube.
+- **Guided calibration** (`suggestObservations` in calibration.ts + chips in
+  CalibrateView): most informative next mixes (1:3 tints, 1:1 pairs of the
+  least-covered pigments); click to prefill the parts form.
+- **Simultaneous contrast** (`ContrastCheck` in the Image tab): sampled color
+  centered in its real photo surround vs on white vs on grey.
+- **Tube substitute** (`SubstituteFinder` at the bottom of Palette): mix a
+  ran-out tube from the rest (generateRecipe on its masstone) + closest single
+  library tube (line-suffix-insensitive).
+- **Sampler averaging**: opt-in "Average" mode in ImageSampler — clicks
+  accumulate, emits the running mean, chip shows n× and the takes' worst-case
+  ΔE2000 spread.
+- **Misc**: EyeDropper API button in ColorInput (Chromium only, feature-
+  detected); palette export/import JSON now carries observations+calibration
+  (addPreset returns the new palette id); Extract selection can be inverted
+  (exclude background); Compare corner positions persist in sessionStorage;
+  CalibrateView takes an optional paletteName prop (chart PDF title).
+
 ### Added in 1.2.0
 - **Scene / Zone mode** (`scene.ts` + `SceneView`, new `scene` tab; fully
   additive): analyze a dragged region relative to a whole-scene profile

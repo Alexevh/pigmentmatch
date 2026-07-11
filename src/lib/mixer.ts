@@ -200,6 +200,17 @@ function buildMix(engine: MixEngine, pigments: Pigment[]): MixFn {
   return (weights) => mixKS(ks, weights);
 }
 
+// Predict the color of an explicit weight vector under a given engine — the
+// public door to the mixing backends for tools that build their own weights
+// (color strings, the calibration chart) rather than searching for them.
+export function predictMix(
+  pigments: Pigment[],
+  weights: number[],
+  engine: MixEngine = "classic"
+): RGB {
+  return buildMix(engine, pigments)(weights);
+}
+
 // --- Recipe ---
 
 export type Amount =
@@ -294,11 +305,14 @@ function valueError(
 }
 
 // Deterministic pseudo-random so results are stable across runs (no Math.random).
+// Divides by 2^32 (not 2^32-1) so the range is [0, 1) — with an inclusive upper
+// bound, `Math.floor(rng() * n)` could return n (once per full LCG period) and
+// index past the end of a weights array, poisoning that candidate with NaN.
 function makeRng(seed: number) {
   let s = seed >>> 0;
   return () => {
     s = (s * 1664525 + 1013904223) >>> 0;
-    return s / 0xffffffff;
+    return s / 0x100000000;
   };
 }
 
@@ -451,6 +465,9 @@ function reduceWeights(
   // it wrecks the actual color. Without this, an out-of-reach (e.g. very dark)
   // target collapses to a single neutral because dropping the hue pigments gets
   // "closer" in lightness — the mix ends up grey instead of the right hue.
+  // NOTE: the guard applies only to FREE drops; a drop forced by maxColors
+  // (overCap below) skips it by design — the user asked for at most N pigments,
+  // so value is kept and hue/chroma are allowed to drift.
   const colorGuard = de2000(cand.rgb) + tolerance;
 
   for (;;) {
@@ -668,6 +685,14 @@ export interface PigmentSuggestion {
   match: number;
 }
 
+// A tube's name stripped of a trailing line/source parenthetical, for
+// duplicate detection: the W&N Mixed preset suffixes shared names with their
+// line ("Titanium White (Artists')"), which must still count as already
+// having "Titanium White".
+function baseName(name: string): string {
+  return name.replace(/\s*\([^)]*\)\s*$/, "").toLowerCase();
+}
+
 // Find the single library pigment that, added to the palette, most improves the
 // reachable ΔE for a target. Returns null unless it helps by a real margin.
 export function suggestPigment(
@@ -677,10 +702,10 @@ export function suggestPigment(
   baseDeltaE: number,
   minImprovement = 2
 ): PigmentSuggestion | null {
-  const have = new Set(palette.map((p) => p.name.toLowerCase()));
+  const have = new Set(palette.map((p) => baseName(p.name)));
   let best: PigmentSuggestion | null = null;
   for (const c of candidates) {
-    if (have.has(c.name.toLowerCase())) continue;
+    if (have.has(baseName(c.name))) continue;
     const dE = reachEstimate(target, [...palette, c]);
     if (dE < (best?.deltaE ?? Infinity)) {
       best = { pigment: c, deltaE: dE, match: matchScore(dE) };

@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Upload, Loader2, Grid2x2, X, FlaskConical } from "lucide-react";
+import {
+  Upload,
+  Loader2,
+  Grid2x2,
+  X,
+  FlaskConical,
+  FlipHorizontal,
+} from "lucide-react";
 import { rgbToHex, rgbToLab, deltaE, type RGB } from "@/lib/color";
 import { extractPalette, relationshipHint } from "@/lib/extract";
 import {
@@ -73,6 +80,9 @@ export function PaletteExtractor({
   const [hasImage, setHasImage] = useState(false);
   const [posterize, setPosterize] = useState(false); // optional, off by default
   const [selection, setSelection] = useState<Rect | null>(null); // optional area
+  // Invert the selection: extract from everything EXCEPT the dragged box —
+  // e.g. draw a box over the background to exclude it. Off = old behavior.
+  const [invertSel, setInvertSel] = useState(false);
 
   const mode = useRecipeMode();
   const engine = useMixEngine();
@@ -82,34 +92,49 @@ export function PaletteExtractor({
   const { lang, t } = useT();
   const { blob: storedBlob, save: saveSlot } = useActiveImage("extract.source");
 
-  // Collect pixels from the cached base image, optionally only inside `sel`.
-  const pixelsIn = useCallback((sel: Rect | null): RGB[] => {
-    const base = baseRef.current;
-    if (!base) return [];
-    const { width: w, height: h, data } = base;
-    const rx0 = sel ? Math.floor(sel.x * w) : 0;
-    const ry0 = sel ? Math.floor(sel.y * h) : 0;
-    const rx1 = sel ? Math.ceil((sel.x + sel.w) * w) : w;
-    const ry1 = sel ? Math.ceil((sel.y + sel.h) * h) : h;
-    const area = Math.max(1, (rx1 - rx0) * (ry1 - ry0));
-    const step = Math.max(1, Math.round(Math.sqrt(area / 12000)));
-    const out: RGB[] = [];
-    for (let y = ry0; y < ry1; y += step) {
-      for (let x = rx0; x < rx1; x += step) {
-        const i = (y * w + x) * 4;
-        if (data[i + 3] < 128) continue;
-        out.push({ r: data[i], g: data[i + 1], b: data[i + 2] });
+  // Collect pixels from the cached base image, optionally only inside `sel` —
+  // or, with invert on, only OUTSIDE it (exclude the background). Bounds are
+  // clamped: float error at the right/bottom edge could push ceil() one past
+  // the buffer.
+  const pixelsIn = useCallback(
+    (sel: Rect | null, invert = false): RGB[] => {
+      const base = baseRef.current;
+      if (!base) return [];
+      const { width: w, height: h, data } = base;
+      const inverted = invert && sel != null;
+      const rx0 = sel && !inverted ? Math.max(0, Math.floor(sel.x * w)) : 0;
+      const ry0 = sel && !inverted ? Math.max(0, Math.floor(sel.y * h)) : 0;
+      const rx1 =
+        sel && !inverted ? Math.min(w, Math.ceil((sel.x + sel.w) * w)) : w;
+      const ry1 =
+        sel && !inverted ? Math.min(h, Math.ceil((sel.y + sel.h) * h)) : h;
+      // exclusion rect (pixel coords) when inverting
+      const ex0 = inverted ? Math.max(0, Math.floor(sel!.x * w)) : 0;
+      const ey0 = inverted ? Math.max(0, Math.floor(sel!.y * h)) : 0;
+      const ex1 = inverted ? Math.min(w, Math.ceil((sel!.x + sel!.w) * w)) : 0;
+      const ey1 = inverted ? Math.min(h, Math.ceil((sel!.y + sel!.h) * h)) : 0;
+      const area = Math.max(1, (rx1 - rx0) * (ry1 - ry0));
+      const step = Math.max(1, Math.round(Math.sqrt(area / 12000)));
+      const out: RGB[] = [];
+      for (let y = ry0; y < ry1; y += step) {
+        for (let x = rx0; x < rx1; x += step) {
+          if (inverted && x >= ex0 && x < ex1 && y >= ey0 && y < ey1) continue;
+          const i = (y * w + x) * 4;
+          if (data[i + 3] < 128) continue;
+          out.push({ r: data[i], g: data[i + 1], b: data[i + 2] });
+        }
       }
-    }
-    return out;
-  }, []);
+      return out;
+    },
+    []
+  );
 
   // k-means only (expensive) — its result doesn't depend on the recipe settings.
   const runExtract = useCallback(
-    (sel: Rect | null, k: number) => {
+    (sel: Rect | null, k: number, invert = false) => {
       setBusy(true);
       setTimeout(() => {
-        setPalette(extractPalette(pixelsIn(sel), k));
+        setPalette(extractPalette(pixelsIn(sel, invert), k));
         setBusy(false);
       }, 30);
     },
@@ -166,7 +191,13 @@ export function PaletteExtractor({
       img.onload = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        const scale = Math.min(1, DISPLAY_MAX / img.width);
+        // Cap by the LONGEST side so a tall portrait photo is downscaled too
+        // (width-only let e.g. 800x6000 through at full size, making the
+        // posterize/extract loops needlessly heavy).
+        const scale = Math.min(
+          1,
+          DISPLAY_MAX / Math.max(img.width, img.height)
+        );
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -175,6 +206,7 @@ export function PaletteExtractor({
         baseRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
         URL.revokeObjectURL(url);
         setSelection(null);
+        setInvertSel(false);
         setPosterize(false);
         setHasImage(true);
         runExtract(null, count);
@@ -298,7 +330,7 @@ export function PaletteExtractor({
               key={c}
               onClick={() => {
                 setCount(c);
-                if (hasImage) runExtract(selection, c);
+                if (hasImage) runExtract(selection, c, invertSel);
               }}
               className={
                 "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
@@ -326,16 +358,31 @@ export function PaletteExtractor({
           </Button>
         )}
         {selection && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSelection(null);
-              runExtract(null, count);
-            }}
-          >
-            <X className="h-3.5 w-3.5" /> {t("extract.wholeImage")}
-          </Button>
+          <>
+            <Button
+              variant={invertSel ? "accent" : "outline"}
+              size="sm"
+              onClick={() => {
+                const next = !invertSel;
+                setInvertSel(next);
+                runExtract(selection, count, next);
+              }}
+              title={t("extract.invertHint")}
+            >
+              <FlipHorizontal className="h-4 w-4" /> {t("extract.invert")}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSelection(null);
+                setInvertSel(false);
+                runExtract(null, count);
+              }}
+            >
+              <X className="h-3.5 w-3.5" /> {t("extract.wholeImage")}
+            </Button>
+          </>
         )}
         {busy && (
           <span className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -380,9 +427,10 @@ export function PaletteExtractor({
             // a real box selects an area; a tiny drag/click clears the selection
             if (d.cur && d.cur.w > 0.03 && d.cur.h > 0.03) {
               setSelection(d.cur);
-              runExtract(d.cur, count);
+              runExtract(d.cur, count, invertSel);
             } else if (selection) {
               setSelection(null);
+              setInvertSel(false);
               runExtract(null, count);
             } else {
               redraw();

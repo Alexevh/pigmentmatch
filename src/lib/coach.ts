@@ -11,7 +11,8 @@ import {
   type RGB,
   type Lab,
 } from "./color";
-import type { Pigment } from "./pigments";
+import { mixColor } from "./mixer";
+import { isEnabled, type Pigment } from "./pigments";
 import { translate, type Lang } from "./i18n";
 
 export type TipKind = "value" | "saturation" | "hue" | "done";
@@ -102,6 +103,55 @@ function mostNeutralEarth(pigments: Pigment[]): Pigment | null {
     }
   }
   return best;
+}
+
+// ---------- Quantified adjustment ----------
+
+export interface QuantifiedAdd {
+  pigment: Pigment;
+  fraction: number; // fraction of the FINAL mix that is the added pigment
+  predicted: RGB;
+  before: number; // ΔE2000 before the addition
+  after: number; // ΔE2000 predicted after it
+}
+
+const ADD_FRACTIONS = [0.02, 0.04, 0.07, 0.11, 0.16, 0.22, 0.3, 0.4, 0.5];
+
+// The best SINGLE-pigment addition to the painter's current puddle, with an
+// actual quantity. The puddle is modeled as a pseudo-pigment (its color's K/S
+// under the classic single-constant model — exactly how K-M treats any paint
+// of that color), then [puddle, candidate] is mixed at each trial fraction and
+// the (pigment, fraction) landing closest to the target wins. An estimate (the
+// puddle's tinting strength is unknown — assumed average), but it turns "add
+// some blue" into "add ~7% Ultramarine".
+export function quantifyAdjustment(
+  target: RGB,
+  current: RGB,
+  pigments: Pigment[]
+): QuantifiedAdd | null {
+  const t = rgbToLab(target);
+  const before = deltaE2000(t, rgbToLab(current));
+  if (before < 1.5) return null; // already on target
+  const puddle: Pigment = {
+    id: "__puddle",
+    name: "puddle",
+    rgb: current,
+    opacity: 0.8,
+    temperature: "neutral",
+    strength: 0.75,
+  };
+  let best: QuantifiedAdd | null = null;
+  for (const p of pigments) {
+    if (!isEnabled(p)) continue;
+    for (const fraction of ADD_FRACTIONS) {
+      const predicted = mixColor([puddle, p], [1 - fraction, fraction]);
+      const after = deltaE2000(t, rgbToLab(predicted));
+      if (!best || after < best.after)
+        best = { pigment: p, fraction, predicted, before, after };
+    }
+  }
+  // Only advise when the addition genuinely helps.
+  return best && best.after < before - 0.75 ? best : null;
 }
 
 export function coach(

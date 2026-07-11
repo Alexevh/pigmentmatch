@@ -48,6 +48,12 @@ function db(): Promise<IDBDatabase> {
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
+  // Don't cache a failed open forever: a transient error (quota, private-mode
+  // restrictions) would otherwise disable the image store for the whole
+  // session; dropping the cached rejection lets the next call retry.
+  dbPromise.catch(() => {
+    dbPromise = null;
+  });
   return dbPromise;
 }
 

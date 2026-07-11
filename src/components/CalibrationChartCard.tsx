@@ -1,0 +1,213 @@
+import { useMemo, useRef, useState } from "react";
+import { Grid3x3, Download, Upload, ScanLine, Plus } from "lucide-react";
+import { rgbToHex, type RGB } from "@/lib/color";
+import type { Pigment } from "@/lib/pigments";
+import {
+  buildChartCells,
+  cellPaintRect,
+  chartAspect,
+  observationsFromChart,
+  chartDuplicates,
+} from "@/lib/chart";
+import { exportCalibrationChartPdf } from "@/lib/chartPdf";
+import { warpImage, type Pt } from "@/lib/compare";
+import type { CalibrationApi } from "@/hooks/useCalibration";
+import { useT } from "@/lib/i18n";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { CornerAligner } from "./CompareView";
+
+const ALIGN_DEFAULT: Pt[] = [
+  { x: 0.1, y: 0.1 },
+  { x: 0.9, y: 0.1 },
+  { x: 0.9, y: 0.9 },
+  { x: 0.1, y: 0.9 },
+];
+
+// Calibration chart: print a grid, paint it with the real tubes, photograph
+// it, align the bold border's 4 corners, and read EVERY patch in one pass —
+// observations for the whole palette (masstones + 1:3 tints), white-balanced
+// against the blank paper patch. The heavy lifting reuses Compare's
+// homography warp and chart.ts's shared geometry.
+export function CalibrationChartCard({
+  pigments,
+  cal,
+  paletteName,
+}: {
+  pigments: Pigment[];
+  cal: CalibrationApi;
+  paletteName: string;
+}) {
+  const { t } = useT();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [img, setImg] = useState<HTMLImageElement | null>(null);
+  const [corners, setCorners] = useState<Pt[]>(ALIGN_DEFAULT);
+  const [sampled, setSampled] = useState<(RGB | null)[] | null>(null);
+  const [added, setAdded] = useState(false);
+
+  const { cells, white } = useMemo(
+    () => buildChartCells(pigments),
+    [pigments]
+  );
+
+  const download = () =>
+    exportCalibrationChartPdf(pigments, paletteName, {
+      title: t("chart.pdfTitle"),
+      intro: t("chart.pdfIntro"),
+      paper: t("chart.pdfPaper"),
+    });
+
+  const onFile = (f: Blob) => {
+    const url = URL.createObjectURL(f);
+    const image = new Image();
+    image.onload = () => {
+      URL.revokeObjectURL(url);
+      setImg(image);
+      setCorners(ALIGN_DEFAULT);
+      setSampled(null);
+      setAdded(false);
+    };
+    image.src = url;
+  };
+
+  const readChart = () => {
+    if (!img) return;
+    const W = 900;
+    const H = Math.round(W * chartAspect(cells.length));
+    const data = warpImage(img, corners, W, H);
+    const out: (RGB | null)[] = cells.map((_, i) => {
+      const pr = cellPaintRect(i, cells.length);
+      // sample the central 50% of the paint area (edges are sloppy paint)
+      const x0 = Math.round((pr.x + pr.w * 0.25) * W);
+      const y0 = Math.round((pr.y + pr.h * 0.25) * H);
+      const x1 = Math.round((pr.x + pr.w * 0.75) * W);
+      const y1 = Math.round((pr.y + pr.h * 0.75) * H);
+      let r = 0,
+        g = 0,
+        b = 0,
+        n = 0;
+      for (let y = y0; y < y1; y++)
+        for (let x = x0; x < x1; x++) {
+          const k = (y * W + x) * 4;
+          r += data.data[k];
+          g += data.data[k + 1];
+          b += data.data[k + 2];
+          n++;
+        }
+      if (!n) return null;
+      return {
+        r: Math.round(r / n),
+        g: Math.round(g / n),
+        b: Math.round(b / n),
+      };
+    });
+    setSampled(out);
+    setAdded(false);
+  };
+
+  const chartObs = useMemo(
+    () => (sampled ? observationsFromChart(cells, sampled, white) : []),
+    [cells, sampled, white]
+  );
+  const dups = useMemo(
+    () => chartDuplicates(chartObs, cal.observations),
+    [chartObs, cal.observations]
+  );
+
+  const addAll = () => {
+    for (const o of chartObs) cal.addObservation(o.items, o.observed);
+    setAdded(true);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Grid3x3 className="h-4 w-4 text-accent" /> {t("chart.title")}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <p className="text-xs text-muted-foreground">{t("chart.intro")}</p>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={download}>
+            <Download className="h-4 w-4" /> {t("chart.download")}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload className="h-4 w-4" />{" "}
+            {img ? t("chart.replacePhoto") : t("chart.uploadPhoto")}
+          </Button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) onFile(f);
+              e.target.value = "";
+            }}
+          />
+        </div>
+
+        {img && (
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">
+              {t("chart.alignHint")}
+            </p>
+            <CornerAligner img={img} corners={corners} onChange={setCorners} />
+            <Button size="sm" onClick={readChart}>
+              <ScanLine className="h-4 w-4" /> {t("chart.read")}
+            </Button>
+          </div>
+        )}
+
+        {sampled && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {t("chart.preview", { n: chartObs.length })}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {cells.map((cell, i) =>
+                cell.kind === "paper" || !sampled[i] ? null : (
+                  <span
+                    key={i}
+                    className="flex items-center gap-1.5 rounded-full border border-border bg-secondary/30 px-2 py-0.5 text-[11px]"
+                    title={cell.label}
+                  >
+                    <span
+                      className="h-3.5 w-3.5 rounded-full border border-border/60"
+                      style={{ backgroundColor: rgbToHex(sampled[i]!) }}
+                    />
+                    {cell.label}
+                  </span>
+                )
+              )}
+            </div>
+            {dups > 0 && (
+              <p className="text-[11px] text-amber-400">
+                {t("chart.dupNote", { n: dups })}
+              </p>
+            )}
+            <Button
+              size="sm"
+              onClick={addAll}
+              disabled={added || chartObs.length === 0}
+            >
+              <Plus className="h-4 w-4" />{" "}
+              {added
+                ? t("chart.added")
+                : t("chart.addObs", { n: chartObs.length })}
+            </Button>
+            {added && (
+              <p className="text-xs text-emerald-400">{t("chart.next")}</p>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

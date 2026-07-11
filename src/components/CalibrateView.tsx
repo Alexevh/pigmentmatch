@@ -5,6 +5,7 @@ import type { Pigment } from "@/lib/pigments";
 import {
   applyCalibration,
   predictObservation,
+  suggestObservations,
   type ObservationItem,
 } from "@/lib/calibration";
 import { rgbDeltaE } from "@/lib/color";
@@ -20,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ColorInput } from "./ColorInput";
 import { ImageSampler } from "./ImageSampler";
+import { CalibrationChartCard } from "./CalibrationChartCard";
 
 function Dot({ rgb, label }: { rgb: RGB; label?: string }) {
   return (
@@ -40,9 +42,11 @@ function Dot({ rgb, label }: { rgb: RGB; label?: string }) {
 export function CalibrateView({
   cal,
   pigments,
+  paletteName = "",
 }: {
   cal: CalibrationApi;
   pigments: Pigment[];
+  paletteName?: string;
 }) {
   const { t } = useT();
   const calibrated = useCalibratedEngine();
@@ -62,6 +66,9 @@ export function CalibrateView({
   const formItems: ObservationItem[] = pigments
     .map((p) => ({ pigmentId: p.id, weight: parseFloat(parts[p.id] || "0") }))
     .filter((i) => i.weight > 0);
+
+  // The next most informative mixes to record (guided calibration).
+  const suggestions = suggestObservations(pigments, cal.observations, 4);
 
   const canAdd = formItems.length >= 1;
 
@@ -127,6 +134,13 @@ export function CalibrateView({
         </CardContent>
       </Card>
 
+      {/* Calibration chart: print → paint → photograph → read all patches */}
+      <CalibrationChartCard
+        pigments={pigments}
+        cal={cal}
+        paletteName={paletteName}
+      />
+
       {/* Record a mix ----------------------------------------------------- */}
       <Card>
         <CardHeader>
@@ -143,6 +157,59 @@ export function CalibrateView({
             </p>
             <p className="mt-1">{t("calibrate.mixNote")}</p>
           </div>
+
+          {/* Guided calibration: the next most informative mixes to record.
+              Clicking one prefills the parts below — mix it, photograph it,
+              record the color. */}
+          {suggestions.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {t("calibrate.suggestTitle")}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {t("calibrate.suggestHint")}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {suggestions.map((s, i) => {
+                  const label = s.items
+                    .map((it) => {
+                      const p = pigments.find((pg) => pg.id === it.pigmentId);
+                      return `${it.weight} ${p?.name ?? "?"}`;
+                    })
+                    .join(" + ");
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        const next: Record<string, string> = {};
+                        for (const it of s.items)
+                          next[it.pigmentId] = String(it.weight);
+                        setParts(next);
+                      }}
+                      className="flex items-center gap-1.5 rounded-full border border-border bg-secondary/30 px-2.5 py-1 text-xs hover:border-accent hover:text-foreground"
+                      title={t(
+                        s.kind === "tint"
+                          ? "calibrate.suggestTint"
+                          : "calibrate.suggestPair"
+                      )}
+                    >
+                      {s.items.map((it) => {
+                        const p = pigments.find((pg) => pg.id === it.pigmentId);
+                        return p ? (
+                          <span
+                            key={it.pigmentId}
+                            className="h-3 w-3 rounded-full border border-border/60"
+                            style={{ backgroundColor: rgbToHex(p.rgb) }}
+                          />
+                        ) : null;
+                      })}
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="grid gap-2 sm:grid-cols-2">
             {pigments.map((p) => (

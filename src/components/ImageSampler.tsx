@@ -7,9 +7,16 @@ import {
   Plus,
   Minus,
   Pipette,
+  Sigma,
   X,
 } from "lucide-react";
-import { rgbToHex, whiteBalance, type RGB } from "@/lib/color";
+import {
+  rgbToHex,
+  rgbToLab,
+  deltaE2000,
+  whiteBalance,
+  type RGB,
+} from "@/lib/color";
 import { useT } from "@/lib/i18n";
 import { useActiveImage } from "@/hooks/useActiveImage";
 import { Button } from "@/components/ui/button";
@@ -36,6 +43,22 @@ const PICK_CURSOR =
       "</g></svg>"
   ) +
   '") 2 16, crosshair';
+
+const meanRgb = (picks: RGB[]): RGB => ({
+  r: Math.round(picks.reduce((s, p) => s + p.r, 0) / picks.length),
+  g: Math.round(picks.reduce((s, p) => s + p.g, 0) / picks.length),
+  b: Math.round(picks.reduce((s, p) => s + p.b, 0) / picks.length),
+});
+
+// Worst-case ΔE2000 from the mean to any individual pick — how much the takes
+// disagree (camera noise). Shown so the painter knows how much to trust one.
+const spreadDE = (picks: RGB[], mean: RGB): number => {
+  const m = rgbToLab(mean);
+  return picks.reduce(
+    (mx, p) => Math.max(mx, deltaE2000(rgbToLab(p), m)),
+    0
+  );
+};
 
 // Color sampler: upload (or camera) a photo, optionally zoom/pan and use the
 // magnifier loupe, then click to pick a color. Image editing (adjustments / AI)
@@ -110,6 +133,14 @@ export function ImageSampler({
   // reference (or toggling keep-value) can re-emit that same color corrected —
   // the swatch updates immediately instead of waiting for the next click.
   const lastRawRef = useRef<RGB | null>(null);
+
+  // Optional multi-pick averaging (opt-in): each click adds a take and emits
+  // the running MEAN, with the takes' worst-case disagreement (ΔE2000 spread)
+  // shown so the painter knows how noisy the captures are. One noisy phone
+  // shot varies several ΔE between clicks on the same swatch — averaging 3-5
+  // takes is much more trustworthy. Off by default = old single-pick behavior.
+  const [avgOn, setAvgOn] = useState(false);
+  const [avgPicks, setAvgPicks] = useState<RGB[]>([]);
   const correct = useCallback(
     (rgb: RGB | null): RGB | null =>
       rgb && wbRef ? whiteBalance(rgb, wbRef, wbKeepValue) : rgb,
@@ -136,6 +167,7 @@ export function ImageSampler({
         setWbRef(null); // a new photo has its own cast — drop the old reference
         setWbPick(false);
         lastRawRef.current = null;
+        setAvgPicks([]); // takes belong to one photo
         onImage?.(img);
         URL.revokeObjectURL(url);
       };
@@ -170,14 +202,19 @@ export function ImageSampler({
     }
   }, [storedBlob, drawFile]);
 
-  // cursor -> canvas pixel coordinates
+  // cursor -> canvas pixel coordinates. Clamped to the last row/column: at the
+  // extreme right/bottom edge the rounding yields x === width, and getImageData
+  // out of bounds returns transparent black — a click there would sample #000.
   const coordsAt = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
     const x = Math.round(((e.clientX - rect.left) / rect.width) * canvas.width);
     const y = Math.round(((e.clientY - rect.top) / rect.height) * canvas.height);
-    return { x, y };
+    return {
+      x: Math.max(0, Math.min(canvas.width - 1, x)),
+      y: Math.max(0, Math.min(canvas.height - 1, y)),
+    };
   }, []);
 
   const pixelAt = useCallback((x: number, y: number): RGB | null => {
@@ -375,7 +412,14 @@ export function ImageSampler({
               }
               lastRawRef.current = rgb; // remember the raw pick
               const out = correct(rgb) ?? rgb;
-              onSample(out);
+              if (avgOn) {
+                // Averaging: accumulate takes and emit the running mean.
+                const picks = [...avgPicks, out];
+                setAvgPicks(picks);
+                onSample(meanRgb(picks));
+              } else {
+                onSample(out);
+              }
               const cv = canvasRef.current;
               if (cv) onSamplePos?.(c.x / cv.width, c.y / cv.height);
             }}
@@ -479,6 +523,44 @@ export function ImageSampler({
             <span className="w-7 text-xs tabular-nums text-muted-foreground">
               {sampleR === 0 ? "1px" : `${sampleR * 2 + 1}`}
             </span>
+          </div>
+          {/* Multi-pick averaging (opt-in): each click adds a take, the swatch
+              gets the running mean, and the chip shows how much the takes
+              disagree. */}
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant={avgOn ? "accent" : "outline"}
+              size="sm"
+              onClick={() => {
+                setAvgOn((v) => !v);
+                setAvgPicks([]);
+              }}
+              title={t("image.avgHint")}
+            >
+              <Sigma className="h-4 w-4" /> {t("image.avg")}
+            </Button>
+            {avgOn && avgPicks.length > 0 && (
+              <>
+                <span
+                  className="rounded-full border border-border bg-secondary/40 px-2 py-1 text-xs tabular-nums text-muted-foreground"
+                  title={t("image.avgSpreadHint")}
+                >
+                  {t("image.avgCount", {
+                    n: avgPicks.length,
+                    d: spreadDE(avgPicks, meanRgb(avgPicks)).toFixed(1),
+                  })}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setAvgPicks([])}
+                  title={t("image.avgClear")}
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              </>
+            )}
           </div>
           {/* White-balance reference (opt-in): neutralize the phone's color
               cast against a white/gray card in the same photo. */}

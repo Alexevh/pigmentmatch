@@ -25,18 +25,40 @@ describe("compare", () => {
       { x: 8, y: 24 },
     ];
     const H = solveHomography(src, dst);
+    expect(H).not.toBeNull();
     expect(H).toHaveLength(8);
     for (let i = 0; i < 4; i++) {
-      const q = applyH(H, src[i]);
+      const q = applyH(H!, src[i]);
       expect(q.x).toBeCloseTo(dst[i].x, 3);
       expect(q.y).toBeCloseTo(dst[i].y, 3);
     }
   });
 
-  it("valueHistogram is normalized (sums to ~1), all-mid → one bin", () => {
+  it("solveHomography returns null for degenerate (coincident) corners", () => {
+    const src: Pt[] = [
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 1, y: 1 },
+      { x: 0, y: 1 },
+    ];
+    // Two destination corners dragged onto the same point → no valid quad.
+    const dst: Pt[] = [
+      { x: 10, y: 10 },
+      { x: 10, y: 10 },
+      { x: 30, y: 30 },
+      { x: 10, y: 30 },
+    ];
+    expect(solveHomography(src, dst)).toBeNull();
+  });
+
+  it("valueHistogram is peak-normalized (max bin = 1)", () => {
+    // Two value clusters of different sizes: 75 dark + 25 light pixels.
     const n = 100;
+    const L = new Float32Array(n);
+    L.fill(20, 0, 75);
+    L.fill(80, 75);
     const f: LabField = {
-      L: new Float32Array(n).fill(50),
+      L,
       a: new Float32Array(n),
       b: new Float32Array(n),
       w: 10,
@@ -44,8 +66,12 @@ describe("compare", () => {
     };
     const hist = valueHistogram(f, 24);
     expect(hist).toHaveLength(24);
-    expect(hist.reduce((a, b) => a + b, 0)).toBeCloseTo(1, 5);
-    // everything at L=50 lands in a single (middle) bin
+    // Normalized by the MAX bin (bar heights), not by the sum: the tallest bin
+    // is exactly 1 and the smaller cluster's bin is its relative share.
     expect(Math.max(...hist)).toBeCloseTo(1, 5);
+    const sorted = [...hist].sort((a, b) => b - a);
+    expect(sorted[1]).toBeCloseTo(25 / 75, 5);
+    // everything at one L lands in a single bin per cluster
+    expect(hist.filter((v) => v > 0)).toHaveLength(2);
   });
 });

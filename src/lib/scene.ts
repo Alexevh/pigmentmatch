@@ -68,7 +68,11 @@ function otsu(ls: number[]): number {
       last = i;
     }
   }
-  return (((first + last) / 2) / BINS) * 100;
+  // Otsu's threshold bin t belongs to the BACKGROUND (shadow) class, and
+  // buildSceneProfile classifies `shadow = L < split` — so the split must be
+  // the chosen bin's UPPER edge ((t+1)/BINS), not its lower edge, or every
+  // pixel inside the threshold bin itself would flip to the light class.
+  return (((first + last) / 2 + 1) / BINS) * 100;
 }
 
 function meanLab(labs: Lab[]): Lab {

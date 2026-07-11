@@ -1,35 +1,91 @@
 // Dominant-color extraction from an image via k-means clustering in Lab space
 // (perceptually meaningful), plus painterly relationship hints between colors.
 
-import { rgbToLab, deltaE, type RGB, type Lab } from "./color";
+import { rgbToLab, labToRgb, deltaE, type RGB, type Lab } from "./color";
 import type { Pigment } from "./pigments";
 import { translate, type Lang } from "./i18n";
 
-// Pull pixels from an already-loaded image, downsampled for speed.
-export function samplePixels(
-  img: HTMLImageElement,
-  maxSamples = 12000
-): RGB[] {
-  const canvas = document.createElement("canvas");
-  const scale = Math.min(1, Math.sqrt(maxSamples / (img.width * img.height)));
-  const w = Math.max(1, Math.round(img.width * scale));
-  const h = Math.max(1, Math.round(img.height * scale));
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) return [];
-  ctx.drawImage(img, 0, 0, w, h);
-  const data = ctx.getImageData(0, 0, w, h).data;
-  const out: RGB[] = [];
-  for (let i = 0; i < data.length; i += 4) {
-    if (data[i + 3] < 128) continue; // skip transparent
-    out.push({ r: data[i], g: data[i + 1], b: data[i + 2] });
-  }
-  return out;
-}
-
 interface LabPoint extends Lab {
   rgb: RGB;
+}
+
+// ---------- Value study (notan planes) ----------
+
+export interface ValuePlane {
+  mean: RGB; // average color of the plane (Lab mean → sRGB)
+  centerL: number; // the plane's value center (for classifying pixels)
+  loL: number;
+  hiL: number;
+  share: number; // fraction of the image's pixels in this plane (0..1)
+}
+
+// Group an image's pixels into k VALUE planes (the painter's notan): a
+// deterministic 1D k-means on L*, so the planes follow the image's own value
+// clusters instead of fixed thresholds. Returns planes sorted light → dark;
+// empty clusters are dropped (an image can have fewer real planes than k).
+export function valuePlanes(pixels: RGB[], k: number): ValuePlane[] {
+  if (!pixels.length || k < 2) return [];
+  const labs = pixels.map(rgbToLab);
+  const centers = Array.from(
+    { length: k },
+    (_, i) => 5 + (90 * i) / (k - 1) // evenly spread over the value range
+  );
+  const assign = new Array<number>(labs.length).fill(0);
+  for (let iter = 0; iter < 16; iter++) {
+    let changed = false;
+    for (let i = 0; i < labs.length; i++) {
+      let bi = 0;
+      let bd = Infinity;
+      for (let c = 0; c < centers.length; c++) {
+        const d = Math.abs(labs[i].L - centers[c]);
+        if (d < bd) {
+          bd = d;
+          bi = c;
+        }
+      }
+      if (assign[i] !== bi) {
+        assign[i] = bi;
+        changed = true;
+      }
+    }
+    const sums = new Array<number>(centers.length).fill(0);
+    const counts = new Array<number>(centers.length).fill(0);
+    for (let i = 0; i < labs.length; i++) {
+      sums[assign[i]] += labs[i].L;
+      counts[assign[i]]++;
+    }
+    for (let c = 0; c < centers.length; c++)
+      if (counts[c] > 0) centers[c] = sums[c] / counts[c];
+    if (!changed) break;
+  }
+
+  const agg = centers.map(() => ({
+    L: 0,
+    a: 0,
+    b: 0,
+    n: 0,
+    lo: Infinity,
+    hi: -Infinity,
+  }));
+  for (let i = 0; i < labs.length; i++) {
+    const a = agg[assign[i]];
+    a.L += labs[i].L;
+    a.a += labs[i].a;
+    a.b += labs[i].b;
+    a.n++;
+    a.lo = Math.min(a.lo, labs[i].L);
+    a.hi = Math.max(a.hi, labs[i].L);
+  }
+  return agg
+    .filter((a) => a.n > 0)
+    .map((a) => ({
+      mean: labToRgb({ L: a.L / a.n, a: a.a / a.n, b: a.b / a.n }),
+      centerL: a.L / a.n,
+      loL: a.lo,
+      hiL: a.hi,
+      share: a.n / labs.length,
+    }))
+    .sort((x, y) => y.centerL - x.centerL);
 }
 
 export function extractPalette(pixels: RGB[], k: number): RGB[] {

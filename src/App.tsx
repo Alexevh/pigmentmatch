@@ -35,6 +35,8 @@ import { SwatchCompare } from "@/components/SwatchCompare";
 import { Swatch } from "@/components/Swatch";
 import { ImageSampler } from "@/components/ImageSampler";
 import { PaletteExtractor } from "@/components/PaletteExtractor";
+import { ValueStudyView } from "@/components/ValueStudyView";
+import { ContrastCheck } from "@/components/ContrastCheck";
 import { SceneView } from "@/components/SceneView";
 import { PaletteManager } from "@/components/PaletteManager";
 import { CoachView } from "@/components/CoachView";
@@ -57,6 +59,12 @@ export default function App() {
   const pigments = api.active?.pigments ?? [];
   const [tab, setTab] = useState("match");
   const [target, setTarget] = useState<RGB>({ r: 146, g: 112, b: 115 }); // #927073
+  // Image-tab pick context, for the simultaneous-contrast check: the loaded
+  // photo element + the last pick's normalized position within it.
+  const [sampleImg, setSampleImg] = useState<HTMLImageElement | null>(null);
+  const [samplePos, setSamplePos] = useState<{ x: number; y: number } | null>(
+    null
+  );
 
   // Optional calibrated engine: when the toggle is on and a calibration exists
   // for the active palette, recipes everywhere use the fitted pigment strengths.
@@ -244,9 +252,20 @@ export default function App() {
                     <CardTitle>{t("match.sampleFromImage")}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ImageSampler onSample={setTarget} slot="image.reference" />
+                    <ImageSampler
+                      onSample={setTarget}
+                      slot="image.reference"
+                      onImage={(img) => {
+                        setSampleImg(img);
+                        setSamplePos(null);
+                      }}
+                      onSamplePos={(x, y) => setSamplePos({ x, y })}
+                    />
                   </CardContent>
                 </Card>
+                {/* Simultaneous contrast: the sampled color in its real
+                    surround vs on white/grey (shows after a pick). */}
+                <ContrastCheck rgb={target} image={sampleImg} pos={samplePos} />
                 <Card className="h-fit">
                   <CardHeader>
                     <CardTitle>{t("analysis.title")}</CardTitle>
@@ -299,6 +318,11 @@ export default function App() {
                 />
               </CardContent>
             </Card>
+            {/* Value study (notan planes + a recipe per plane) — reads the
+                same stored image as the extractor above. */}
+            <div className="mt-4">
+              <ValueStudyView pigments={effectivePigments} />
+            </div>
           </TabsContent>
 
           {/* Scene: analyze a zone within the whole scene (light/shadow temp) */}
@@ -358,7 +382,11 @@ export default function App() {
 
           {/* Calibrate: optional — fit the model to the painter's real paints */}
           <TabsContent value="calibrate">
-            <CalibrateView cal={cal} pigments={pigments} />
+            <CalibrateView
+              cal={cal}
+              pigments={pigments}
+              paletteName={api.active?.name ?? ""}
+            />
           </TabsContent>
 
           {/* Palette: manage pigments */}

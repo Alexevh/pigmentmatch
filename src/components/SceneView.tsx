@@ -52,10 +52,13 @@ export function SceneView({ pigments }: { pigments: Pigment[] }) {
     const base = baseRef.current;
     if (!base) return [];
     const { width: w, height: h, data } = base;
-    const rx0 = sel ? Math.floor(sel.x * w) : 0;
-    const ry0 = sel ? Math.floor(sel.y * h) : 0;
-    const rx1 = sel ? Math.ceil((sel.x + sel.w) * w) : w;
-    const ry1 = sel ? Math.ceil((sel.y + sel.h) * h) : h;
+    // Clamp: float error can make (sel.x + sel.w) exceed 1 by an epsilon at the
+    // right/bottom edge, and ceil would then read one row/column past the
+    // buffer (undefined channels → NaN poisons the zone mean).
+    const rx0 = sel ? Math.max(0, Math.floor(sel.x * w)) : 0;
+    const ry0 = sel ? Math.max(0, Math.floor(sel.y * h)) : 0;
+    const rx1 = sel ? Math.min(w, Math.ceil((sel.x + sel.w) * w)) : w;
+    const ry1 = sel ? Math.min(h, Math.ceil((sel.y + sel.h) * h)) : h;
     const area = Math.max(1, (rx1 - rx0) * (ry1 - ry0));
     const step = Math.max(1, Math.round(Math.sqrt(area / target)));
     const out: RGB[] = [];
@@ -149,14 +152,18 @@ export function SceneView({ pigments }: { pigments: Pigment[] }) {
     };
   };
 
-  // Effective profile honoring the "flip light" override.
+  // Effective profile honoring the "flip light" override. The override says
+  // "my READ of the light is the opposite" — so it inverts only the polarity
+  // (the interpretation). lightTemp/shadowTemp/lightLab/shadowLab stay as
+  // measured: they're facts of the image, and sceneAdvice compares the zone
+  // against its own family's measured mean; swapping them would compare a
+  // shadow against the light family's temperature and produce large spurious
+  // adjustments (and swatches inconsistent with the labels).
   const effProfile = useMemo<SceneProfile | null>(() => {
     if (!profile) return null;
     if (!flip) return profile;
     return {
       ...profile,
-      lightTemp: profile.shadowTemp,
-      shadowTemp: profile.lightTemp,
       polarity:
         profile.polarity === "warm-light"
           ? "cool-light"

@@ -12,6 +12,7 @@ import {
   buildHarmonies,
   clamp255,
   whiteBalance,
+  analyzeColor,
 } from "@/lib/color";
 
 describe("color", () => {
@@ -98,6 +99,43 @@ describe("color", () => {
   it("whiteBalance: a too-dark reference is ignored (returns input)", () => {
     const c = { r: 100, g: 100, b: 100 };
     expect(whiteBalance(c, { r: 0, g: 0, b: 0 })).toEqual(c);
+  });
+
+  it("analyzeColor: near-white/near-black tints read as neutral, not saturated", () => {
+    // HSL saturation explodes near white/black; chroma-based analysis must not.
+    const nearWhite = analyzeColor({ r: 255, g: 254, b: 255 });
+    expect(nearWhite.saturation).toBe("Very low");
+    expect(nearWhite.hue).toBe("Neutral");
+    const offWhite = analyzeColor({ r: 250, g: 245, b: 240 });
+    expect(offWhite.hue).toBe("Neutral");
+    expect(offWhite.saturation).toBe("Very low");
+    const nearBlack = analyzeColor({ r: 5, g: 0, b: 0 });
+    expect(nearBlack.saturation).toBe("Very low");
+    expect(nearBlack.hue).toBe("Neutral");
+    // …while a genuinely saturated color still reads as saturated.
+    const red = analyzeColor({ r: 200, g: 30, b: 30 });
+    expect(red.saturation).toBe("High");
+    expect(red.hue).toBe("Reddish");
+  });
+
+  it("analyzeColor: a leaning grey exposes its tendency in the sentence", () => {
+    // A warm mid-grey: clearly neutral but leaning red/orange (3 <= C* < 10).
+    const a = analyzeColor({ r: 140, g: 125, b: 118 });
+    expect(a.hue).toBe("Neutral");
+    expect(a.tendency).toBeDefined();
+    expect(a.sentence).toContain("tendency");
+    // A dead-neutral grey has no tendency.
+    const g = analyzeColor({ r: 128, g: 128, b: 128 });
+    expect(g.tendency).toBeUndefined();
+    expect(g.sentence).not.toContain("tendency");
+  });
+
+  it("hslToRgb normalizes out-of-range hues", () => {
+    const base = hslToRgb({ h: 330, s: 100, l: 50 });
+    expect(hslToRgb({ h: -30, s: 100, l: 50 })).toEqual(base);
+    expect(hslToRgb({ h: 690, s: 100, l: 50 })).toEqual(base);
+    const orange = hslToRgb({ h: 30, s: 100, l: 50 });
+    expect(hslToRgb({ h: 390, s: 100, l: 50 })).toEqual(orange);
   });
 
   it("whiteBalance preserveL: keeps the sample's own lightness", () => {

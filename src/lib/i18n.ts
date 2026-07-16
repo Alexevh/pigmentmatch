@@ -702,10 +702,16 @@ const en: Dict = {
     quantTitle: "How much, exactly?",
     quantBatch: "My puddle is about",
     quantAdvice:
-      "Add ~{amount} ml of {name} to your {batch} ml puddle (≈{percent}% of the final mix).",
+      "Add ~{amount} {unit} of {name} to your {batch} {unit} puddle (≈{percent}% of the final mix).",
+    quantRatio:
+      "Add 1 part {name} for every {n} parts of your puddle. A “part” is any consistent scoop — a knife-tip, a bead.",
     quantResult: "Predicted result: match goes {before}% → {match}%.",
     quantNote:
       "An estimate — your puddle's real tinting strength is unknown. Add in 2-3 steps and re-sample; strong pigments (phthalos, dioxazine) go a long way.",
+    unit_parts: "parts",
+    unit_ml: "ml",
+    unit_g: "g",
+    unit_drops: "drops",
     footer:
       "Add color in tiny steps and re-sample — chasing a target is always a few small corrections, not one big one.",
     headlineThere: "You're there — the difference is barely perceptible.",
@@ -1568,10 +1574,16 @@ const es: Dict = {
     quantTitle: "¿Cuánto exactamente?",
     quantBatch: "Mi montón es de unos",
     quantAdvice:
-      "Agregá ~{amount} ml de {name} a tu montón de {batch} ml (≈{percent}% de la mezcla final).",
+      "Agregá ~{amount} {unit} de {name} a tu montón de {batch} {unit} (≈{percent}% de la mezcla final).",
+    quantRatio:
+      "Agregá 1 parte de {name} por cada {n} partes de tu montón. Una “parte” es cualquier medida constante — una punta de espátula, un poroto.",
     quantResult: "Resultado previsto: el match pasa de {before}% → {match}%.",
     quantNote:
       "Es una estimación — la fuerza tintórea real de tu montón no se conoce. Agregá en 2-3 pasos y volvé a muestrear; los pigmentos fuertes (ftalos, dioxazina) rinden muchísimo.",
+    unit_parts: "partes",
+    unit_ml: "ml",
+    unit_g: "g",
+    unit_drops: "gotas",
     footer:
       "Agregá color de a poquito y volvé a muestrear — igualar un color son siempre varias correcciones chicas, nunca una grande.",
     headlineThere: "Llegaste — la diferencia es casi imperceptible.",

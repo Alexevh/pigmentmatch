@@ -10,6 +10,7 @@ import {
 import { rgbToHex, matchScore, type RGB } from "@/lib/color";
 import { coach, quantifyAdjustment, type TipKind } from "@/lib/coach";
 import { useT } from "@/lib/i18n";
+import { useCoachUnit, setCoachUnit, COACH_UNITS } from "@/hooks/useCoachUnit";
 import type { Pigment } from "@/lib/pigments";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,8 +45,10 @@ export function CoachView({
   // The current mixture on the painter's palette — starts as a neutral grey.
   const [current, setCurrent] = useState<RGB>({ r: 170, g: 170, b: 165 });
   const [sampling, setSampling] = useState(false);
-  // Batch size for the quantified advice ("add X ml to your Y ml puddle").
-  const [batchMl, setBatchMl] = useState(20);
+  // How to express the addition (unit-free ratio, or a quantity in the unit the
+  // painter thinks their puddle is in) + the puddle size for the quantity units.
+  const unit = useCoachUnit();
+  const [batch, setBatch] = useState(20);
 
   const result = coach(target, current, pigments, lang);
   const quant = useMemo(
@@ -53,8 +56,11 @@ export function CoachView({
     [target, current, pigments]
   );
   // Adding to an EXISTING puddle: if the final mix is fraction f new pigment,
-  // the added quantity is batch · f / (1 − f).
-  const addMl = quant ? (batchMl * quant.fraction) / (1 - quant.fraction) : 0;
+  // the added quantity is batch · f / (1 − f) in whatever unit `batch` is; the
+  // ratio form is puddle : added = (1 − f) : f, i.e. "1 part per N of puddle".
+  const f = quant?.fraction ?? 0;
+  const addQty = quant ? (batch * f) / (1 - f) : 0;
+  const perPart = quant && f > 0 ? (1 - f) / f : 0; // parts of puddle per 1 part added
 
   return (
     <div className="space-y-4">
@@ -150,33 +156,65 @@ export function CoachView({
 
           {quant && (
             <div className="space-y-2 rounded-lg border border-accent/30 bg-accent/5 p-3">
-              <p className="flex items-center gap-2 text-sm font-medium text-accent">
-                <Beaker className="h-4 w-4 shrink-0" /> {t("coach.quantTitle")}
-              </p>
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <span>{t("coach.quantBatch")}</span>
-                <Input
-                  type="number"
-                  min={1}
-                  max={1000}
-                  value={batchMl}
-                  onChange={(e) =>
-                    setBatchMl(
-                      Math.max(1, Math.min(1000, Number(e.target.value) || 1))
-                    )
-                  }
-                  className="h-8 w-20 text-center"
-                />
-                <span>ml</span>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="flex items-center gap-2 text-sm font-medium text-accent">
+                  <Beaker className="h-4 w-4 shrink-0" /> {t("coach.quantTitle")}
+                </p>
+                <div className="flex items-center gap-1 rounded-lg bg-secondary/60 p-0.5">
+                  {COACH_UNITS.map((u) => (
+                    <button
+                      key={u}
+                      onClick={() => setCoachUnit(u)}
+                      className={cn(
+                        "rounded-md px-2 py-0.5 text-xs font-medium transition-colors",
+                        unit === u
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {t(`coach.unit_${u}`)}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <p className="text-sm leading-relaxed text-foreground/90">
-                {t("coach.quantAdvice", {
-                  amount: addMl < 0.1 ? "<0.1" : addMl.toFixed(1),
-                  name: quant.pigment.name,
-                  percent: Math.round(quant.fraction * 100),
-                  batch: batchMl,
-                })}
-              </p>
+
+              {unit === "parts" ? (
+                <p className="text-sm leading-relaxed text-foreground/90">
+                  {t("coach.quantRatio", {
+                    name: quant.pigment.name,
+                    n: perPart < 10 ? perPart.toFixed(1) : Math.round(perPart),
+                  })}
+                </p>
+              ) : (
+                <>
+                  <div className="flex flex-wrap items-center gap-2 text-sm">
+                    <span>{t("coach.quantBatch")}</span>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={1000}
+                      value={batch}
+                      onChange={(e) =>
+                        setBatch(
+                          Math.max(1, Math.min(1000, Number(e.target.value) || 1))
+                        )
+                      }
+                      className="h-8 w-20 text-center"
+                    />
+                    <span>{t(`coach.unit_${unit}`)}</span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-foreground/90">
+                    {t("coach.quantAdvice", {
+                      amount: addQty < 0.1 ? "<0.1" : addQty.toFixed(1),
+                      unit: t(`coach.unit_${unit}`),
+                      name: quant.pigment.name,
+                      percent: Math.round(f * 100),
+                      batch,
+                    })}
+                  </p>
+                </>
+              )}
+
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span
                   className="h-5 w-5 rounded border border-border/60"

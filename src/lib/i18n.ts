@@ -21,6 +21,19 @@ function subscribe(cb: () => void) {
   listeners.add(cb);
   return () => listeners.delete(cb);
 }
+
+// Keep the <html lang> attribute matching the active language. Content that
+// matches its declared language is not offered for auto-translation (together
+// with translate="no" in index.html), and it's correct for accessibility.
+function syncHtmlLang(lang: Lang) {
+  try {
+    document.documentElement.lang = lang;
+  } catch {
+    /* SSR / no document */
+  }
+}
+syncHtmlLang(value);
+
 export function setLang(next: Lang) {
   value = next;
   try {
@@ -28,6 +41,7 @@ export function setLang(next: Lang) {
   } catch {
     /* ignore */
   }
+  syncHtmlLang(next);
   listeners.forEach((l) => l());
 }
 export function useLang(): Lang {

@@ -1,16 +1,21 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en" class="dark" translate="no">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/palette.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- The app ships its own EN/ES localization; browser/phone auto-translation
+         mangles what must NOT be translated (pigment names, HEX/RGB) and fights
+         our own strings. Disable it: `translate="no"` (honored by Chromium) +
+         the Google notranslate hint + the `notranslate` class on the root. -->
+    <meta name="google" content="notranslate" />
     <meta
       name="description"
       content="Pigment Match — turn any color into an oil paint mixing recipe."
     />
     <title>Pigment Match</title>
   </head>
-  <body>
+  <body class="notranslate">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

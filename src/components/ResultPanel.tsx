@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import { rgbToHex, type RGB } from "@/lib/color";
+import { rgbToHex, rgbToLab, type RGB } from "@/lib/color";
 import { generateRecipe, suggestPigment } from "@/lib/mixer";
 import { libraryPigments } from "@/lib/pigments";
 import { useRecipeMode } from "@/hooks/useRecipeMode";
@@ -92,6 +92,46 @@ export function ResultPanel({
     [rgb, pigments, candidates, recipe.match, recipe.deltaE]
   );
 
+  // A dark near-neutral target collapses to ~100% of a single black/grey tube:
+  // at low L*, ΔE barely "sees" chroma, so the mix drops to flat tube black —
+  // which painters usually avoid (dead, unmixable). Offer a MIXED dark instead,
+  // recomputed with the near-neutral dark tubes removed, when it reaches a
+  // comparable match. Only shown in that specific case; nothing changes for
+  // ordinary colors.
+  const isDarkNeutral = (p: Pigment) => {
+    const lab = rgbToLab(p.rgb);
+    return lab.L < 30 && Math.hypot(lab.a, lab.b) < 12;
+  };
+  const dominantBlack = useMemo(() => {
+    if (!recipe.items.length) return null;
+    const top = recipe.items.reduce((a, b) => (a.weight >= b.weight ? a : b));
+    return top.weight >= 0.9 && isDarkNeutral(top.pigment)
+      ? top.pigment
+      : null;
+  }, [recipe]);
+  const mixedDark = useMemo(() => {
+    if (!dominantBlack) return null;
+    const chromatic = pigments.filter((p) => !isDarkNeutral(p));
+    if (chromatic.length < 2) return null;
+    const alt = generateRecipe(rgb, chromatic, mode, engine, {
+      maxColors,
+      valuePriority,
+      goldenRatio,
+    });
+    // worth showing only if it's a real mix that stays reasonably close
+    return alt.items.length >= 2 && alt.match >= recipe.match - 8 ? alt : null;
+  }, [
+    dominantBlack,
+    rgb,
+    pigments,
+    mode,
+    engine,
+    maxColors,
+    valuePriority,
+    goldenRatio,
+    recipe.match,
+  ]);
+
   const swatch = (
     <Swatch
       rgb={rgb}
@@ -158,6 +198,17 @@ export function ResultPanel({
                 suggestion={suggestion?.pigment ?? null}
               />
             )}
+          </div>
+        )}
+        {dominantBlack && mixedDark && (
+          <div className="space-y-2 rounded-md border border-border bg-secondary/20 p-2.5">
+            <p className="text-xs text-muted-foreground">
+              {t("mixedDark.note", { name: dominantBlack.name })}
+            </p>
+            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {t("mixedDark.title", { match: mixedDark.match })}
+            </p>
+            <RecipeView recipe={mixedDark} compact />
           </div>
         )}
       </CardContent>

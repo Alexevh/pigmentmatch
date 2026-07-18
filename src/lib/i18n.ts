@@ -365,10 +365,6 @@ const en: Dict = {
     note:
       "All three center squares are the SAME sampled color — the surround changes how it reads. If a numerically correct mix looks wrong in your painting, judge it against its neighbors, never on the white palette.",
   },
-  mixedDark: {
-    note: "That's {name} straight from the tube — flat, and hard to shift warm or cool. Painters usually MIX their darks for a livelier black.",
-    title: "Mixed dark instead ({match}% match)",
-  },
   gamut: {
     show: "See why (gamut map)",
     hide: "Hide gamut map",
@@ -1242,10 +1238,6 @@ const es: Dict = {
     onGray: "Sobre gris",
     note:
       "Los tres cuadrados centrales son EL MISMO color muestreado — el entorno cambia cómo se lee. Si una mezcla numéricamente correcta se ve mal en tu cuadro, juzgala contra sus vecinos, nunca sobre la paleta blanca.",
-  },
-  mixedDark: {
-    note: "Eso es {name} directo del tubo — plano, y difícil de inclinar cálido o frío. Los pintores suelen MEZCLAR sus oscuros para un negro más vivo.",
-    title: "Oscuro mezclado en su lugar ({match}% match)",
   },
   gamut: {
     show: "Ver por qué (mapa de gamut)",

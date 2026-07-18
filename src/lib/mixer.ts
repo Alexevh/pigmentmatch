@@ -250,6 +250,13 @@ const SIMPLIFY_TOLERANCE = 2;
 // Precise mode only trims pigments that are essentially search noise.
 const PRECISE_TOLERANCE = 0.5;
 
+// A real color is almost never a single pigment straight from the tube — that's
+// reserved for the rare near-tube-pure target (a super-saturated cadmium, a
+// vivid flower). So reduceWeights won't collapse a mix to ONE pigment unless
+// that lone pigment already matches the target this closely in ΔE2000 (i.e. the
+// target essentially IS that tube). Otherwise it keeps the two-pigment mix.
+const PURE_TOLERANCE = 3;
+
 // Optional, opt-in recipe controls. Defaults keep the original behavior exactly.
 export interface RecipeOptions {
   maxColors?: number | null; // cap the pigment count (null = no cap, default)
@@ -497,6 +504,11 @@ function reduceWeights(
     // under value-priority, only if it also keeps the real color within guard.
     const withinColor = !valuePriority || bestRemoval.dE <= colorGuard;
     if (overCap || (bestRemoval.e <= ceiling && withinColor)) {
+      // Don't collapse to a SINGLE pigment unless it's a near-tube-pure match.
+      // A recipe is rarely one color straight from the pot; keep the mix. (A
+      // forced maxColors=1 cap still wins — the user asked for one tube.)
+      const nonzero = bestRemoval.weights.filter((w) => w > 0).length;
+      if (!overCap && nonzero <= 1 && bestRemoval.dE > PURE_TOLERANCE) break;
       weights = bestRemoval.weights;
     } else {
       break;

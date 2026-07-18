@@ -133,6 +133,23 @@ describe("mixer", () => {
     expect(s).toBeNull(); // every candidate is already in the palette
   });
 
+  it("does not collapse a mixed target to a single pigment (rare-pure rule)", () => {
+    // A muted dark that the palette must MIX (no single tube is a near-perfect
+    // match) should keep ≥2 pigments instead of dropping to 100% of one.
+    const black = P("Black", { r: 26, g: 26, b: 25 }, { strength: 0.9 });
+    const pal = [white, red, blue, yellow, black];
+    const darkNeutral: RGB = { r: 45, g: 44, b: 48 }; // dark grey — not any tube
+    const r = generateRecipe(darkNeutral, pal, "simple");
+    expect(r.items.length).toBeGreaterThan(1);
+  });
+
+  it("still allows 100% of a single pigment for a near-tube-pure target", () => {
+    // The target IS essentially the red tube → a single-pigment recipe is fine.
+    const r = generateRecipe(red.rgb, [white, red, blue, yellow], "simple");
+    expect(r.items).toHaveLength(1);
+    expect(r.items[0].pigment.name).toBe("Red");
+  });
+
   it("an empty palette gives match 0", () => {
     const r = generateRecipe({ r: 10, g: 20, b: 30 }, []);
     expect(r.match).toBe(0);

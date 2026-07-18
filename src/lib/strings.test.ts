@@ -48,4 +48,31 @@ describe("strings (value scale)", () => {
   it("returns null for a one-pigment palette", () => {
     expect(buildColorString({ r: 120, g: 60, b: 60 }, [red])).toBeNull();
   });
+
+  it("darkens a chromatic base with an in-family dark, not black", () => {
+    // Warm skin base + a palette that has both black and a warm dark earth.
+    const umber = P("umber", { r: 60, g: 40, b: 28 }); // dark, warm (in family)
+    const skin: RGB = { r: 210, g: 160, b: 135 };
+    const cs = buildColorString(skin, [white, red, umber, black]);
+    expect(cs).not.toBeNull();
+    // the auto darkener should be the warm umber, not the neutral black
+    expect(cs!.dark?.id).toBe("umber");
+    // and the darkest shadow step must not be mostly black
+    const darkest = cs!.steps[cs!.steps.length - 1];
+    expect(darkest.add?.pigment.id).toBe("umber");
+    expect(darkest.add!.percent).toBeLessThanOrEqual(30);
+    // the override still lets the painter force black if they want
+    const forced = buildColorString(skin, [white, red, umber, black], "simple", "classic", {
+      darkenerId: "black",
+    });
+    expect(forced!.dark?.id).toBe("black");
+  });
+
+  it("uses a neutral dark for a near-neutral base", () => {
+    const grey: RGB = { r: 140, g: 138, b: 136 };
+    const umber = P("umber", { r: 60, g: 40, b: 28 });
+    const cs = buildColorString(grey, [white, umber, black]);
+    // near-neutral base → darkest tube (black) is the right tool
+    expect(cs!.dark?.id).toBe("black");
+  });
 });

@@ -386,7 +386,8 @@ const en: Dict = {
   strings: {
     title: "Color string (value scale)",
     intro:
-      "The premixed light→shadow scale of this mix: each lighter step adds your palette's white to the base mix, each darker step adds its darkest pigment. Click a step for its proportions.",
+      "The premixed light→shadow scale of this mix: lighter steps add your white, darker steps add an in-family dark tube (an earth for skin, not black — black just greys the color). Click a step for its proportions.",
+    darkenWith: "Darken with",
     baseDot: "Base mix",
     baseStep: "The base mix itself — the recipe above.",
     addStep: "Base mix + {percent}% {name} (of the total).",
@@ -1259,7 +1260,8 @@ const es: Dict = {
   strings: {
     title: "Escala de valor (color string)",
     intro:
-      "La escala luz→sombra premezclada de esta mezcla: cada paso más claro agrega el blanco de tu paleta a la mezcla base, cada paso más oscuro agrega su pigmento más oscuro. Hacé clic en un paso para ver sus proporciones.",
+      "La escala luz→sombra premezclada de esta mezcla: los pasos claros agregan tu blanco, los oscuros agregan un tubo oscuro de la misma familia (una tierra para la piel, no negro — el negro solo engrisa el color). Hacé clic en un paso para ver sus proporciones.",
+    darkenWith: "Oscurecer con",
     baseDot: "Mezcla base",
     baseStep: "La mezcla base — la receta de arriba.",
     addStep: "Mezcla base + {percent}% de {name} (del total).",

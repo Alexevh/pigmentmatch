@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { buildColorString } from "@/lib/strings";
 import { rgbToHex, isLight, type RGB } from "@/lib/color";
 import type { Pigment } from "@/lib/pigments";
@@ -21,9 +21,16 @@ export function ColorStringView({
   const { t } = useT();
   const mode = useRecipeMode();
   const engine = useMixEngine();
+  // Optional override of which pigment darkens the shadow steps. Reset when the
+  // target changes (the auto pick is per-color).
+  const [darkenerId, setDarkenerId] = useState<string>("");
+  useEffect(() => setDarkenerId(""), [rgb]); // re-pick per color
   const cs = useMemo(
-    () => buildColorString(rgb, pigments, mode, engine),
-    [rgb, pigments, mode, engine]
+    () =>
+      buildColorString(rgb, pigments, mode, engine, {
+        darkenerId: darkenerId || undefined,
+      }),
+    [rgb, pigments, mode, engine, darkenerId]
   );
   const [sel, setSel] = useState<number | null>(null);
 
@@ -35,6 +42,22 @@ export function ColorStringView({
   return (
     <div className="space-y-3">
       <p className="text-xs text-muted-foreground">{t("strings.intro")}</p>
+      {cs.dark && cs.darkChoices.length > 0 && (
+        <label className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <span>{t("strings.darkenWith")}</span>
+          <select
+            value={cs.dark.id}
+            onChange={(e) => setDarkenerId(e.target.value)}
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground"
+          >
+            {cs.darkChoices.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <div className="flex overflow-hidden rounded-lg border border-border">
         {cs.steps.map((s, i) => (
           <button

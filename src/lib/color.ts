@@ -405,6 +405,10 @@ export function labToRgb({ L, a, b }: Lab): RGB {
 }
 
 export function variation(rgb: RGB, kind: VariationKind): RGB {
+  // Temperature and saturation both work in Lab at CONSTANT L*, so they change
+  // only hue/chroma and never the value — desaturating a skin tone greys it
+  // without lightening/darkening it. (HSL saturation would shift the perceived
+  // value, since HSL "L" isn't luminance.) Lighter/Darker deliberately move L*.
   if (kind === "Warmer" || kind === "Cooler") {
     const lab = rgbToLab(rgb);
     const dir = kind === "Warmer" ? 1 : -1;
@@ -415,14 +419,14 @@ export function variation(rgb: RGB, kind: VariationKind): RGB {
       b: lab.b + dir * 9,
     });
   }
+  if (kind === "More saturated" || kind === "Less saturated") {
+    const lab = rgbToLab(rgb);
+    // Scale chroma (a*, b*) about the neutral axis, keeping L* fixed.
+    const f = kind === "More saturated" ? 1.35 : 0.65;
+    return labToRgb({ L: lab.L, a: lab.a * f, b: lab.b * f });
+  }
   const hsl = rgbToHsl(rgb);
   switch (kind) {
-    case "More saturated":
-      hsl.s = clamp(hsl.s + 18, 0, 100);
-      break;
-    case "Less saturated":
-      hsl.s = clamp(hsl.s - 18, 0, 100);
-      break;
     case "Lighter":
       hsl.l = clamp(hsl.l + 12, 0, 100);
       break;

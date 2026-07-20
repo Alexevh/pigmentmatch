@@ -13,6 +13,7 @@ import {
   clamp255,
   whiteBalance,
   analyzeColor,
+  variation,
 } from "@/lib/color";
 
 describe("color", () => {
@@ -128,6 +129,20 @@ describe("color", () => {
     const g = analyzeColor({ r: 128, g: 128, b: 128 });
     expect(g.tendency).toBeUndefined();
     expect(g.sentence).not.toContain("tendency");
+  });
+
+  it("saturation variations keep the value (L*), only change chroma", () => {
+    const skin = { r: 200, g: 150, b: 130 };
+    const L0 = rgbToLab(skin).L;
+    const C0 = Math.hypot(rgbToLab(skin).a, rgbToLab(skin).b);
+    const less = rgbToLab(variation(skin, "Less saturated"));
+    const more = rgbToLab(variation(skin, "More saturated"));
+    // value preserved within rounding on both
+    expect(Math.abs(less.L - L0)).toBeLessThan(1.5);
+    expect(Math.abs(more.L - L0)).toBeLessThan(1.5);
+    // chroma actually drops / rises
+    expect(Math.hypot(less.a, less.b)).toBeLessThan(C0);
+    expect(Math.hypot(more.a, more.b)).toBeGreaterThan(C0);
   });
 
   it("hslToRgb normalizes out-of-range hues", () => {

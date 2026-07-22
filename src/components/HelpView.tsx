@@ -1,6 +1,17 @@
-import { ChevronDown, Info, ListChecks, MessagesSquare, Sparkles } from "lucide-react";
+import { useState } from "react";
+import {
+  ChevronDown,
+  Info,
+  ListChecks,
+  MessagesSquare,
+  Sparkles,
+  BookOpen,
+  Loader2,
+} from "lucide-react";
 import { useT } from "@/lib/i18n";
 import { openOnboarding } from "@/hooks/useOnboarding";
+import { APP_VERSION } from "@/version";
+import { Button } from "@/components/ui/button";
 
 // Help content lives here (bilingual) rather than in i18n.ts because it's long
 // prose / structured lists. UI is plain <details> accordions — no deps.
@@ -432,9 +443,46 @@ function Accordion({
 export function HelpView() {
   const { lang, t } = useT();
   const c = HELP[lang];
+  const [busy, setBusy] = useState(false);
+
+  // Generate the user manual as an elegant PDF, in the ACTIVE language, with
+  // figures computed from the real engine. Everything is lazy-loaded (jsPDF +
+  // the content) so Help stays light until the button is pressed.
+  const downloadManual = async () => {
+    setBusy(true);
+    try {
+      const [{ manualContent }, { exportManualPdf }] = await Promise.all([
+        import("@/lib/manual"),
+        import("@/lib/manualPdf"),
+      ]);
+      await exportManualPdf(
+        manualContent(lang, APP_VERSION),
+        lang === "es" ? "pigmentmatch-manual-es.pdf" : "pigmentmatch-manual-en.pdf"
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
+      {/* User manual download */}
+      <div className="flex flex-wrap items-center gap-3 rounded-lg border border-accent/30 bg-accent/5 p-4">
+        <BookOpen className="h-5 w-5 shrink-0 text-accent" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold">{t("manual.title")}</p>
+          <p className="text-xs text-muted-foreground">{t("manual.desc")}</p>
+        </div>
+        <Button onClick={downloadManual} disabled={busy}>
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <BookOpen className="h-4 w-4" />
+          )}{" "}
+          {busy ? t("manual.generating") : t("manual.download")}
+        </Button>
+      </div>
+
       {/* About / purpose */}
       <Accordion
         icon={<Info className="h-4 w-4 text-accent" />}

@@ -185,7 +185,12 @@ src/
     CoachView, CalibrateView, CompareView, MixCheckView, LogbookView, ResultPanel,
     SwatchCompare (Image tab: upload a photo of your swatch → match %, ΔL,
       Coach advice vs the target; reuses ImageSampler + coach), ui/
-    HelpView (Help tab: About/purpose, Release notes, FAQ — <details> accordions;
+    HelpView (Help tab: user-manual PDF download (manual.ts bilingual content +
+      manualPdf.ts jsPDF generator — cover, TOC with page numbers, sections with
+      steps/examples/tips, and vector FIGURES computed from the real engine:
+      actual recipes, value strings, gamut hull, whiteBalance output, valuePlanes,
+      chart tints via predictMix; lazy-loaded, saved in the active language),
+      About/purpose, Release notes, FAQ — <details> accordions;
       bilingual content lives in the component, not i18n)
     SettingsView (Settings tab: language, active palette, recipe defaults via
       shared RecipeControls, the Gemini API key via the useGeminiKey store —

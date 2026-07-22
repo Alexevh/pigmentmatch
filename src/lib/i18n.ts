@@ -336,6 +336,12 @@ const en: Dict = {
     sameValue: "values match closely",
     deltaLabel: "ΔL {n}",
   },
+  manual: {
+    title: "User manual (PDF)",
+    desc: "The complete guide to every feature — with worked examples and illustrations drawn from the real mixing engine. Generated in your current language.",
+    download: "Download manual",
+    generating: "Generating…",
+  },
   chart: {
     title: "Calibration chart",
     intro:
@@ -1216,6 +1222,12 @@ const es: Dict = {
     darker: "tu mezcla está más oscura",
     sameValue: "los valores coinciden",
     deltaLabel: "ΔL {n}",
+  },
+  manual: {
+    title: "Manual de usuario (PDF)",
+    desc: "La guía completa de todas las funcionalidades — con ejemplos prácticos e ilustraciones dibujadas desde el motor de mezcla real. Se genera en tu idioma actual.",
+    download: "Descargar manual",
+    generating: "Generando…",
   },
   chart: {
     title: "Carta de calibración",

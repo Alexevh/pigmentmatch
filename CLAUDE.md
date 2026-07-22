@@ -240,7 +240,14 @@ src/
   Fibonacci sequence (`applyGoldenRatio`: largest pigment → largest Fibonacci
   number; consecutive ratios approach φ) as an artistic constraint — the mix
   usually drifts, and since `buildRecipe` recomputes the color/ΔE/ΔL from the
-  reshaped weights, the shown match/value honestly reflect it. `buildRecipe` also
+  reshaped weights, the shown match/value honestly reflect it. `requiredIds`
+  (must-use tubes): the search projects EVERY candidate to keep each required
+  pigment at ≥2% (`REQUIRED_FLOOR`, single choke point in `evalWeights` — all
+  engines honor it) and `reduceWeights` never drops them (required beats
+  `maxColors`); unknown/empty ids are a byte-identical no-op. UI:
+  `RequiredTubesPicker` (dropdown + removable pills, `useRequiredTubes`
+  persisted store) rendered in ResultPanel's recipe card only — Extract/
+  variations/Scene recipes intentionally don't apply it. `buildRecipe` also
   returns `deltaL` (|ΔL*|) shown in the UI. Controls live in `RecipeView`
   (`MaxColorsSelect`, `ValuePriorityToggle`, `GoldenRatioToggle`, persisted via
   `useRecipeLimits`); read in `ResultPanel`/variation modal/Extract. All opt-in,

@@ -10,6 +10,7 @@ import {
   useValuePriority,
   useGoldenRatio,
 } from "@/hooks/useRecipeLimits";
+import { useRequiredTubes } from "@/hooks/useRequiredTubes";
 import { useT } from "@/lib/i18n";
 import type { Pigment } from "@/lib/pigments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,7 @@ import { VariationsView } from "./VariationsView";
 import { HarmoniesView } from "./HarmoniesView";
 import { ColorStringView } from "./ColorStringView";
 import { GamutMap } from "./GamutMap";
+import { RequiredTubesPicker } from "./RequiredTubesPicker";
 import { PaletteChipSelect } from "./PaletteChipSelect";
 
 // Shared results for a target color: big swatch, mix recipe, painter analysis
@@ -60,14 +62,21 @@ export function ResultPanel({
   const valuePriority = useValuePriority();
   const goldenRatio = useGoldenRatio();
   const [showGamut, setShowGamut] = useState(false);
+  // Must-use tubes (opt-in): only ids present in the current pigments count.
+  const requiredTubes = useRequiredTubes();
+  const requiredIds = useMemo(
+    () => requiredTubes.filter((id) => pigments.some((p) => p.id === id)),
+    [requiredTubes, pigments]
+  );
   const recipe = useMemo(
     () =>
       generateRecipe(rgb, pigments, mode, engine, {
         maxColors,
         valuePriority,
         goldenRatio,
+        requiredIds,
       }),
-    [rgb, pigments, mode, engine, maxColors, valuePriority, goldenRatio]
+    [rgb, pigments, mode, engine, maxColors, valuePriority, goldenRatio, requiredIds]
   );
 
   // When the match is poor, the palette probably can't reach this color. Offer
@@ -126,6 +135,9 @@ export function ResultPanel({
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
+        {/* Optional must-use tubes: dropdown + removable pills; the engine is
+            forced to keep each selected tube at a meaningful share. */}
+        <RequiredTubesPicker pigments={pigments} />
         <RecipeView recipe={recipe} target={rgb} paletteName={activeName} />
         {recipe.match < REACH_THRESHOLD && (
           <div className="space-y-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-muted-foreground">

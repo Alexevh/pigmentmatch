@@ -150,6 +150,51 @@ describe("mixer", () => {
     expect(r.items[0].pigment.name).toBe("Red");
   });
 
+  it("required tubes: forced into the recipe at a meaningful share", () => {
+    const black = P("Black", { r: 26, g: 26, b: 25 }, { strength: 0.9 });
+    const pal = [white, red, blue, yellow, black];
+    // A light warm target would never naturally include blue — require it.
+    const light: RGB = { r: 230, g: 200, b: 170 };
+    for (const engine of ["classic", "spectral", "km2"] as const) {
+      const r = generateRecipe(light, pal, "simple", engine, {
+        requiredIds: ["Blue"],
+      });
+      const item = r.items.find((i) => i.pigment.id === "Blue");
+      expect(item, engine).toBeDefined();
+      expect(item!.weight, engine).toBeGreaterThanOrEqual(0.019);
+      // score still honestly recomputed from the displayed weights
+      expect(r.match).toBe(matchScore(r.deltaE));
+    }
+  });
+
+  it("required tubes: empty/unknown ids leave the recipe byte-identical", () => {
+    const base = generateRecipe(target, pigs);
+    const empty = generateRecipe(target, pigs, "precise", "classic", {
+      requiredIds: [],
+    });
+    const unknown = generateRecipe(target, pigs, "precise", "classic", {
+      requiredIds: ["not-a-pigment"],
+    });
+    for (const r of [empty, unknown]) {
+      expect(r.deltaE).toBe(base.deltaE);
+      expect(r.items.map((i) => [i.pigment.id, i.weight])).toEqual(
+        base.items.map((i) => [i.pigment.id, i.weight])
+      );
+    }
+  });
+
+  it("required tubes survive simple-mode reduction and the maxColors cap", () => {
+    const black = P("Black", { r: 26, g: 26, b: 25 }, { strength: 0.9 });
+    const pal = [white, red, blue, yellow, black];
+    const r = generateRecipe({ r: 230, g: 200, b: 170 }, pal, "simple", "classic", {
+      requiredIds: ["Blue", "Black"],
+      maxColors: 2, // fewer than required + what the mix needs — required wins
+    });
+    const ids = r.items.map((i) => i.pigment.id);
+    expect(ids).toContain("Blue");
+    expect(ids).toContain("Black");
+  });
+
   it("an empty palette gives match 0", () => {
     const r = generateRecipe({ r: 10, g: 20, b: 30 }, []);
     expect(r.match).toBe(0);

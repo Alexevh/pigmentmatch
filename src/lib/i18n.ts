@@ -336,6 +336,12 @@ const en: Dict = {
     sameValue: "values match closely",
     deltaLabel: "ΔL {n}",
   },
+  required: {
+    title: "Must-use tubes",
+    hint: "Force specific tubes into the recipe — you know your base (e.g. a skin from Pale Rose Blush greyed with Raw Umber) and want the mix built around it.",
+    add: "Add a tube…",
+    note: "The recipe is forced to keep each pinned tube at a meaningful share (≥2%). The match % honestly reflects the constrained mix — a hard pin can cost a little accuracy.",
+  },
   manual: {
     title: "User manual (PDF)",
     desc: "The complete guide to every feature — with worked examples and illustrations drawn from the real mixing engine. Generated in your current language.",
@@ -1222,6 +1228,12 @@ const es: Dict = {
     darker: "tu mezcla está más oscura",
     sameValue: "los valores coinciden",
     deltaLabel: "ΔL {n}",
+  },
+  required: {
+    title: "Tubos obligatorios",
+    hint: "Forzá tubos específicos dentro de la receta — vos conocés tu base (p. ej. una piel desde Pale Rose Blush agrisada con Raw Umber) y querés que la mezcla se construya alrededor de eso.",
+    add: "Agregar un tubo…",
+    note: "La receta queda obligada a mantener cada tubo fijado en una proporción significativa (≥2%). El match % refleja honestamente la mezcla restringida — una fijación dura puede costar algo de exactitud.",
   },
   manual: {
     title: "Manual de usuario (PDF)",

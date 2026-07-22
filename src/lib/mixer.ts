@@ -262,7 +262,18 @@ export interface RecipeOptions {
   maxColors?: number | null; // cap the pigment count (null = no cap, default)
   valuePriority?: boolean; // when simplifying, protect value (L*) over hue/chroma
   goldenRatio?: boolean; // reshape the proportions to Fibonacci / golden ratio
+  // Must-use tubes: pigment ids that MUST appear in the final recipe at a
+  // meaningful share (the painter knows their base — "this skin starts from
+  // Pale Rose Blush greyed with Raw Umber"). The search projects every
+  // candidate to include them and reduceWeights never drops them; the shown
+  // score honestly reflects the constrained mix. Empty/absent = no-op, output
+  // byte-identical to before. If it clashes with maxColors, required wins.
+  requiredIds?: string[];
 }
+
+// Each required tube holds at least this share of the mix — below that it's
+// not "using the tube", it's a homeopathic trace.
+const REQUIRED_FLOOR = 0.02;
 
 // The first n distinct Fibonacci numbers [1,2,3,5,8,13,...]. Consecutive ratios
 // approach the golden ratio φ (~1.618).
@@ -356,9 +367,30 @@ export function generateRecipe(
     target.r * 65536 + target.g * 256 + target.b + n * 7919
   );
 
+  // Must-use tubes → indices (unknown/disabled ids just drop out). With none,
+  // `project` is the identity and the whole search is byte-identical to before.
+  const requiredIdx = Array.from(
+    new Set(
+      (options.requiredIds ?? [])
+        .map((id) => pigments.findIndex((p) => p.id === id))
+        .filter((i) => i >= 0)
+    )
+  );
+  const project = (weights: number[]): number[] => {
+    if (!requiredIdx.length) return weights;
+    const out = weights.slice();
+    for (const i of requiredIdx) out[i] = Math.max(out[i], REQUIRED_FLOOR);
+    const sum = out.reduce((a, b) => a + b, 0);
+    return out.map((x) => x / sum);
+  };
+
+  // Single choke point: every candidate (seeds, restarts, hill-climb) is
+  // projected onto the constraint before evaluation, so all engines honor the
+  // required tubes and the stored weights already contain them.
   const evalWeights = (weights: number[]): Candidate => {
-    const rgb = mix(weights);
-    return { weights, rgb, dE: deltaE2000(rgbToLab(rgb), targetLab) };
+    const w = project(weights);
+    const rgb = mix(w);
+    return { weights: w, rgb, dE: deltaE2000(rgbToLab(rgb), targetLab) };
   };
 
   let best: Candidate | null = null;
@@ -439,7 +471,8 @@ export function generateRecipe(
     targetLab,
     tolerance,
     maxColors,
-    valuePriority
+    valuePriority,
+    new Set(requiredIdx)
   );
   // Optional artistic pass: snap the proportions to Fibonacci / golden ratio.
   // buildRecipe then recomputes the mix + ΔE/ΔL from these weights, so the shown
@@ -460,7 +493,8 @@ function reduceWeights(
   targetLab: ReturnType<typeof rgbToLab>,
   tolerance: number,
   maxColors: number | null = null,
-  valuePriority = false
+  valuePriority = false,
+  required: Set<number> = new Set()
 ): number[] {
   const de2000 = (rgb: RGB) => deltaE2000(rgbToLab(rgb), targetLab);
   const err = (rgb: RGB) =>
@@ -482,11 +516,16 @@ function reduceWeights(
       .map((w, i) => ({ w, i }))
       .filter((x) => x.w > 0);
     if (active.length <= 1) break;
+    // Must-use tubes are never candidates for removal — if everything left is
+    // required, there is nothing to reduce. (A maxColors below the required
+    // count therefore stops at the required count: the constraint wins.)
+    const droppable = active.filter((x) => !required.has(x.i));
+    if (!droppable.length) break;
     const overCap = maxColors != null && active.length > maxColors;
 
     // find the single removal that costs the least extra error
     let bestRemoval: { weights: number[]; e: number; dE: number } | null = null;
-    for (const { i } of active) {
+    for (const { i } of droppable) {
       const trial = weights.slice();
       trial[i] = 0;
       const sum = trial.reduce((a, b) => a + b, 0);

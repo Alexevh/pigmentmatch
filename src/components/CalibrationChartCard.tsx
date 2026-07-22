@@ -144,20 +144,13 @@ export function CalibrationChartCard({
   const addAll = () => {
     // Recompute against the current observations at click time.
     const fresh = classifyChartObservations(chartObs, cal.observations);
-    let added = 0;
-    let skipped = 0;
-    const conf: ClassifiedObs[] = [];
-    for (const o of fresh) {
-      if (o.kind === "new") {
-        cal.addObservation(o.items, o.observed);
-        added++;
-      } else if (o.kind === "exact") {
-        skipped++; // identical mix + color already recorded → ignore
-      } else {
-        conf.push(o); // same mix, different color → ask
-      }
-    }
-    setSummary({ added, skipped });
+    const news = fresh.filter((o) => o.kind === "new");
+    const skipped = fresh.filter((o) => o.kind === "exact").length;
+    const conf = fresh.filter((o) => o.kind === "conflict");
+    // Add all the new ones in a single batch (a per-item loop would lose all
+    // but the last to stale state).
+    cal.addObservations(news.map((o) => ({ items: o.items, observed: o.observed })));
+    setSummary({ added: news.length, skipped });
     setConflicts(conf);
     if (conf.length === 0) setAdded(true);
   };

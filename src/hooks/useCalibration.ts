@@ -32,21 +32,46 @@ export function useCalibration(paletteId: string, pigments: Pigment[]) {
     setCalibration(loadCalibration(paletteId));
   }, [paletteId]);
 
+  // All mutators use FUNCTIONAL updates so several calls in one tick (e.g. the
+  // calibration chart adding many observations in a loop, or a conflict resolve
+  // that removes-then-adds) each build on the latest list instead of a stale
+  // closure — the earlier "29 added but only 1 saved" bug.
   const addObservation = (items: ObservationItem[], observed: RGB) => {
-    const next = [...observations, { id: newId("obs"), items, observed }];
-    setObservations(next);
-    saveObservations(paletteId, next);
+    setObservations((prev) => {
+      const next = [...prev, { id: newId("obs"), items, observed }];
+      saveObservations(paletteId, next);
+      return next;
+    });
+  };
+
+  // Append many observations at once (one state update, one save).
+  const addObservations = (
+    list: { items: ObservationItem[]; observed: RGB }[]
+  ) => {
+    if (!list.length) return;
+    setObservations((prev) => {
+      const next = [
+        ...prev,
+        ...list.map((o) => ({ id: newId("obs"), items: o.items, observed: o.observed })),
+      ];
+      saveObservations(paletteId, next);
+      return next;
+    });
   };
 
   const removeObservation = (id: string) => {
-    const next = observations.filter((o) => o.id !== id);
-    setObservations(next);
-    saveObservations(paletteId, next);
+    setObservations((prev) => {
+      const next = prev.filter((o) => o.id !== id);
+      saveObservations(paletteId, next);
+      return next;
+    });
   };
 
   const clearObservations = () => {
-    setObservations([]);
-    saveObservations(paletteId, []);
+    setObservations(() => {
+      saveObservations(paletteId, []);
+      return [];
+    });
   };
 
   const calibrate = (fitColor = false) => {
@@ -69,6 +94,7 @@ export function useCalibration(paletteId: string, pigments: Pigment[]) {
   return {
     observations,
     addObservation,
+    addObservations,
     removeObservation,
     clearObservations,
     calibration,

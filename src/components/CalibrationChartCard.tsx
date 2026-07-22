@@ -7,7 +7,8 @@ import {
   cellPaintRect,
   chartAspect,
   observationsFromChart,
-  chartDuplicates,
+  classifyChartObservations,
+  type ClassifiedObs,
 } from "@/lib/chart";
 import { exportCalibrationChartPdf } from "@/lib/chartPdf";
 import { warpImage, type Pt } from "@/lib/compare";
@@ -122,15 +123,66 @@ export function CalibrationChartCard({
     () => (sampled ? observationsFromChart(cells, sampled, white) : []),
     [cells, sampled, white]
   );
-  const dups = useMemo(
-    () => chartDuplicates(chartObs, cal.observations),
+  // Classify each read patch against what's already recorded (new / exact
+  // duplicate / conflicting), for the preview counts.
+  const classified = useMemo(
+    () => classifyChartObservations(chartObs, cal.observations),
     [chartObs, cal.observations]
+  );
+  const counts = useMemo(() => {
+    const c = { new: 0, exact: 0, conflict: 0 };
+    for (const o of classified) c[o.kind]++;
+    return c;
+  }, [classified]);
+
+  // Conflicts awaiting a keep/replace decision, and a summary of what was added.
+  const [conflicts, setConflicts] = useState<ClassifiedObs[]>([]);
+  const [summary, setSummary] = useState<{ added: number; skipped: number } | null>(
+    null
   );
 
   const addAll = () => {
-    for (const o of chartObs) cal.addObservation(o.items, o.observed);
-    setAdded(true);
+    // Recompute against the current observations at click time.
+    const fresh = classifyChartObservations(chartObs, cal.observations);
+    let added = 0;
+    let skipped = 0;
+    const conf: ClassifiedObs[] = [];
+    for (const o of fresh) {
+      if (o.kind === "new") {
+        cal.addObservation(o.items, o.observed);
+        added++;
+      } else if (o.kind === "exact") {
+        skipped++; // identical mix + color already recorded → ignore
+      } else {
+        conf.push(o); // same mix, different color → ask
+      }
+    }
+    setSummary({ added, skipped });
+    setConflicts(conf);
+    if (conf.length === 0) setAdded(true);
   };
+
+  // Resolve one conflict: keep the existing observation, or replace it with the
+  // chart's reading.
+  const resolveConflict = (c: ClassifiedObs, choice: "keep" | "replace") => {
+    if (choice === "replace" && c.existing) {
+      cal.removeObservation(c.existing.id);
+      cal.addObservation(c.items, c.observed);
+    }
+    setConflicts((prev) => {
+      const next = prev.filter((x) => x !== c);
+      if (next.length === 0) setAdded(true);
+      return next;
+    });
+  };
+
+  const label = (o: { items: { pigmentId: string; weight: number }[] }) =>
+    o.items
+      .map((it) => {
+        const p = pigments.find((pg) => pg.id === it.pigmentId);
+        return `${it.weight} ${p?.name ?? "?"}`;
+      })
+      .join(" + ");
 
   return (
     <Card>
@@ -200,9 +252,13 @@ export function CalibrationChartCard({
                 )
               )}
             </div>
-            {dups > 0 && (
-              <p className="text-[11px] text-amber-400">
-                {t("chart.dupNote", { n: dups })}
+            {(counts.exact > 0 || counts.conflict > 0) && (
+              <p className="text-[11px] text-muted-foreground">
+                {t("chart.classify", {
+                  add: counts.new,
+                  exact: counts.exact,
+                  conflict: counts.conflict,
+                })}
               </p>
             )}
             <Button
@@ -215,8 +271,71 @@ export function CalibrationChartCard({
                 ? t("chart.added")
                 : t("chart.addObs", { n: chartObs.length })}
             </Button>
-            {added && (
-              <p className="text-xs text-emerald-400">{t("chart.next")}</p>
+
+            {/* Per-conflict keep/replace decisions (same mix, different color). */}
+            {conflicts.length > 0 && (
+              <div className="space-y-2 rounded-md border border-amber-500/30 bg-amber-500/10 p-2.5">
+                <p className="text-xs text-muted-foreground">
+                  {t("chart.conflictIntro", { n: conflicts.length })}
+                </p>
+                {conflicts.map((c, i) => (
+                  <div
+                    key={i}
+                    className="space-y-1.5 rounded-md border border-border/60 bg-background/40 p-2"
+                  >
+                    <p className="text-xs font-medium">{label(c)}</p>
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <span
+                          className="h-4 w-4 rounded border border-border/60"
+                          style={{
+                            backgroundColor: c.existing
+                              ? rgbToHex(c.existing.observed)
+                              : undefined,
+                          }}
+                        />
+                        {t("chart.conflictExisting")}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <span
+                          className="h-4 w-4 rounded border border-border/60"
+                          style={{ backgroundColor: rgbToHex(c.observed) }}
+                        />
+                        {t("chart.conflictChart")}
+                      </span>
+                      <span>ΔE {(c.deltaE ?? 0).toFixed(1)}</span>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-7"
+                        onClick={() => resolveConflict(c, "keep")}
+                      >
+                        {t("chart.conflictKeep")}
+                      </Button>
+                      <Button
+                        variant="accent"
+                        size="sm"
+                        className="h-7"
+                        onClick={() => resolveConflict(c, "replace")}
+                      >
+                        {t("chart.conflictReplace")}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {added && summary && (
+              <p className="text-xs text-emerald-400">
+                {t("chart.addedSummary", {
+                  added: summary.added,
+                  skipped: summary.skipped,
+                })}{" "}
+                {t("chart.next")}
+              </p>
             )}
           </div>
         )}

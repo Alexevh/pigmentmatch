@@ -9,7 +9,7 @@
 // Cell 0 is blank paper — the white-balance reference that cancels the phone
 // camera's color cast for every painted patch in the same shot.
 
-import { whiteBalance, rgbToLab, type RGB } from "./color";
+import { whiteBalance, rgbToLab, deltaE2000, type RGB } from "./color";
 import { isEnabled, type Pigment } from "./pigments";
 import type { Observation, ObservationItem } from "./calibration";
 
@@ -135,27 +135,54 @@ export function observationsFromChart(
   return out;
 }
 
-// Convenience for tests / callers: which existing observations would the chart
-// duplicate (same pigment-id set)?
-export function chartDuplicates(
-  chartObs: { items: ObservationItem[] }[],
-  existing: Observation[]
-): number {
-  const seen = new Set(
-    existing.map((o) =>
-      o.items
-        .filter((i) => i.weight > 0)
-        .map((i) => i.pigmentId)
-        .sort()
-        .join("+")
-    )
-  );
-  return chartObs.filter((o) =>
-    seen.has(
-      o.items
-        .map((i) => i.pigmentId)
-        .sort()
-        .join("+")
-    )
-  ).length;
+// Signature of a MIX: its pigments AND their proportions (normalized weights,
+// rounded). Two observations with the same signature are "the same mix" — e.g.
+// white:3+red:1 differs from white:2+red:1. Used to match a chart patch against
+// what's already been recorded.
+function mixSignature(items: { pigmentId: string; weight: number }[]): string {
+  const active = items.filter((i) => i.weight > 0);
+  const sum = active.reduce((s, i) => s + i.weight, 0) || 1;
+  return active
+    .map((i) => ({ id: i.pigmentId, w: i.weight / sum }))
+    .sort((a, b) => (a.id < b.id ? -1 : 1))
+    .map((x) => `${x.id}:${x.w.toFixed(2)}`)
+    .join("+");
+}
+
+export type ChartMatch = "new" | "exact" | "conflict";
+
+export interface ClassifiedObs {
+  items: ObservationItem[];
+  observed: RGB;
+  kind: ChartMatch;
+  // The existing observation this one matches (for "exact" / "conflict").
+  existing?: Observation;
+  // ΔE2000 between the chart color and the existing one (for "conflict" UI).
+  deltaE?: number;
+}
+
+// Classify each chart observation against what's already recorded:
+//  • "new"      — no existing observation is the same mix → add it.
+//  • "exact"    — same mix AND essentially the same measured color (ΔE ≤
+//                 exactDE) → skip it (re-adding only double-weights the mix).
+//  • "conflict" — same mix but a DIFFERENT color → let the user decide whether
+//                 to keep the existing reading or replace it with the chart's.
+export function classifyChartObservations(
+  chartObs: { items: ObservationItem[]; observed: RGB }[],
+  existing: Observation[],
+  exactDE = 2
+): ClassifiedObs[] {
+  const bySig = new Map<string, Observation>();
+  for (const o of existing) bySig.set(mixSignature(o.items), o);
+  return chartObs.map((o) => {
+    const ex = bySig.get(mixSignature(o.items));
+    if (!ex) return { ...o, kind: "new" as const };
+    const dE = deltaE2000(rgbToLab(o.observed), rgbToLab(ex.observed));
+    return {
+      ...o,
+      kind: (dE <= exactDE ? "exact" : "conflict") as ChartMatch,
+      existing: ex,
+      deltaE: dE,
+    };
+  });
 }

@@ -347,10 +347,17 @@ const en: Dict = {
       "Drag the four handles onto the corners of the chart's bold border.",
     read: "Read the chart",
     preview: "Read patches ({n} observations)",
-    dupNote:
-      "{n} of these repeat mixes you had already recorded — adding them again just gives those mixes extra weight.",
+    classify:
+      "{add} new · {exact} already recorded (will be skipped) · {conflict} same mix but a different color (you'll be asked).",
+    conflictIntro:
+      "{n} of these mixes are already recorded with a DIFFERENT color. For each, keep the one you have or replace it with this chart's reading.",
+    conflictExisting: "Recorded",
+    conflictChart: "This chart",
+    conflictKeep: "Keep recorded",
+    conflictReplace: "Use chart's",
     addObs: "Add {n} observations",
     added: "Observations added",
+    addedSummary: "Added {added}, skipped {skipped} exact duplicate(s).",
     next: "Now press Calibrate below (optionally with “also fit color”) to fit the palette.",
     pdfTitle: "Pigment Match — Calibration chart",
     pdfIntro:
@@ -1221,10 +1228,17 @@ const es: Dict = {
       "Arrastrá las cuatro manijas hasta las esquinas del borde grueso de la carta.",
     read: "Leer la carta",
     preview: "Parcelas leídas ({n} observaciones)",
-    dupNote:
-      "{n} de estas repiten mezclas que ya habías registrado — agregarlas de nuevo solo les da más peso a esas mezclas.",
+    classify:
+      "{add} nuevas · {exact} ya registradas (se omiten) · {conflict} misma mezcla pero otro color (se te va a preguntar).",
+    conflictIntro:
+      "{n} de estas mezclas ya están registradas con un color DISTINTO. Para cada una, conservá la que tenés o reemplazala por la lectura de esta carta.",
+    conflictExisting: "Registrada",
+    conflictChart: "Esta carta",
+    conflictKeep: "Conservar la registrada",
+    conflictReplace: "Usar la de la carta",
     addObs: "Agregar {n} observaciones",
     added: "Observaciones agregadas",
+    addedSummary: "Se agregaron {added}, se omitieron {skipped} duplicado(s) exacto(s).",
     next: "Ahora tocá Calibrar abajo (opcionalmente con “ajustar también el color”) para ajustar la paleta.",
     pdfTitle: "Pigment Match — Carta de calibración",
     pdfIntro:

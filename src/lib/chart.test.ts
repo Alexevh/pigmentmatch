@@ -5,7 +5,7 @@ import {
   cellLabelRect,
   chartAspect,
   observationsFromChart,
-  chartDuplicates,
+  classifyChartObservations,
   CHART_COLS,
 } from "@/lib/chart";
 import type { Pigment } from "@/lib/pigments";
@@ -87,20 +87,46 @@ describe("calibration chart", () => {
     expect(tint.items.find((i) => i.pigmentId === "white")!.weight).toBe(3);
   });
 
-  it("counts duplicates against existing observations", () => {
+  it("classifies chart observations vs existing: new / exact / conflict", () => {
     const { cells, white: w } = buildChartCells([white, red]);
-    const colors = cells.map(() => ({ r: 100, g: 100, b: 100 }));
+    // pure white, pure red, red+white tint
+    const colors: (RGB | null)[] = cells.map((c) =>
+      c.kind === "paper"
+        ? { r: 250, g: 250, b: 250 }
+        : c.pigmentId === "red" && c.kind === "pure"
+        ? { r: 200, g: 40, b: 45 }
+        : c.pigmentId === "white"
+        ? { r: 248, g: 248, b: 246 }
+        : { r: 230, g: 170, b: 165 } // the red tint
+    );
     const obs = observationsFromChart(cells, colors, w);
-    const dups = chartDuplicates(obs, [
-      {
-        id: "e1",
-        items: [
-          { pigmentId: "white", weight: 3 },
-          { pigmentId: "red", weight: 1 },
-        ],
-        observed: { r: 1, g: 2, b: 3 },
-      },
-    ]);
-    expect(dups).toBe(1); // the red tint repeats
+    const redTintObserved = obs.find((o) => o.items.length === 2)!.observed;
+    const classified = classifyChartObservations(
+      obs,
+      [
+        // same mix (white:3+red:1) + essentially the same color → exact
+        {
+          id: "e1",
+          items: [
+            { pigmentId: "white", weight: 3 },
+            { pigmentId: "red", weight: 1 },
+          ],
+          observed: redTintObserved,
+        },
+        // same mix as the pure red but a very different color → conflict
+        {
+          id: "e2",
+          items: [{ pigmentId: "red", weight: 1 }],
+          observed: { r: 120, g: 20, b: 30 },
+        },
+      ],
+      2
+    );
+    const kinds = classified.map((c) => c.kind).sort();
+    // pure white = new, pure red = conflict, red tint = exact
+    expect(kinds).toEqual(["conflict", "exact", "new"]);
+    const conflict = classified.find((c) => c.kind === "conflict")!;
+    expect(conflict.existing?.id).toBe("e2");
+    expect(conflict.deltaE).toBeGreaterThan(2);
   });
 });

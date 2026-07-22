@@ -183,15 +183,12 @@ function Dropzone({
 
 function loadImage(file: Blob): Promise<HTMLImageElement> {
   return new Promise((resolve) => {
-    const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload = () => {
-      // The decoded image stays usable after the URL is revoked; releasing it
-      // avoids leaking one blob URL per uploaded/replaced photo.
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.src = url;
+    // Keep the object URL alive: the CornerAligner renders <img src={img.src}>,
+    // and a revoked blob: URL can't be shown by a fresh <img> element (it would
+    // display nothing). The URL is released with the element when it's dropped.
+    img.onload = () => resolve(img);
+    img.src = URL.createObjectURL(file);
   });
 }
 

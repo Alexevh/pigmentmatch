@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Grid3x3, Download, Upload, ScanLine, Plus } from "lucide-react";
 import { rgbToHex, type RGB } from "@/lib/color";
 import type { Pigment } from "@/lib/pigments";
@@ -40,6 +40,7 @@ export function CalibrationChartCard({
 }) {
   const { t } = useT();
   const fileRef = useRef<HTMLInputElement>(null);
+  const urlRef = useRef<string | null>(null); // current photo's object URL
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [corners, setCorners] = useState<Pt[]>(ALIGN_DEFAULT);
   const [sampled, setSampled] = useState<(RGB | null)[] | null>(null);
@@ -50,6 +51,14 @@ export function CalibrationChartCard({
     [pigments]
   );
 
+  // Release the photo's object URL when the card unmounts.
+  useEffect(
+    () => () => {
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+    },
+    []
+  );
+
   const download = () =>
     exportCalibrationChartPdf(pigments, paletteName, {
       title: t("chart.pdfTitle"),
@@ -58,10 +67,14 @@ export function CalibrationChartCard({
     });
 
   const onFile = (f: Blob) => {
+    // Keep the object URL alive while the photo is shown (CornerAligner renders
+    // <img src>); revoking it immediately left a blank aligner. Release the
+    // PREVIOUS photo's URL when a new one loads so nothing leaks.
     const url = URL.createObjectURL(f);
     const image = new Image();
     image.onload = () => {
-      URL.revokeObjectURL(url);
+      if (urlRef.current) URL.revokeObjectURL(urlRef.current);
+      urlRef.current = url;
       setImg(image);
       setCorners(ALIGN_DEFAULT);
       setSampled(null);

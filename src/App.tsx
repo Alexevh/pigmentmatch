@@ -14,8 +14,9 @@ import {
   HelpCircle,
   Cog,
 } from "lucide-react";
-import { rgbToHex, type RGB } from "@/lib/color";
+import { rgbToHex } from "@/lib/color";
 import { usePalettes } from "@/hooks/usePalettes";
+import { useTargetColor, setTargetColor } from "@/hooks/useTargetColor";
 import { useCalibration } from "@/hooks/useCalibration";
 import { useCalibratedEngine } from "@/hooks/useCalibratedEngine";
 import { useFirebaseConfig } from "@/hooks/useFirebaseConfig";
@@ -58,7 +59,9 @@ export default function App() {
   const api = usePalettes();
   const pigments = api.active?.pigments ?? [];
   const [tab, setTab] = useState("match");
-  const [target, setTarget] = useState<RGB>({ r: 146, g: 112, b: 115 }); // #927073
+  // Persisted + (optionally) cloud-synced app-wide target color.
+  const target = useTargetColor();
+  const setTarget = setTargetColor;
   // Image-tab pick context, for the simultaneous-contrast check: the loaded
   // photo element + the last pick's normalized position within it.
   const [sampleImg, setSampleImg] = useState<HTMLImageElement | null>(null);

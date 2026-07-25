@@ -57,6 +57,16 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
+
+  /* Never allow the PAGE to scroll sideways (installed PWA on phones): any
+     accidentally-wide element (a canvas, a long chip row) would otherwise make
+     the whole app pan horizontally and fixed modals (camera) appear off-view.
+     Wide content must scroll inside its own container instead. */
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
 }
 
 ::-webkit-scrollbar {

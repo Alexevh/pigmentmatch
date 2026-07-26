@@ -114,7 +114,10 @@ src/
     storage.ts      localStorage (palettes, active id, observations, calibration)
     logbook.ts      IndexedDB store for the Bitácora: projects + color entries
                     (photos stored as Blobs), image downscale, JSON export/import
-    imagefx.ts      IMG Lab image processing: pixel adjustments (computeAdjusted)
+    imagefx.ts      IMG Lab image processing: pixel adjustments (computeAdjusted),
+                    oilPaintImage (Kuwahara painterly filter via summed-area
+                    tables — O(1)/pixel, PixelGrid structural type so it's
+                    node-testable; see imagefx.test.ts)
                     + lazy AI (upscaleImage/restoreImage via UpscalerJS+TF.js)
     imageStore.ts   active-image store (IndexedDB `pigmentmatch-images`, keyed by
                     slot: image.reference / compare.reference / compare.wip /

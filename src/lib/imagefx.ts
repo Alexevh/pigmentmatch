@@ -27,6 +27,93 @@ export const adjustActive = (a: Adjust) =>
 
 const clampByte = (v: number) => (v < 0 ? 0 : v > 255 ? 255 : v);
 
+// Structural ImageData (width/height/data) so the pure filters are testable in
+// node, where the DOM ImageData constructor doesn't exist.
+export interface PixelGrid {
+  width: number;
+  height: number;
+  data: Uint8ClampedArray;
+}
+
+// ---------- Oil-painting (Kuwahara) filter ----------
+//
+// The classic painterly filter: for every pixel, look at the four r×r windows
+// that touch it (top-left, top-right, bottom-left, bottom-right) and output
+// the MEAN COLOR of the window whose luminance VARIANCE is lowest. Flat-ish
+// regions collapse into uniform daubs (color simplification) while edges stay
+// crisp, because the window that straddles an edge always has higher variance
+// than the one sitting on a single side of it — exactly the "already painted
+// in oils" look. Implemented with summed-area tables so each pixel costs O(1)
+// regardless of the brush radius. Local, deterministic, no AI, no deps.
+export function oilPaintImage(base: PixelGrid, radius = 4): Uint8ClampedArray {
+  const { width: w, height: h, data } = base;
+  const r = Math.max(1, Math.round(radius));
+  const sw = w + 1; // SAT dimensions (one extra row/col of zeros)
+  const n = sw * (h + 1);
+
+  // Channel sums fit 32 bits comfortably (255 · pixels); the squared-luminance
+  // sum needs Float64 to keep the variance numerically sane on big images.
+  const sr = new Uint32Array(n);
+  const sg = new Uint32Array(n);
+  const sb = new Uint32Array(n);
+  const sl = new Float64Array(n);
+  const sl2 = new Float64Array(n);
+
+  for (let y = 0; y < h; y++) {
+    const row = (y + 1) * sw;
+    const prev = y * sw;
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      const R = data[i];
+      const G = data[i + 1];
+      const B = data[i + 2];
+      const L = 0.299 * R + 0.587 * G + 0.114 * B;
+      const k = row + x + 1;
+      sr[k] = R + sr[k - 1] + sr[prev + x + 1] - sr[prev + x];
+      sg[k] = G + sg[k - 1] + sg[prev + x + 1] - sg[prev + x];
+      sb[k] = B + sb[k - 1] + sb[prev + x + 1] - sb[prev + x];
+      sl[k] = L + sl[k - 1] + sl[prev + x + 1] - sl[prev + x];
+      sl2[k] = L * L + sl2[k - 1] + sl2[prev + x + 1] - sl2[prev + x];
+    }
+  }
+
+  // Sum over the inclusive pixel rect [x0..x1]×[y0..y1] via the SAT.
+  const rect = (t: Uint32Array | Float64Array, x0: number, y0: number, x1: number, y1: number) =>
+    t[(y1 + 1) * sw + x1 + 1] - t[y0 * sw + x1 + 1] - t[(y1 + 1) * sw + x0] + t[y0 * sw + x0];
+
+  const out = new Uint8ClampedArray(data.length);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      // the four windows, clamped to the image
+      let bestVar = Infinity;
+      let bR = 0;
+      let bG = 0;
+      let bB = 0;
+      for (let q = 0; q < 4; q++) {
+        const x0 = Math.max(0, q & 1 ? x : x - r);
+        const x1 = Math.min(w - 1, q & 1 ? x + r : x);
+        const y0 = Math.max(0, q & 2 ? y : y - r);
+        const y1 = Math.min(h - 1, q & 2 ? y + r : y);
+        const a = (x1 - x0 + 1) * (y1 - y0 + 1);
+        const meanL = rect(sl, x0, y0, x1, y1) / a;
+        const variance = rect(sl2, x0, y0, x1, y1) / a - meanL * meanL;
+        if (variance < bestVar) {
+          bestVar = variance;
+          bR = rect(sr, x0, y0, x1, y1) / a;
+          bG = rect(sg, x0, y0, x1, y1) / a;
+          bB = rect(sb, x0, y0, x1, y1) / a;
+        }
+      }
+      const o = (y * w + x) * 4;
+      out[o] = clampByte(Math.round(bR));
+      out[o + 1] = clampByte(Math.round(bG));
+      out[o + 2] = clampByte(Math.round(bB));
+      out[o + 3] = data[o + 3];
+    }
+  }
+  return out;
+}
+
 // 3x3 sharpen kernel blended into the original by `amount` (0..1).
 function sharpenImage(
   data: Uint8ClampedArray,

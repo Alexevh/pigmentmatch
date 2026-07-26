@@ -201,6 +201,13 @@ const en: Dict = {
     adjustTitle: "Adjustments",
     adjustDesc:
       "Local, predictable tweaks (no AI). Best for color / white balance, exposure and sharpness.",
+    oilTitle: "Oil painting (painterly)",
+    oilDesc:
+      "Simplify the photo into flat paint-like daubs while keeping edges crisp — as if the reference were already painted in oils. Fewer, cleaner color decisions to match. Runs locally (Kuwahara filter, no AI).",
+    oilToggle: "Painterly view",
+    oilBrush: "Brush",
+    oilHint:
+      "Bigger brush = larger daubs, more simplification. Combine with Contrast above, or with the Stencil below for line art of the simplified shapes.",
     stencilTitle: "Stencil (line art)",
     stencilDesc:
       "Turn the photo into a clean line drawing — black outlines, no color or shading (edge detection, no AI). Great to trace or transfer. Tune the detail, then Download. Tip: bump Contrast above for cleaner lines.",
@@ -1094,6 +1101,13 @@ const es: Dict = {
     adjustTitle: "Ajustes",
     adjustDesc:
       "Retoques locales y predecibles (sin IA). Ideales para color / balance de blancos, exposición y nitidez.",
+    oilTitle: "Pintura al óleo (pictórico)",
+    oilDesc:
+      "Simplificá la foto en manchas planas como de pintura manteniendo los bordes nítidos — como si la referencia ya estuviera pintada al óleo. Menos decisiones de color, y más limpias, para igualar. Corre localmente (filtro Kuwahara, sin IA).",
+    oilToggle: "Vista pictórica",
+    oilBrush: "Pincel",
+    oilHint:
+      "Pincel más grande = manchas más grandes, más simplificación. Combinalo con el Contraste de arriba, o con el Stencil de abajo para líneas de las formas simplificadas.",
     stencilTitle: "Stencil (línea)",
     stencilDesc:
       "Convierte la foto en un dibujo de líneas limpio — contornos negros, sin color ni sombras (detección de bordes, sin IA). Ideal para calcar o transferir. Ajustá el detalle y descargá. Tip: subí el Contraste de arriba para líneas más limpias.",

@@ -12,6 +12,7 @@ import {
   Sparkles,
   Cloud,
   PenTool,
+  Brush,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import {
@@ -19,6 +20,7 @@ import {
   adjustActive,
   computeAdjusted,
   stencilImage,
+  oilPaintImage,
   upscaleImage,
   cloudEnhance,
   MAX_AI_OUTPUT,
@@ -45,6 +47,8 @@ export function ImgLabView() {
   const [stencil, setStencil] = useState(false);
   const [stencilDetail, setStencilDetail] = useState(55);
   const [stencilWeight, setStencilWeight] = useState(1);
+  const [oil, setOil] = useState(false);
+  const [oilRadius, setOilRadius] = useState(4);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -76,6 +80,7 @@ export function ImgLabView() {
     setPan({ x: 0, y: 0 });
     setAdjust(DEFAULT_ADJUST);
     setStencil(false);
+    setOil(false);
   }, []);
 
   const drawFile = useCallback(
@@ -98,13 +103,20 @@ export function ImgLabView() {
     if (!canvas || !base) return;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
-    // Adjustments always run first; the stencil (if on) is built from that, so
-    // e.g. more contrast → cleaner lines.
+    // Adjustments always run first; the painterly filter (if on) simplifies
+    // that, and the stencil (if on) draws its lines from whatever came before —
+    // so e.g. oil + stencil gives line art of the simplified shapes.
     const adjusted = computeAdjusted(base, adjust);
     let out = adjusted;
+    if (oil) {
+      out = oilPaintImage(
+        { width: base.width, height: base.height, data: out },
+        oilRadius
+      );
+    }
     if (stencil) {
       const adjData = new ImageData(
-        new Uint8ClampedArray(adjusted),
+        new Uint8ClampedArray(out),
         base.width,
         base.height
       );
@@ -113,7 +125,7 @@ export function ImgLabView() {
     const result = ctx.createImageData(base.width, base.height);
     result.data.set(out);
     ctx.putImageData(result, 0, 0);
-  }, [adjust, stencil, stencilDetail, stencilWeight]);
+  }, [adjust, oil, oilRadius, stencil, stencilDetail, stencilWeight]);
 
   useEffect(() => {
     if (!hasImage) return;
@@ -371,6 +383,54 @@ export function ImgLabView() {
               >
                 <RotateCcw className="h-3.5 w-3.5" /> {t("image.reset")}
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Oil-painting / painterly simplification (Kuwahara) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brush className="h-4 w-4 text-accent" />
+                {t("imglab.oilTitle")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                {t("imglab.oilDesc")}
+              </p>
+              <button
+                onClick={() => setOil((s) => !s)}
+                className={
+                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
+                  (oil
+                    ? "bg-accent text-accent-foreground"
+                    : "bg-secondary/60 text-muted-foreground hover:text-foreground")
+                }
+              >
+                {t("imglab.oilToggle")}
+              </button>
+              {oil && (
+                <>
+                  <div className="flex items-center gap-3 pt-1">
+                    <span className="w-16 shrink-0 text-xs text-muted-foreground">
+                      {t("imglab.oilBrush")}
+                    </span>
+                    <Slider
+                      value={oilRadius}
+                      min={2}
+                      max={10}
+                      step={1}
+                      onChange={setOilRadius}
+                    />
+                    <span className="w-6 text-xs tabular-nums text-muted-foreground">
+                      {oilRadius}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    {t("imglab.oilHint")}
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
 

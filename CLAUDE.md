@@ -125,6 +125,13 @@ src/
                     All pure/deterministic; UI = one "More filters" select card
                     in ImgLabView (chain: adjust → fx → oil → impasto → stencil)
                     + lazy AI (upscaleImage/restoreImage via UpscalerJS+TF.js)
+    anisoKuwahara.ts Anisotropic Kuwahara (Kyprianidis) on WebGL2 — 3 fragment
+                    passes (structure tensor → gaussian smooth → oriented
+                    8-sector elliptic filter); strokes follow edges. Returns
+                    null without WebGL2/float targets (node included) and the
+                    oil card falls back to the CPU classic filter. GL context +
+                    compiled programs cached at module level. Oil card has a
+                    Classic | Anisotropic (GPU) mode toggle.
     imageStore.ts   active-image store (IndexedDB `pigmentmatch-images`, keyed by
                     slot: image.reference / compare.reference / compare.wip /
                     mix.target / mix.paint / extract.source). Blobs downscaled on

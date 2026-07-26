@@ -154,7 +154,24 @@ function remapLuminance(
 export function bilateralImage(
   base: PixelGrid,
   radius = 4,
-  sigmaColor = 28
+  sigmaColor = 28,
+  passes = 2
+): Uint8ClampedArray {
+  // One pass is nearly invisible on a photo; the watercolor look comes from
+  // ITERATING the filter (each pass flattens regions further while edges hold).
+  let cur = base;
+  let out = base.data;
+  for (let p = 0; p < Math.max(1, passes); p++) {
+    out = bilateralPass(cur, radius, sigmaColor);
+    cur = { width: base.width, height: base.height, data: out };
+  }
+  return out;
+}
+
+function bilateralPass(
+  base: PixelGrid,
+  radius: number,
+  sigmaColor: number
 ): Uint8ClampedArray {
   const { width: w, height: h, data } = base;
   const r = Math.max(1, Math.round(radius));
@@ -340,19 +357,21 @@ export function flattenLightImage(
 // brush texture. Best stacked on the oil filter. strength 0..100.
 export function impastoImage(base: PixelGrid, strength = 40): Uint8ClampedArray {
   const { width: w, height: h, data } = base;
-  const L = lumField(base);
-  const s = (Math.min(100, Math.max(0, strength)) / 100) * 0.9;
+  // Per-pixel central differences on a photo are a few luminance units — an
+  // invisible relief. Take the gradient of a LIGHTLY BLURRED field (kills
+  // noise sparkle) at a ±2px baseline and amplify properly, so strokes read
+  // as ridged paint instead of nothing.
+  const L = gaussianBlur(lumField(base), w, h, 1);
+  const s = (Math.min(100, Math.max(0, strength)) / 100) * 2.4;
   const out = new Uint8ClampedArray(data.length);
+  const at = (x: number, y: number) =>
+    L[Math.min(h - 1, Math.max(0, y)) * w + Math.min(w - 1, Math.max(0, x))];
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++) {
-      const p = y * w + x;
-      const xl = L[y * w + Math.max(0, x - 1)];
-      const xr = L[y * w + Math.min(w - 1, x + 1)];
-      const yu = L[Math.max(0, y - 1) * w + x];
-      const yd = L[Math.min(h - 1, y + 1) * w + x];
       // light from the top-left: gradient toward it is lit, away is shaded
-      const relief = ((xl - xr) + (yu - yd)) * 0.5 * s;
-      const i = p * 4;
+      const relief =
+        (at(x - 2, y) - at(x + 2, y) + (at(x, y - 2) - at(x, y + 2))) * 0.5 * s;
+      const i = (y * w + x) * 4;
       out[i] = clampByte(Math.round(data[i] + relief));
       out[i + 1] = clampByte(Math.round(data[i + 1] + relief));
       out[i + 2] = clampByte(Math.round(data[i + 2] + relief));

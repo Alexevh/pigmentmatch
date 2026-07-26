@@ -18,8 +18,8 @@ const FX_CONFIG: Record<
   }
 > = {
   bilateral: {
-    a: { key: "imglab.fxStrength", min: 8, max: 60, step: 1, def: 28 },
-    b: { key: "imglab.fxRadius", min: 2, max: 6, step: 1, def: 4 },
+    a: { key: "imglab.fxStrength", min: 8, max: 60, step: 1, def: 35 },
+    b: { key: "imglab.fxRadius", min: 2, max: 8, step: 1, def: 5 },
   },
   posterize: { a: { key: "imglab.fxLevels", min: 3, max: 8, step: 1, def: 5 } },
   xdog: {
@@ -68,6 +68,7 @@ import {
   type Adjust,
   type AiModel,
 } from "@/lib/imagefx";
+import { anisoKuwaharaImage } from "@/lib/anisoKuwahara";
 import { useGeminiKey, setGeminiKey } from "@/hooks/useGeminiKey";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +91,9 @@ export function ImgLabView() {
   const [stencilWeight, setStencilWeight] = useState(1);
   const [oil, setOil] = useState(false);
   const [oilRadius, setOilRadius] = useState(4);
+  // "classic" = CPU Kuwahara (square daubs); "aniso" = GPU anisotropic
+  // Kuwahara (strokes follow the edges). Falls back to classic without WebGL2.
+  const [oilMode, setOilMode] = useState<"classic" | "aniso">("classic");
   // Extra artistic/corrective filter (one at a time), chained around the oil
   // pass: corrections run before it, the impasto relief runs on top of it.
   const [fx, setFx] = useState<FxKind>("none");
@@ -157,13 +161,17 @@ export function ImgLabView() {
     let out = adjusted;
     const grid = () => ({ width: base.width, height: base.height, data: out });
     // Corrections / painterly extras run BEFORE the oil pass…
-    if (fx === "bilateral") out = bilateralImage(grid(), fxB, fxA);
+    // strength also drives the pass count — the watercolor look is iterative
+    if (fx === "bilateral")
+      out = bilateralImage(grid(), fxB, fxA, 1 + Math.floor(fxA / 30));
     else if (fx === "posterize") out = posterizeLabImage(grid(), fxA);
     else if (fx === "xdog") out = xdogImage(grid(), fxA, fxB);
     else if (fx === "clahe") out = claheImage(grid(), fxA);
     else if (fx === "flatten") out = flattenLightImage(grid(), fxA);
     if (oil) {
-      out = oilPaintImage(grid(), oilRadius);
+      out =
+        (oilMode === "aniso" ? anisoKuwaharaImage(grid(), oilRadius + 2) : null) ??
+        oilPaintImage(grid(), oilRadius);
     }
     // …except the impasto relief, which reads best ON TOP of the oil daubs.
     if (fx === "impasto") out = impastoImage(grid(), fxA);
@@ -178,7 +186,7 @@ export function ImgLabView() {
     const result = ctx.createImageData(base.width, base.height);
     result.data.set(out);
     ctx.putImageData(result, 0, 0);
-  }, [adjust, oil, oilRadius, fx, fxA, fxB, stencil, stencilDetail, stencilWeight]);
+  }, [adjust, oil, oilRadius, oilMode, fx, fxA, fxB, stencil, stencilDetail, stencilWeight]);
 
   useEffect(() => {
     if (!hasImage) return;
@@ -464,6 +472,27 @@ export function ImgLabView() {
               </button>
               {oil && (
                 <>
+                  <div className="flex items-center gap-1 pt-1">
+                    {(["classic", "aniso"] as const).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setOilMode(m)}
+                        className={
+                          "rounded-md px-2.5 py-1 text-xs font-medium transition-colors " +
+                          (oilMode === m
+                            ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+                            : "text-muted-foreground hover:text-foreground")
+                        }
+                      >
+                        {t(`imglab.oilMode_${m}`)}
+                      </button>
+                    ))}
+                  </div>
+                  {oilMode === "aniso" && (
+                    <p className="text-[11px] text-muted-foreground">
+                      {t("imglab.oilAnisoHint")}
+                    </p>
+                  )}
                   <div className="flex items-center gap-3 pt-1">
                     <span className="w-16 shrink-0 text-xs text-muted-foreground">
                       {t("imglab.oilBrush")}

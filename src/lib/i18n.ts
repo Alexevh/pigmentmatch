@@ -205,6 +205,10 @@ const en: Dict = {
     oilDesc:
       "Simplify the photo into flat paint-like daubs while keeping edges crisp — as if the reference were already painted in oils. Fewer, cleaner color decisions to match. Runs locally (Kuwahara filter, no AI).",
     oilToggle: "Painterly view",
+    oilMode_classic: "Classic",
+    oilMode_aniso: "Anisotropic (GPU)",
+    oilAnisoHint:
+      "Strokes stretch along the local edges — a more organic, hand-painted look. Runs on the GPU (WebGL2); if unavailable it silently falls back to Classic.",
     oilBrush: "Brush",
     oilHint:
       "Bigger brush = larger daubs, more simplification. Combine with Contrast above, or with the Stencil below for line art of the simplified shapes.",
@@ -1133,6 +1137,10 @@ const es: Dict = {
     oilDesc:
       "Simplificá la foto en manchas planas como de pintura manteniendo los bordes nítidos — como si la referencia ya estuviera pintada al óleo. Menos decisiones de color, y más limpias, para igualar. Corre localmente (filtro Kuwahara, sin IA).",
     oilToggle: "Vista pictórica",
+    oilMode_classic: "Clásico",
+    oilMode_aniso: "Anisotrópico (GPU)",
+    oilAnisoHint:
+      "Las pinceladas se estiran siguiendo los bordes locales — un look más orgánico, pintado a mano. Corre en la GPU (WebGL2); si no está disponible cae silenciosamente al Clásico.",
     oilBrush: "Pincel",
     oilHint:
       "Pincel más grande = manchas más grandes, más simplificación. Combinalo con el Contraste de arriba, o con el Stencil de abajo para líneas de las formas simplificadas.",

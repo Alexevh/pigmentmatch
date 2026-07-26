@@ -9,6 +9,7 @@ import {
   impastoImage,
   type PixelGrid,
 } from "@/lib/imagefx";
+import { anisoKuwaharaImage } from "@/lib/anisoKuwahara";
 
 // Build a PixelGrid from a per-pixel color function (node has no ImageData).
 function grid(
@@ -153,6 +154,12 @@ describe("artistic filters", () => {
     const mean = (vs: number[]) => vs.reduce((a, b) => a + b, 0) / vs.length;
     const before = 200 - 80; // input side difference
     expect(Math.abs(mean(right) - mean(left))).toBeLessThan(before * 0.35);
+  });
+
+  it("aniso kuwahara: degrades to null without WebGL2 (caller falls back)", () => {
+    // node has no document/WebGL2 — the GPU path must fail SOFT, never throw.
+    const g = grid(8, 8, () => [100, 100, 100]);
+    expect(anisoKuwaharaImage(g, 6)).toBeNull();
   });
 
   it("impasto: flat image unchanged, edges gain relief", () => {

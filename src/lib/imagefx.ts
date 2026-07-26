@@ -1,6 +1,11 @@
-// Local image processing for the IMG Lab: pixel adjustments (no deps) plus
-// optional AI (UpscalerJS + TF.js, lazy-loaded only when invoked). Everything
-// runs in the browser — no backend.
+// Local image processing for the IMG Lab: pixel adjustments (no deps), a set
+// of classic artistic/corrective filters (Kuwahara oil, bilateral, Lab
+// posterize, XDoG ink, CLAHE, illumination flattening, impasto relief — all
+// pure, deterministic, published algorithms), plus optional AI (UpscalerJS +
+// TF.js, lazy-loaded only when invoked). Everything runs in the browser — no
+// backend.
+
+import { rgbToLab, labToRgb } from "./color";
 
 export interface Adjust {
   sharpen: number; // 0..100
@@ -33,6 +38,327 @@ export interface PixelGrid {
   width: number;
   height: number;
   data: Uint8ClampedArray;
+}
+
+// ---------- Shared helpers for the artistic filters ----------
+
+const lumOf = (d: Uint8ClampedArray, i: number) =>
+  0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+
+// Separable gaussian blur of a Float32 luminance field (small sigmas).
+function gaussianBlur(
+  src: Float32Array,
+  w: number,
+  h: number,
+  sigma: number
+): Float32Array {
+  const r = Math.max(1, Math.ceil(sigma * 2.5));
+  const kernel = new Float32Array(2 * r + 1);
+  let ks = 0;
+  for (let i = -r; i <= r; i++) {
+    kernel[i + r] = Math.exp(-(i * i) / (2 * sigma * sigma));
+    ks += kernel[i + r];
+  }
+  for (let i = 0; i < kernel.length; i++) kernel[i] /= ks;
+  const tmp = new Float32Array(src.length);
+  const out = new Float32Array(src.length);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      let s = 0;
+      for (let i = -r; i <= r; i++) {
+        const xx = Math.min(w - 1, Math.max(0, x + i));
+        s += src[y * w + xx] * kernel[i + r];
+      }
+      tmp[y * w + x] = s;
+    }
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      let s = 0;
+      for (let i = -r; i <= r; i++) {
+        const yy = Math.min(h - 1, Math.max(0, y + i));
+        s += tmp[yy * w + x] * kernel[i + r];
+      }
+      out[y * w + x] = s;
+    }
+  return out;
+}
+
+// Iterated box blur ≈ gaussian with a LARGE radius, in O(n) per pass — used
+// where sigma would make a true gaussian kernel huge (illumination field).
+function boxBlurBig(
+  src: Float32Array,
+  w: number,
+  h: number,
+  radius: number,
+  passes = 3
+): Float32Array {
+  let cur = src.slice();
+  let tmp = new Float32Array(src.length);
+  const r = Math.max(1, Math.round(radius));
+  for (let p = 0; p < passes; p++) {
+    // horizontal running sum
+    for (let y = 0; y < h; y++) {
+      let acc = 0;
+      for (let x = -r; x <= r; x++) acc += cur[y * w + Math.min(w - 1, Math.max(0, x))];
+      for (let x = 0; x < w; x++) {
+        tmp[y * w + x] = acc / (2 * r + 1);
+        const out = Math.max(0, x - r);
+        const inn = Math.min(w - 1, x + r + 1);
+        acc += cur[y * w + inn] - cur[y * w + out];
+      }
+    }
+    // vertical running sum
+    for (let x = 0; x < w; x++) {
+      let acc = 0;
+      for (let y = -r; y <= r; y++) acc += tmp[Math.min(h - 1, Math.max(0, y)) * w + x];
+      for (let y = 0; y < h; y++) {
+        cur[y * w + x] = acc / (2 * r + 1);
+        const out = Math.max(0, y - r);
+        const inn = Math.min(h - 1, y + r + 1);
+        acc += tmp[inn * w + x] - tmp[out * w + x];
+      }
+    }
+  }
+  return cur;
+}
+
+function lumField(base: PixelGrid): Float32Array {
+  const { width: w, height: h, data } = base;
+  const L = new Float32Array(w * h);
+  for (let p = 0, i = 0; p < L.length; p++, i += 4) L[p] = lumOf(data, i);
+  return L;
+}
+
+// Scale each pixel's RGB by newLum/oldLum (hue-preserving luminance remap).
+function remapLuminance(
+  base: PixelGrid,
+  newL: (p: number) => number
+): Uint8ClampedArray {
+  const { data } = base;
+  const out = new Uint8ClampedArray(data.length);
+  for (let p = 0, i = 0; i < data.length; p++, i += 4) {
+    const oldL = Math.max(1e-3, lumOf(data, i));
+    const f = Math.max(0, newL(p)) / oldL;
+    out[i] = clampByte(Math.round(data[i] * f));
+    out[i + 1] = clampByte(Math.round(data[i + 1] * f));
+    out[i + 2] = clampByte(Math.round(data[i + 2] * f));
+    out[i + 3] = data[i + 3];
+  }
+  return out;
+}
+
+// ---------- Bilateral filter (edge-preserving smoothing, "watercolor") ----------
+// Smooths color inside regions but not across edges: each output pixel is a
+// weighted mean where weight = spatial gaussian × similarity gaussian. Softer,
+// washier look than Kuwahara (no hard daubs).
+export function bilateralImage(
+  base: PixelGrid,
+  radius = 4,
+  sigmaColor = 28
+): Uint8ClampedArray {
+  const { width: w, height: h, data } = base;
+  const r = Math.max(1, Math.round(radius));
+  const spatial = new Float32Array((2 * r + 1) * (2 * r + 1));
+  const sigS = r / 1.6;
+  for (let dy = -r, k = 0; dy <= r; dy++)
+    for (let dx = -r; dx <= r; dx++, k++)
+      spatial[k] = Math.exp(-(dx * dx + dy * dy) / (2 * sigS * sigS));
+  // range LUT over luminance difference 0..255
+  const range = new Float32Array(256);
+  for (let i = 0; i < 256; i++)
+    range[i] = Math.exp(-(i * i) / (2 * sigmaColor * sigmaColor));
+  const L = lumField(base);
+  const out = new Uint8ClampedArray(data.length);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const p = y * w + x;
+      const lc = L[p];
+      let sr = 0,
+        sg = 0,
+        sb = 0,
+        sw = 0;
+      for (let dy = -r, k = 0; dy <= r; dy++) {
+        const yy = Math.min(h - 1, Math.max(0, y + dy));
+        for (let dx = -r; dx <= r; dx++, k++) {
+          const xx = Math.min(w - 1, Math.max(0, x + dx));
+          const q = yy * w + xx;
+          const wgt = spatial[k] * range[Math.min(255, Math.abs(L[q] - lc) | 0)];
+          const j = q * 4;
+          sr += data[j] * wgt;
+          sg += data[j + 1] * wgt;
+          sb += data[j + 2] * wgt;
+          sw += wgt;
+        }
+      }
+      const i = p * 4;
+      out[i] = clampByte(Math.round(sr / sw));
+      out[i + 1] = clampByte(Math.round(sg / sw));
+      out[i + 2] = clampByte(Math.round(sb / sw));
+      out[i + 3] = data[i + 3];
+    }
+  return out;
+}
+
+// ---------- Lab posterize (perceptual value planes, in color) ----------
+// Quantizes L* into `levels` bands (keeping a*/b*), i.e. the notan idea but on
+// the full-color image — "paint by value planes".
+export function posterizeLabImage(base: PixelGrid, levels = 5): Uint8ClampedArray {
+  const { data } = base;
+  const n = Math.max(2, Math.round(levels));
+  const out = new Uint8ClampedArray(data.length);
+  for (let i = 0; i < data.length; i += 4) {
+    const lab = rgbToLab({ r: data[i], g: data[i + 1], b: data[i + 2] });
+    const band = Math.min(n - 1, Math.floor((lab.L / 100.0001) * n));
+    const L = ((band + 0.5) / n) * 100;
+    const rgb = labToRgb({ L, a: lab.a, b: lab.b });
+    out[i] = rgb.r;
+    out[i + 1] = rgb.g;
+    out[i + 2] = rgb.b;
+    out[i + 3] = data[i + 3];
+  }
+  return out;
+}
+
+// ---------- XDoG ink lines (Winnemöller eXtended Difference-of-Gaussians) ----
+// Organic ink-like line art: D = G_σ − τ·G_kσ on luminance; values above the
+// threshold stay paper-white, below it roll off through tanh for soft, brushy
+// strokes. `detail` (0..100) sets σ (higher = finer lines picked up);
+// `ink` (0..100) sets how dark/heavy the strokes render.
+export function xdogImage(
+  base: PixelGrid,
+  detail = 50,
+  ink = 60
+): Uint8ClampedArray {
+  const { width: w, height: h, data } = base;
+  const sigma = 0.6 + ((100 - Math.min(100, Math.max(0, detail))) / 100) * 2.2; // 0.6..2.8
+  const K = 1.6;
+  const TAU = 0.98;
+  const EPS = 2.2;
+  const phi = 0.03 + (Math.min(100, Math.max(0, ink)) / 100) * 0.25;
+  const L = lumField(base);
+  const g1 = gaussianBlur(L, w, h, sigma);
+  const g2 = gaussianBlur(L, w, h, sigma * K);
+  const out = new Uint8ClampedArray(data.length);
+  for (let p = 0, i = 0; p < L.length; p++, i += 4) {
+    const d = g1[p] - TAU * g2[p];
+    const v = d >= EPS ? 1 : 1 + Math.tanh(phi * (d - EPS));
+    const byte = clampByte(Math.round(v * 255));
+    out[i] = out[i + 1] = out[i + 2] = byte;
+    out[i + 3] = data[i + 3];
+  }
+  return out;
+}
+
+// ---------- CLAHE (contrast-limited adaptive histogram equalization) --------
+// Recovers detail in shadows/highlights of a badly exposed reference without
+// shifting global color: per-tile luminance histograms, clipped (so noise
+// isn't amplified), equalized, and bilinearly blended between tiles.
+export function claheImage(base: PixelGrid, clip = 2.5): Uint8ClampedArray {
+  const { width: w, height: h } = base;
+  const TILES = 8;
+  const BINS = 256;
+  const L = lumField(base);
+  const tw = w / TILES;
+  const th = h / TILES;
+  // per-tile clipped CDF → lookup tables
+  const luts: Float32Array[] = [];
+  for (let ty = 0; ty < TILES; ty++)
+    for (let tx = 0; tx < TILES; tx++) {
+      const x0 = Math.floor(tx * tw);
+      const x1 = Math.min(w, Math.floor((tx + 1) * tw));
+      const y0 = Math.floor(ty * th);
+      const y1 = Math.min(h, Math.floor((ty + 1) * th));
+      const hist = new Float32Array(BINS);
+      let count = 0;
+      for (let y = y0; y < y1; y++)
+        for (let x = x0; x < x1; x++) {
+          hist[Math.min(BINS - 1, L[y * w + x] | 0)]++;
+          count++;
+        }
+      const limit = Math.max(1, (clip * count) / BINS);
+      let excess = 0;
+      for (let b = 0; b < BINS; b++)
+        if (hist[b] > limit) {
+          excess += hist[b] - limit;
+          hist[b] = limit;
+        }
+      const add = excess / BINS;
+      const lut = new Float32Array(BINS);
+      let cdf = 0;
+      for (let b = 0; b < BINS; b++) {
+        cdf += hist[b] + add;
+        lut[b] = (cdf / Math.max(1, count)) * 255;
+      }
+      luts.push(lut);
+    }
+  const lutAt = (tx: number, ty: number) =>
+    luts[Math.min(TILES - 1, Math.max(0, ty)) * TILES + Math.min(TILES - 1, Math.max(0, tx))];
+  return remapLuminance(base, (p) => {
+    const x = p % w;
+    const y = (p / w) | 0;
+    const fx = x / tw - 0.5;
+    const fy = y / th - 0.5;
+    const tx0 = Math.floor(fx);
+    const ty0 = Math.floor(fy);
+    const ax = fx - tx0;
+    const ay = fy - ty0;
+    const b = Math.min(BINS - 1, L[p] | 0);
+    const v00 = lutAt(tx0, ty0)[b];
+    const v10 = lutAt(tx0 + 1, ty0)[b];
+    const v01 = lutAt(tx0, ty0 + 1)[b];
+    const v11 = lutAt(tx0 + 1, ty0 + 1)[b];
+    return (
+      v00 * (1 - ax) * (1 - ay) + v10 * ax * (1 - ay) + v01 * (1 - ax) * ay + v11 * ax * ay
+    );
+  });
+}
+
+// ---------- Illumination flattening (single-scale retinex) -------------------
+// Estimates the lighting field as a heavy blur of luminance and divides it
+// out, pulling every region toward the image's mean brightness — evens out a
+// side-lit reference so the OBJECT's values are easier to read. strength 0..100.
+export function flattenLightImage(
+  base: PixelGrid,
+  strength = 60
+): Uint8ClampedArray {
+  const { width: w, height: h } = base;
+  const L = lumField(base);
+  const field = boxBlurBig(L, w, h, Math.max(8, Math.round(Math.min(w, h) / 6)));
+  let mean = 0;
+  for (let p = 0; p < L.length; p++) mean += L[p];
+  mean /= L.length;
+  const s = Math.min(100, Math.max(0, strength)) / 100;
+  return remapLuminance(base, (p) => {
+    const flat = (L[p] / Math.max(1e-3, field[p])) * mean;
+    return L[p] * (1 - s) + flat * s;
+  });
+}
+
+// ---------- Impasto relief -----------------------------------------------------
+// Fakes the thickness of paint: lights the luminance gradient from the top-left
+// (classic relief/emboss) and adds it back over the color — reads as ridged
+// brush texture. Best stacked on the oil filter. strength 0..100.
+export function impastoImage(base: PixelGrid, strength = 40): Uint8ClampedArray {
+  const { width: w, height: h, data } = base;
+  const L = lumField(base);
+  const s = (Math.min(100, Math.max(0, strength)) / 100) * 0.9;
+  const out = new Uint8ClampedArray(data.length);
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++) {
+      const p = y * w + x;
+      const xl = L[y * w + Math.max(0, x - 1)];
+      const xr = L[y * w + Math.min(w - 1, x + 1)];
+      const yu = L[Math.max(0, y - 1) * w + x];
+      const yd = L[Math.min(h - 1, y + 1) * w + x];
+      // light from the top-left: gradient toward it is lit, away is shaded
+      const relief = ((xl - xr) + (yu - yd)) * 0.5 * s;
+      const i = p * 4;
+      out[i] = clampByte(Math.round(data[i] + relief));
+      out[i + 1] = clampByte(Math.round(data[i + 1] + relief));
+      out[i + 2] = clampByte(Math.round(data[i + 2] + relief));
+      out[i + 3] = data[i + 3];
+    }
+  return out;
 }
 
 // ---------- Oil-painting (Kuwahara) filter ----------

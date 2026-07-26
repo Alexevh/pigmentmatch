@@ -208,6 +208,34 @@ const en: Dict = {
     oilBrush: "Brush",
     oilHint:
       "Bigger brush = larger daubs, more simplification. Combine with Contrast above, or with the Stencil below for line art of the simplified shapes.",
+    fxTitle: "More filters",
+    fxDesc:
+      "Classic corrective and artistic filters — all local, no AI. One at a time; corrections apply before the oil filter, the impasto relief on top of it.",
+    fxNone: "None",
+    fxBilateral: "Watercolor smooth (bilateral)",
+    fxPosterize: "Posterize values (Lab)",
+    fxXdog: "Ink lines (XDoG)",
+    fxClahe: "Recover shadows/highlights (CLAHE)",
+    fxFlatten: "Even out lighting (retinex)",
+    fxImpasto: "Impasto relief",
+    fxStrength: "Strength",
+    fxRadius: "Radius",
+    fxLevels: "Levels",
+    fxDetail: "Detail",
+    fxInk: "Ink",
+    fxClip: "Clip",
+    fxHint_bilateral:
+      "Edge-preserving smoothing — a softer, washier simplification than the oil filter.",
+    fxHint_posterize:
+      "Quantizes the VALUES (L*) into bands while keeping the color — the notan idea, in color.",
+    fxHint_xdog:
+      "Organic ink-like line art (Winnemöller XDoG) — softer and more hand-drawn than the Stencil below.",
+    fxHint_clahe:
+      "Local contrast recovery for badly exposed references — detail comes back in shadows and highlights without shifting global color.",
+    fxHint_flatten:
+      "Divides out the estimated lighting field so a side-lit reference reads evenly — the object's own values become easier to judge.",
+    fxHint_impasto:
+      "Fakes paint thickness by lighting the strokes' relief. Reads best on top of the oil filter.",
     stencilTitle: "Stencil (line art)",
     stencilDesc:
       "Turn the photo into a clean line drawing — black outlines, no color or shading (edge detection, no AI). Great to trace or transfer. Tune the detail, then Download. Tip: bump Contrast above for cleaner lines.",
@@ -1108,6 +1136,34 @@ const es: Dict = {
     oilBrush: "Pincel",
     oilHint:
       "Pincel más grande = manchas más grandes, más simplificación. Combinalo con el Contraste de arriba, o con el Stencil de abajo para líneas de las formas simplificadas.",
+    fxTitle: "Más filtros",
+    fxDesc:
+      "Filtros clásicos correctivos y artísticos — todos locales, sin IA. De a uno; las correcciones se aplican antes del filtro de óleo, el relieve impasto encima de él.",
+    fxNone: "Ninguno",
+    fxBilateral: "Suavizado acuarela (bilateral)",
+    fxPosterize: "Posterizar valores (Lab)",
+    fxXdog: "Líneas a tinta (XDoG)",
+    fxClahe: "Recuperar sombras/luces (CLAHE)",
+    fxFlatten: "Emparejar iluminación (retinex)",
+    fxImpasto: "Relieve impasto",
+    fxStrength: "Intensidad",
+    fxRadius: "Radio",
+    fxLevels: "Niveles",
+    fxDetail: "Detalle",
+    fxInk: "Tinta",
+    fxClip: "Recorte",
+    fxHint_bilateral:
+      "Suavizado que respeta bordes — una simplificación más blanda y lavada que el filtro de óleo.",
+    fxHint_posterize:
+      "Cuantiza los VALORES (L*) en bandas manteniendo el color — la idea del notan, en color.",
+    fxHint_xdog:
+      "Línea orgánica tipo tinta (XDoG de Winnemöller) — más suave y dibujada a mano que el Stencil de abajo.",
+    fxHint_clahe:
+      "Recuperación de contraste local para referencias mal expuestas — vuelve el detalle en sombras y luces sin correr el color global.",
+    fxHint_flatten:
+      "Divide el campo de iluminación estimado para que una referencia iluminada de costado se lea pareja — los valores propios del objeto se juzgan más fácil.",
+    fxHint_impasto:
+      "Simula el grosor de la pasta iluminando el relieve de las pinceladas. Queda mejor encima del filtro de óleo.",
     stencilTitle: "Stencil (línea)",
     stencilDesc:
       "Convierte la foto en un dibujo de líneas limpio — contornos negros, sin color ni sombras (detección de bordes, sin IA). Ideal para calcar o transferir. Ajustá el detalle y descargá. Tip: subí el Contraste de arriba para líneas más limpias.",

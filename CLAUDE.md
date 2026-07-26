@@ -117,7 +117,13 @@ src/
     imagefx.ts      IMG Lab image processing: pixel adjustments (computeAdjusted),
                     oilPaintImage (Kuwahara painterly filter via summed-area
                     tables — O(1)/pixel, PixelGrid structural type so it's
-                    node-testable; see imagefx.test.ts)
+                    node-testable; see imagefx.test.ts), plus a filter pack:
+                    bilateralImage (edge-preserving smooth), posterizeLabImage
+                    (L* bands, keeps color), xdogImage (Winnemöller ink lines),
+                    claheImage (tile-based local contrast), flattenLightImage
+                    (single-scale retinex via boxBlurBig), impastoImage (relief).
+                    All pure/deterministic; UI = one "More filters" select card
+                    in ImgLabView (chain: adjust → fx → oil → impasto → stencil)
                     + lazy AI (upscaleImage/restoreImage via UpscalerJS+TF.js)
     imageStore.ts   active-image store (IndexedDB `pigmentmatch-images`, keyed by
                     slot: image.reference / compare.reference / compare.wip /

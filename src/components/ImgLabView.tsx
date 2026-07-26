@@ -1,4 +1,39 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+
+// The optional extra filter and its parameter ranges/defaults. `a`/`b` are the
+// per-filter sliders (label keys under i18n imglab.*).
+type FxKind =
+  | "none"
+  | "bilateral"
+  | "posterize"
+  | "xdog"
+  | "clahe"
+  | "flatten"
+  | "impasto";
+const FX_CONFIG: Record<
+  Exclude<FxKind, "none">,
+  {
+    a: { key: string; min: number; max: number; step: number; def: number };
+    b?: { key: string; min: number; max: number; step: number; def: number };
+  }
+> = {
+  bilateral: {
+    a: { key: "imglab.fxStrength", min: 8, max: 60, step: 1, def: 28 },
+    b: { key: "imglab.fxRadius", min: 2, max: 6, step: 1, def: 4 },
+  },
+  posterize: { a: { key: "imglab.fxLevels", min: 3, max: 8, step: 1, def: 5 } },
+  xdog: {
+    a: { key: "imglab.fxDetail", min: 0, max: 100, step: 1, def: 50 },
+    b: { key: "imglab.fxInk", min: 0, max: 100, step: 1, def: 60 },
+  },
+  clahe: { a: { key: "imglab.fxClip", min: 1, max: 5, step: 0.5, def: 2.5 } },
+  flatten: {
+    a: { key: "imglab.fxStrength", min: 0, max: 100, step: 1, def: 60 },
+  },
+  impasto: {
+    a: { key: "imglab.fxStrength", min: 0, max: 100, step: 1, def: 40 },
+  },
+};
 import {
   Upload,
   Camera,
@@ -21,6 +56,12 @@ import {
   computeAdjusted,
   stencilImage,
   oilPaintImage,
+  bilateralImage,
+  posterizeLabImage,
+  xdogImage,
+  claheImage,
+  flattenLightImage,
+  impastoImage,
   upscaleImage,
   cloudEnhance,
   MAX_AI_OUTPUT,
@@ -49,6 +90,11 @@ export function ImgLabView() {
   const [stencilWeight, setStencilWeight] = useState(1);
   const [oil, setOil] = useState(false);
   const [oilRadius, setOilRadius] = useState(4);
+  // Extra artistic/corrective filter (one at a time), chained around the oil
+  // pass: corrections run before it, the impasto relief runs on top of it.
+  const [fx, setFx] = useState<FxKind>("none");
+  const [fxA, setFxA] = useState(0);
+  const [fxB, setFxB] = useState(0);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -81,6 +127,7 @@ export function ImgLabView() {
     setAdjust(DEFAULT_ADJUST);
     setStencil(false);
     setOil(false);
+    setFx("none");
   }, []);
 
   const drawFile = useCallback(
@@ -108,12 +155,18 @@ export function ImgLabView() {
     // so e.g. oil + stencil gives line art of the simplified shapes.
     const adjusted = computeAdjusted(base, adjust);
     let out = adjusted;
+    const grid = () => ({ width: base.width, height: base.height, data: out });
+    // Corrections / painterly extras run BEFORE the oil pass…
+    if (fx === "bilateral") out = bilateralImage(grid(), fxB, fxA);
+    else if (fx === "posterize") out = posterizeLabImage(grid(), fxA);
+    else if (fx === "xdog") out = xdogImage(grid(), fxA, fxB);
+    else if (fx === "clahe") out = claheImage(grid(), fxA);
+    else if (fx === "flatten") out = flattenLightImage(grid(), fxA);
     if (oil) {
-      out = oilPaintImage(
-        { width: base.width, height: base.height, data: out },
-        oilRadius
-      );
+      out = oilPaintImage(grid(), oilRadius);
     }
+    // …except the impasto relief, which reads best ON TOP of the oil daubs.
+    if (fx === "impasto") out = impastoImage(grid(), fxA);
     if (stencil) {
       const adjData = new ImageData(
         new Uint8ClampedArray(out),
@@ -125,7 +178,7 @@ export function ImgLabView() {
     const result = ctx.createImageData(base.width, base.height);
     result.data.set(out);
     ctx.putImageData(result, 0, 0);
-  }, [adjust, oil, oilRadius, stencil, stencilDetail, stencilWeight]);
+  }, [adjust, oil, oilRadius, fx, fxA, fxB, stencil, stencilDetail, stencilWeight]);
 
   useEffect(() => {
     if (!hasImage) return;
@@ -428,6 +481,81 @@ export function ImgLabView() {
                   </div>
                   <p className="text-[11px] text-muted-foreground">
                     {t("imglab.oilHint")}
+                  </p>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Extra artistic / corrective filters (one at a time) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Wand2 className="h-4 w-4 text-accent" />
+                {t("imglab.fxTitle")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                {t("imglab.fxDesc")}
+              </p>
+              <select
+                value={fx}
+                onChange={(e) => {
+                  const next = e.target.value as FxKind;
+                  setFx(next);
+                  if (next !== "none") {
+                    const cfg = FX_CONFIG[next];
+                    setFxA(cfg.a.def);
+                    setFxB(cfg.b?.def ?? 0);
+                  }
+                }}
+                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+              >
+                <option value="none">{t("imglab.fxNone")}</option>
+                <option value="bilateral">{t("imglab.fxBilateral")}</option>
+                <option value="posterize">{t("imglab.fxPosterize")}</option>
+                <option value="xdog">{t("imglab.fxXdog")}</option>
+                <option value="clahe">{t("imglab.fxClahe")}</option>
+                <option value="flatten">{t("imglab.fxFlatten")}</option>
+                <option value="impasto">{t("imglab.fxImpasto")}</option>
+              </select>
+              {fx !== "none" && (
+                <>
+                  <div className="flex items-center gap-3 pt-1">
+                    <span className="w-20 shrink-0 text-xs text-muted-foreground">
+                      {t(FX_CONFIG[fx].a.key)}
+                    </span>
+                    <Slider
+                      value={fxA}
+                      min={FX_CONFIG[fx].a.min}
+                      max={FX_CONFIG[fx].a.max}
+                      step={FX_CONFIG[fx].a.step}
+                      onChange={setFxA}
+                    />
+                    <span className="w-8 text-xs tabular-nums text-muted-foreground">
+                      {fxA}
+                    </span>
+                  </div>
+                  {FX_CONFIG[fx].b && (
+                    <div className="flex items-center gap-3">
+                      <span className="w-20 shrink-0 text-xs text-muted-foreground">
+                        {t(FX_CONFIG[fx].b!.key)}
+                      </span>
+                      <Slider
+                        value={fxB}
+                        min={FX_CONFIG[fx].b!.min}
+                        max={FX_CONFIG[fx].b!.max}
+                        step={FX_CONFIG[fx].b!.step}
+                        onChange={setFxB}
+                      />
+                      <span className="w-8 text-xs tabular-nums text-muted-foreground">
+                        {fxB}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-[11px] text-muted-foreground">
+                    {t(`imglab.fxHint_${fx}`)}
                   </p>
                 </>
               )}

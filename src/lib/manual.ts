@@ -58,6 +58,7 @@ const EN: Omit<ManualContent, "generatedNote"> = {
         "Target #927073 (a muted rose-grey): with the default palette the app suggests ~5 parts Titanium White, 2 parts Cadmium Red Light, 1 part Ultramarine, a touch of Yellow Ochre — match 99%. Mix the parts with a consistent scoop (a knife-tip per part).",
       tips: [
         "A recipe almost never collapses to a single tube: real colors are mixes. If it does, your target essentially IS that pigment.",
+        "Must-use tubes: when you already know your base (“this skin starts from Pale Rose Blush greyed with Raw Umber”), pin those tubes above the recipe and the mix is built around them — in any engine.",
         "Mixing engines: Classic (default), Spectral (experimental, full-spectrum) and 2-const (uses opacity). Stay on Classic unless you're curious.",
         "Max colors, Value-first and Golden ratio are optional constraints under the recipe — the shown score always reflects what's displayed.",
       ],
@@ -144,10 +145,16 @@ const EN: Omit<ManualContent, "generatedNote"> = {
     {
       title: "IMG Lab — prepare images",
       intro:
-        "A dedicated image workshop: exposure/contrast/saturation/temperature adjustments (live), a Stencil mode that turns a photo into clean line art for tracing (with detail and line-weight controls), and optional AI enhancement — local super-resolution models or a cloud model with your own API key.",
+        "A dedicated image workshop: exposure/contrast/saturation/temperature adjustments (live), an Oil painting filter that simplifies the photo into flat paint-like daubs with crisp edges (Classic, or the GPU Anisotropic mode where strokes follow the forms), a pack of extra filters (watercolor smoothing, Lab value posterize, XDoG ink lines, CLAHE exposure recovery, lighting flattening, impasto relief), a Stencil mode for clean traceable line art, and optional AI enhancement. Everything but the AI is local and deterministic.",
+      steps: [
+        "Adjust first (contrast feeds the filters).",
+        "Turn on Oil painting for the “already painted” reference look; add Impasto relief on top for paint thickness.",
+        "Or pick one of the extra filters: CLAHE / lighting flattening fix a bad exposure; posterize gives value bands; XDoG or Stencil give line art.",
+        "Download as PNG and use it as reference in Extract, Scene or Compare.",
+      ],
       tips: [
+        "Oil + Stencil = line art of the SIMPLIFIED shapes — great for transferring a drawing.",
         "AI enhancement can shift colors — sample from the original when accuracy matters.",
-        "Stencil runs locally (edge detection, no AI) and downloads as PNG.",
       ],
     },
     {
@@ -239,6 +246,7 @@ const ES: Omit<ManualContent, "generatedNote"> = {
         "Objetivo #927073 (un rosa grisáceo apagado): con la paleta por defecto la app sugiere ~5 partes de Blanco Titanio, 2 de Rojo Cadmio Claro, 1 de Ultramar y un toque de Ocre Amarillo — match 99%. Medí las partes con una medida constante (una punta de espátula por parte).",
       tips: [
         "Una receta casi nunca colapsa a un solo tubo: los colores reales son mezclas. Si pasa, tu objetivo prácticamente ES ese pigmento.",
+        "Tubos obligatorios: cuando ya conocés tu base (“esta piel arranca de Pale Rose Blush agrisada con Raw Umber”), fijá esos tubos arriba de la receta y la mezcla se construye alrededor de ellos — en cualquier motor.",
         "Motores de mezcla: Classic (por defecto), Spectral (experimental, espectro completo) y 2-const (usa la opacidad). Quedate en Classic salvo curiosidad.",
         "Máx. colores, Priorizar valor y Proporción áurea son restricciones opcionales bajo la receta — el puntaje mostrado siempre refleja lo que se muestra.",
       ],
@@ -325,10 +333,16 @@ const ES: Omit<ManualContent, "generatedNote"> = {
     {
       title: "IMG Lab — preparar imágenes",
       intro:
-        "Un taller de imagen dedicado: ajustes de exposición/contraste/saturación/temperatura (en vivo), un modo Stencil que convierte una foto en dibujo de líneas limpio para calcar (con controles de detalle y grosor de trazo), y mejora con IA opcional — modelos locales de superresolución o un modelo en la nube con tu propia API key.",
+        "Un taller de imagen dedicado: ajustes de exposición/contraste/saturación/temperatura (en vivo), un filtro de Pintura al óleo que simplifica la foto en manchas planas como de pintura con bordes nítidos (Clásico, o el modo Anisotrópico en GPU donde las pinceladas siguen las formas), un pack de filtros extra (suavizado acuarela, posterizado de valores Lab, líneas a tinta XDoG, recuperación de exposición CLAHE, emparejado de iluminación, relieve impasto), un modo Stencil para línea limpia calcable, y mejora con IA opcional. Todo salvo la IA es local y determinista.",
+      steps: [
+        "Ajustá primero (el contraste alimenta a los filtros).",
+        "Activá Pintura al óleo para la referencia con look “ya pintado”; sumale Relieve impasto encima para el grosor de la pasta.",
+        "O elegí uno de los filtros extra: CLAHE / emparejar iluminación arreglan una mala exposición; posterizar da bandas de valor; XDoG o Stencil dan línea.",
+        "Descargá como PNG y usalo de referencia en Extraer, Escena o Comparar.",
+      ],
       tips: [
+        "Óleo + Stencil = línea de las formas YA simplificadas — buenísimo para transferir un dibujo.",
         "La mejora con IA puede correr los colores — muestreá del original cuando importe la exactitud.",
-        "El Stencil corre localmente (detección de bordes, sin IA) y se descarga como PNG.",
       ],
     },
     {

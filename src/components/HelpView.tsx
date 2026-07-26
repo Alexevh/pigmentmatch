@@ -44,6 +44,19 @@ const HELP: Record<"en" | "es", HelpContent> = {
     releaseTitle: "Release notes",
     releases: [
       {
+        version: "1.3.1",
+        date: "2026",
+        changes: [
+          "Must-use tubes: pin the tubes you KNOW you'll build the mix from (e.g. a skin from Pale Rose Blush + Raw Umber) and the recipe is forced to keep them at a meaningful share — works in all three engines, shown as removable pills on the recipe card.",
+          "IMG Lab got painterly: an Oil painting filter (Kuwahara — flat paint-like daubs, crisp edges) with a GPU Anisotropic mode where strokes follow the forms, plus six more local filters: watercolor smoothing, Lab value posterize, XDoG ink lines, CLAHE exposure recovery, lighting flattening, and impasto relief.",
+          "This user manual: downloadable as an elegant PDF from this page, generated in your language with illustrations drawn from the real mixing engine.",
+          "Coach quantities in the unit you think in: a unit-free parts ratio (default), ml, grams or drops.",
+          "Color string: shadows now darken with an in-family dark tube (an earth for skin — never 55% black), with a “Darken with” picker; recipes no longer collapse to 100% of a single tube unless the color essentially IS that tube; “less saturated” variations keep the value (Lab chroma, not HSL).",
+          "Calibration chart: re-reading skips exact duplicates and asks keep-or-replace on conflicts; adding many observations at once no longer loses all but the last; the corner-aligner photo shows again.",
+          "Mobile: the app no longer pans sideways (the camera dialog stayed off-view); the target color persists and rides the cloud sync (pick on PC, shoot on the phone); browser auto-translation is disabled — the app ships its own EN/ES.",
+        ],
+      },
+      {
         version: "1.3.0",
         date: "2026",
         changes: [
@@ -232,6 +245,19 @@ const HELP: Record<"en" | "es", HelpContent> = {
     ],
     releaseTitle: "Notas de versión",
     releases: [
+      {
+        version: "1.3.1",
+        date: "2026",
+        changes: [
+          "Tubos obligatorios: fijá los tubos que SABÉS que van a ser la base (p. ej. una piel desde Pale Rose Blush + Raw Umber) y la receta queda obligada a mantenerlos en proporción significativa — funciona en los tres motores, con pills removibles en la tarjeta de receta.",
+          "IMG Lab se puso pictórico: filtro de Pintura al óleo (Kuwahara — manchas planas como de pintura, bordes nítidos) con modo Anisotrópico en GPU donde las pinceladas siguen las formas, más seis filtros locales: suavizado acuarela, posterizado de valores Lab, líneas a tinta XDoG, recuperación de exposición CLAHE, emparejado de iluminación y relieve impasto.",
+          "Este manual de usuario: descargable como PDF elegante desde esta página, generado en tu idioma con ilustraciones dibujadas desde el motor de mezcla real.",
+          "Cantidades del Coach en la unidad en que pensás: proporción en partes sin unidad (por defecto), ml, gramos o gotas.",
+          "Escala de valor: las sombras ahora oscurecen con un tubo oscuro de la misma familia (una tierra para la piel — nunca 55% de negro), con selector “Oscurecer con”; las recetas ya no colapsan al 100% de un solo tubo salvo que el color prácticamente SEA ese tubo; “menos saturado” conserva el valor (croma Lab, no HSL).",
+          "Carta de calibración: re-leerla omite duplicados exactos y pregunta conservar-o-reemplazar en conflictos; agregar muchas observaciones de una ya no pierde todas menos la última; la foto del alineador de esquinas se ve de nuevo.",
+          "Móvil: la app ya no se desliza de costado (el diálogo de cámara quedaba fuera de vista); el color objetivo persiste y viaja por el sync (elegís en la PC, fotografiás en el teléfono); la traducción automática del navegador queda desactivada — la app trae su propio ES/EN.",
+        ],
+      },
       {
         version: "1.3.0",
         date: "2026",

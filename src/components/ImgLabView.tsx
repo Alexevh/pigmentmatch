@@ -48,6 +48,7 @@ import {
   Cloud,
   PenTool,
   Brush,
+  Loader2,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 import {
@@ -99,6 +100,9 @@ export function ImgLabView() {
   const [fx, setFx] = useState<FxKind>("none");
   const [fxA, setFxA] = useState(0);
   const [fxB, setFxB] = useState(0);
+  // Heavy filters (the iterated bilateral) don't recompute on every slider
+  // tick: changes are debounced and a spinner confirms work is in flight.
+  const [fxBusy, setFxBusy] = useState(false);
 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -188,11 +192,27 @@ export function ImgLabView() {
     ctx.putImageData(result, 0, 0);
   }, [adjust, oil, oilRadius, oilMode, fx, fxA, fxB, stencil, stencilDetail, stencilWeight]);
 
+  const heavyFx = fx === "bilateral";
   useEffect(() => {
     if (!hasImage) return;
-    const id = requestAnimationFrame(redraw);
-    return () => cancelAnimationFrame(id);
-  }, [redraw, hasImage]);
+    if (!heavyFx) {
+      setFxBusy(false); // don't leave a stale spinner when leaving the heavy fx
+      const id = requestAnimationFrame(redraw);
+      return () => cancelAnimationFrame(id);
+    }
+    // Heavy path: debounce slider spam, and double-rAF so the spinner PAINTS
+    // before the synchronous filter blocks the main thread.
+    setFxBusy(true);
+    const t = setTimeout(() => {
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          redraw();
+          setFxBusy(false);
+        })
+      );
+    }, 250);
+    return () => clearTimeout(t);
+  }, [redraw, hasImage, heavyFx]);
 
   const runEnhance = async () => {
     const img = imgRef.current;
@@ -528,19 +548,20 @@ export function ImgLabView() {
               <p className="text-xs text-muted-foreground">
                 {t("imglab.fxDesc")}
               </p>
-              <select
-                value={fx}
-                onChange={(e) => {
-                  const next = e.target.value as FxKind;
-                  setFx(next);
-                  if (next !== "none") {
-                    const cfg = FX_CONFIG[next];
-                    setFxA(cfg.a.def);
-                    setFxB(cfg.b?.def ?? 0);
-                  }
-                }}
-                className="h-9 rounded-md border border-input bg-background px-2 text-sm"
-              >
+              <div className="flex items-center gap-2">
+                <select
+                  value={fx}
+                  onChange={(e) => {
+                    const next = e.target.value as FxKind;
+                    setFx(next);
+                    if (next !== "none") {
+                      const cfg = FX_CONFIG[next];
+                      setFxA(cfg.a.def);
+                      setFxB(cfg.b?.def ?? 0);
+                    }
+                  }}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                >
                 <option value="none">{t("imglab.fxNone")}</option>
                 <option value="bilateral">{t("imglab.fxBilateral")}</option>
                 <option value="posterize">{t("imglab.fxPosterize")}</option>
@@ -548,7 +569,14 @@ export function ImgLabView() {
                 <option value="clahe">{t("imglab.fxClahe")}</option>
                 <option value="flatten">{t("imglab.fxFlatten")}</option>
                 <option value="impasto">{t("imglab.fxImpasto")}</option>
-              </select>
+                </select>
+                {fxBusy && (
+                  <span className="flex items-center gap-1.5 text-xs text-accent">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    {t("imglab.fxApplying")}
+                  </span>
+                )}
+              </div>
               {fx !== "none" && (
                 <>
                   <div className="flex items-center gap-3 pt-1">

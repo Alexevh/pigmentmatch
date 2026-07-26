@@ -215,6 +215,7 @@ const en: Dict = {
     fxTitle: "More filters",
     fxDesc:
       "Classic corrective and artistic filters — all local, no AI. One at a time; corrections apply before the oil filter, the impasto relief on top of it.",
+    fxApplying: "Applying…",
     fxNone: "None",
     fxBilateral: "Watercolor smooth (bilateral)",
     fxPosterize: "Posterize values (Lab)",
@@ -1147,6 +1148,7 @@ const es: Dict = {
     fxTitle: "Más filtros",
     fxDesc:
       "Filtros clásicos correctivos y artísticos — todos locales, sin IA. De a uno; las correcciones se aplican antes del filtro de óleo, el relieve impasto encima de él.",
+    fxApplying: "Aplicando…",
     fxNone: "Ninguno",
     fxBilateral: "Suavizado acuarela (bilateral)",
     fxPosterize: "Posterizar valores (Lab)",
